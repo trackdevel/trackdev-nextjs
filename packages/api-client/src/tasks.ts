@@ -1,0 +1,160 @@
+// ============================================
+// Tasks API
+// ============================================
+
+import type {
+  Comment,
+  CommentCreateRequest,
+  IdObject,
+  PullRequestChange,
+  Task,
+  TaskCreateRequest,
+  TaskDetail,
+  TaskLog,
+  TaskUpdateRequest,
+} from "@trackdev/types";
+import { api } from "./client";
+
+export interface TasksResponse {
+  tasks: Task[];
+}
+
+export interface PagedTasksResponse {
+  tasks: Task[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
+
+export interface TasksFilterParams {
+  type?: string;
+  status?: string;
+  assigneeId?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface StatusListResponse {
+  statuses: Record<string, string>;
+}
+
+export interface TaskTypesResponse {
+  types: Record<string, string>;
+}
+
+export interface CommentsResponse {
+  comments: Comment[];
+  taskId: number;
+}
+
+export interface TaskHistoryResponse {
+  history: TaskLog[];
+  entityId: number;
+}
+
+export interface PrHistoryResponse {
+  history: PullRequestChange[];
+  entityId: number;
+}
+
+export const tasksApi = {
+  /**
+   * Get all tasks (Admin only)
+   */
+  getAll: () => api.get<TasksResponse>("/tasks"),
+
+  /**
+   * Get available task statuses
+   */
+  getStatuses: () => api.get<StatusListResponse>("/tasks/status"),
+
+  /**
+   * Get user story statuses
+   */
+  getUsStatuses: () => api.get<StatusListResponse>("/tasks/usstatus"),
+
+  /**
+   * Get task statuses (subtasks)
+   */
+  getTaskStatuses: () => api.get<StatusListResponse>("/tasks/taskstatus"),
+
+  /**
+   * Get task types
+   */
+  getTypes: () => api.get<TaskTypesResponse>("/tasks/types"),
+
+  /**
+   * Get task by ID (returns task detail with project and points review)
+   */
+  getById: (id: number) => api.get<TaskDetail>(`/tasks/${id}`),
+
+  /**
+   * Create a subtask under a user story
+   */
+  createSubtask: (parentId: number, data: TaskCreateRequest) =>
+    api.post<IdObject>(`/tasks/${parentId}/subtasks`, data),
+
+  /**
+   * Update a task
+   */
+  update: (id: number, data: TaskUpdateRequest) =>
+    api.patch<Task>(`/tasks/${id}`, data),
+
+  /**
+   * Delete a task
+   */
+  delete: (id: number) => api.delete<void>(`/tasks/${id}`),
+
+  /**
+   * Get comments for a task
+   */
+  getComments: (taskId: number) =>
+    api.get<CommentsResponse>(`/tasks/${taskId}/comments`),
+
+  /**
+   * Add a comment to a task
+   */
+  addComment: (taskId: number, data: CommentCreateRequest) =>
+    api.post<Comment>(`/tasks/${taskId}/comments`, data),
+
+  /**
+   * Get task history/logs
+   */
+  getHistory: (taskId: number) =>
+    api.get<TaskLog[]>(`/tasks/${taskId}/history`),
+
+  /**
+   * Get pull request change history for a task
+   */
+  getPrHistory: (taskId: number) =>
+    api.get<PrHistoryResponse>(`/tasks/${taskId}/pr-history`),
+
+  /**
+   * Get the 5 most recent tasks for the current user
+   */
+  getRecent: () => api.get<TasksResponse>("/tasks/recent"),
+
+  /**
+   * Get paginated tasks for the current user with optional filters
+   */
+  getMy: (page = 0, size = 10, filters?: TasksFilterParams) => {
+    const params = new URLSearchParams();
+    params.set("page", page.toString());
+    params.set("size", size.toString());
+
+    if (filters?.type) {
+      params.set("type", filters.type);
+    }
+    if (filters?.status) {
+      params.set("status", filters.status);
+    }
+    if (filters?.assigneeId) {
+      params.set("assigneeId", filters.assigneeId);
+    }
+    if (filters?.sortOrder) {
+      params.set("sortOrder", filters.sortOrder);
+    }
+
+    return api.get<PagedTasksResponse>(`/tasks/my?${params.toString()}`);
+  },
+};

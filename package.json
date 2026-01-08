@@ -1,0 +1,45 @@
+{
+  "name": "trackdev-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TrackDev Full-Stack Monorepo - React Native, Next.js, Shared API Client",
+  "scripts": {
+    "dev:web": "pnpm --filter @trackdev/web dev",
+    "dev:mobile": "pnpm --filter @trackdev/mobile start",
+    "build:web": "pnpm --filter @trackdev/web build",
+    "build:packages": "pnpm --filter @trackdev/types build && pnpm --filter @trackdev/ui build && pnpm --filter @trackdev/api-client build",
+    "build:all": "pnpm build:packages && pnpm build:web",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean",
+    "prepare": "pnpm build:packages"
+  },
+  "keywords": [
+    "trackdev",
+    "monorepo",
+    "react-native",
+    "nextjs",
+    "expo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "overrides": {
+      "@trackdev/web>@types/react": "^19.0.0",
+      "@trackdev/web>@types/react-dom": "^19.0.0",
+      "@trackdev/api-client>@types/react": "^19.0.0"
+    },
+    "neverBuiltDependencies": [],
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react": "*",
+        "@types/react": "*"
+      }
+    }
+  }
+}
