@@ -42,7 +42,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await usersApi.register({ username, email, password });
+      await usersApi.register({ username, email, password, userType: "STUDENT" });
       setSuccess(true);
       setTimeout(() => {
         router.push("/login");
