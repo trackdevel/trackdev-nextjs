@@ -16,6 +16,7 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  userType: RoleName;
 }
 
 export interface PasswordChangeRequest {
@@ -40,5 +41,5 @@ export interface AuthCheckResponse {
   authenticated: boolean;
 }
 
-// Import User type for LoginResponse
-import { User } from './user';
+// Import User and RoleName types for LoginResponse and RegisterRequest
+import { RoleName, User } from "./user";

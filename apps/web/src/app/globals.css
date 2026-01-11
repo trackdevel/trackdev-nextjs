@@ -2,38 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   TrackDev Global Styles
+   Forces light mode only with consistent colors
+   ============================================ */
+
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 250, 250, 250;
-  --background-end-rgb: 255, 255, 255;
+  /* Force light color scheme */
+  color-scheme: light;
+  
+  /* Base colors */
+  --foreground: #111827;
+  --background: #ffffff;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 10, 10, 10;
-    --background-end-rgb: 10, 10, 10;
-  }
+/* Remove dark mode media query - force light mode only */
+html {
+  color-scheme: light;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--foreground);
+  background-color: var(--background);
   min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* ============================================
+   Base Layer - Default element styles
+   ============================================ */
 @layer base {
+  /* Default border color */
   * {
     @apply border-gray-200;
   }
+  
+  /* Ensure all text is visible by default */
+  html {
+    @apply text-gray-900;
+  }
+  
+  /* Form elements - always readable */
+  input, select, textarea {
+    color: #111827;
+    background-color: #ffffff;
+    color-scheme: light;
+  }
+  
+  input::placeholder, textarea::placeholder {
+    color: #9ca3af;
+  }
+  
+  /* Labels always visible */
+  label {
+    color: #111827;
+  }
+  
+  /* Select options */
+  option {
+    color: #111827;
+    background-color: #ffffff;
+  }
 }
 
+/* ============================================
+   Component Layer - Reusable UI components
+   ============================================ */
 @layer components {
+  /* Buttons */
   .btn {
     @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
@@ -50,32 +89,80 @@ body {
     @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-500;
   }
 
+  .btn-destructive {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600;
+  }
+
+  /* Form Inputs - guaranteed visible */
   .input {
-    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
-    color-scheme: light;
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
+    color: #111827;
+    font-family: inherit;
   }
 
+  .input::placeholder {
+    color: #9ca3af;
+  }
+
+  /* Select dropdowns - guaranteed visible */
   .select {
-    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 font-sans shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer;
-    color-scheme: light;
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer;
+    color: #111827;
+    font-family: inherit;
   }
 
-  /* Ensure form elements always have proper colors regardless of dark mode */
-  input, select, textarea {
-    color: #111827 !important; /* text-gray-900 */
-    background-color: #ffffff !important;
-    color-scheme: light;
-  }
-
-  input::placeholder {
-    color: #9ca3af !important; /* text-gray-400 */
-  }
-
+  /* Labels - guaranteed visible */
   .label {
-    @apply block text-sm font-medium text-gray-700;
+    @apply block text-sm font-medium mb-1;
+    color: #374151;
   }
 
+  /* Textarea */
+  .textarea {
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none;
+    color: #111827;
+    font-family: inherit;
+  }
+
+  /* Cards */
   .card {
     @apply rounded-lg border border-gray-200 bg-white shadow-sm;
   }
+
+  /* Form group helper */
+  .form-group {
+    @apply space-y-1;
+  }
+
+  .form-group label {
+    @apply block text-sm font-medium;
+    color: #374151;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm;
+    color: #111827;
+    font-family: inherit;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    @apply border-primary-500 outline-none ring-1 ring-primary-500;
+  }
+
+  /* Hint text below form fields */
+  .form-hint {
+    @apply text-xs mt-1;
+    color: #6b7280;
+  }
+
+  /* Error text */
+  .form-error {
+    @apply text-xs mt-1;
+    color: #dc2626;
+  }
 }
+

@@ -4,8 +4,10 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
+    "deleting": "Eliminando...",
     "edit": "Editar",
     "create": "Crear",
+    "creating": "Creando...",
     "search": "Buscar",
     "filter": "Filtrar",
     "sortBy": "Ordenar por",
@@ -23,7 +25,8 @@
     "info": "Información",
     "by": "por",
     "showing": "Mostrando",
-    "of": "de"
+    "of": "de",
+    "actions": "Acciones"
   },
   "auth": {
     "login": "Iniciar sesión",
@@ -345,6 +348,29 @@
     "confirmNewPassword": "Confirmar Nueva Contraseña",
     "updatePassword": "Actualizar Contraseña",
     "saveChanges": "Guardar Cambios"
+  },
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Gestionar usuarios de la plataforma y sus permisos",
+    "createUser": "Crear Usuario",
+    "username": "Nombre de Usuario",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "userType": "Tipo de usuario",
+    "roles": "Roles",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "searchPlaceholder": "Buscar usuarios por nombre o correo...",
+    "noUsers": "No se encontraron usuarios",
+    "noUsersDescription": "Comienza creando tu primer usuario",
+    "accessDenied": "Acceso Denegado",
+    "adminOnly": "Solo los administradores pueden acceder a esta página",
+    "passwordHint": "La contraseña debe tener al menos 8 caracteres",
+    "deleteUser": "Eliminar Usuario",
+    "deleteUserTitle": "Eliminar Usuario",
+    "deleteUserConfirmation": "¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer. El usuario solo puede eliminarse si no tiene dependencias (asignaturas propias, tareas, cursos, etc.).",
+    "cannotDeleteSelf": "No puedes eliminar tu propia cuenta"
   },
   "languages": {
     "en": "Inglés",

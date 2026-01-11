@@ -3,6 +3,17 @@
 import { BackButton } from "@/components/BackButton";
 import { RecentTasksCard } from "@/components/tasks";
 import {
+  CardSection,
+  FormError,
+  FormField,
+  ItemCard,
+  MemberItem,
+  Modal,
+  StatCard,
+  StatusBadge,
+  getSprintStatusVariant,
+} from "@/components/ui";
+import {
   githubReposApi,
   projectsApi,
   useAuth,
@@ -28,7 +39,6 @@ import {
   Plus,
   Trash2,
   Users,
-  X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -241,81 +251,43 @@ export default function ProjectDetailPage() {
 
       {/* Stats Grid */}
       <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-              <Users className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t("teamMembers")}
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {project.members?.length || 0}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t("tasksCompleted")}
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {completedTasks} / {totalTasks}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-              <Calendar className="h-6 w-6 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {tSprints("title")}
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {sprints?.length || 0}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
-              <BarChart3 className="h-6 w-6 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t("qualification")}
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {project.qualification ?? "-"}
-              </p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          icon={Users}
+          label={t("teamMembers")}
+          value={project.members?.length || 0}
+          iconBgColor="bg-blue-100"
+          iconColor="text-blue-600"
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label={t("tasksCompleted")}
+          value={`${completedTasks} / ${totalTasks}`}
+          iconBgColor="bg-green-100"
+          iconColor="text-green-600"
+        />
+        <StatCard
+          icon={Calendar}
+          label={tSprints("title")}
+          value={sprints?.length || 0}
+          iconBgColor="bg-purple-100"
+          iconColor="text-purple-600"
+        />
+        <StatCard
+          icon={BarChart3}
+          label={t("qualification")}
+          value={project.qualification ?? "-"}
+          iconBgColor="bg-orange-100"
+          iconColor="text-orange-600"
+        />
       </div>
 
       {/* GitHub Integration Section */}
       <div className="mb-8">
-        <div className="card">
-          <div className="flex items-center justify-between border-b px-6 py-4">
-            <div className="flex items-center gap-2">
-              <Github className="h-5 w-5 text-gray-700" />
-              <h2 className="font-semibold text-gray-900">
-                {t("githubRepos")} ({githubRepos.length})
-              </h2>
-            </div>
+        <CardSection
+          title={t("githubRepos")}
+          icon={Github}
+          count={githubRepos.length}
+          action={
             <button
               onClick={() => setShowAddRepoModal(true)}
               className="btn-primary flex items-center gap-1 text-sm"
@@ -323,33 +295,25 @@ export default function ProjectDetailPage() {
               <Plus className="h-4 w-4" />
               {t("addRepository")}
             </button>
-          </div>
-          {githubRepos.length > 0 ? (
-            <ul className="divide-y">
-              {githubRepos.map((repo: GitHubRepoSummary) => (
-                <li
-                  key={repo.id}
-                  className="flex items-center justify-between px-6 py-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-                      <Github className="h-5 w-5 text-gray-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{repo.name}</p>
-                      <p className="text-sm text-gray-500">{repo.fullName}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        repo.webhookActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {repo.webhookActive ? t("webhookActive") : t("noWebhook")}
-                    </span>
+          }
+          isEmpty={githubRepos.length === 0}
+          emptyMessage={`${t("noGithubRepos")}. ${t("addRepoToEnable")}`}
+        >
+          <ul className="divide-y">
+            {githubRepos.map((repo: GitHubRepoSummary) => (
+              <ItemCard
+                key={repo.id}
+                icon={Github}
+                title={repo.name}
+                subtitle={repo.fullName}
+                rightContent={
+                  <>
+                    <StatusBadge
+                      label={
+                        repo.webhookActive ? t("webhookActive") : t("noWebhook")
+                      }
+                      variant={repo.webhookActive ? "success" : "neutral"}
+                    />
                     <button
                       onClick={() => handleDeleteRepo(repo.id)}
                       className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
@@ -357,27 +321,21 @@ export default function ProjectDetailPage() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="px-6 py-8 text-center text-gray-500">
-              <Github className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-2">{t("noGithubRepos")}</p>
-              <p className="text-sm">{t("addRepoToEnable")}</p>
-            </div>
-          )}
-        </div>
+                  </>
+                }
+              />
+            ))}
+          </ul>
+        </CardSection>
       </div>
 
       {/* Main Content Grid */}
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Team Members */}
-        <div className="card lg:col-span-1">
-          <div className="flex items-center justify-between border-b px-6 py-4">
-            <h2 className="font-semibold text-gray-900">{t("teamMembers")}</h2>
-            {canEditMembers && (
+        <CardSection
+          title={t("teamMembers")}
+          action={
+            canEditMembers && (
               <button
                 onClick={() => setShowManageMembersModal(true)}
                 className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
@@ -385,109 +343,83 @@ export default function ProjectDetailPage() {
               >
                 <Edit2 className="h-4 w-4" />
               </button>
-            )}
-          </div>
-          {project.members && project.members.length > 0 ? (
-            <ul className="divide-y">
-              {project.members.map((member) => (
-                <li
-                  key={member.id}
-                  className="flex items-center gap-3 px-6 py-3"
-                >
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium text-white"
-                    style={{ backgroundColor: member.color || "#3b82f6" }}
-                  >
-                    {member.capitalLetters ||
-                      member.username?.slice(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {member.username}
-                    </p>
-                    <p className="text-sm text-gray-500">{member.email}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="px-6 py-8 text-center text-gray-500">
-              {t("noTeamMembers")}
-            </div>
-          )}
-        </div>
+            )
+          }
+          isEmpty={!project.members || project.members.length === 0}
+          emptyMessage={t("noTeamMembers")}
+          className="lg:col-span-1"
+        >
+          <ul className="divide-y">
+            {project.members?.map((member) => (
+              <MemberItem
+                key={member.id}
+                username={member.username}
+                email={member.email}
+                capitalLetters={member.capitalLetters}
+                color={member.color}
+              />
+            ))}
+          </ul>
+        </CardSection>
 
         {/* Sprints */}
-        <div className="card lg:col-span-2">
-          <div className="border-b px-6 py-4">
-            <h2 className="font-semibold text-gray-900">{tSprints("title")}</h2>
-          </div>
-          {sprints && sprints.length > 0 ? (
-            <ul className="divide-y">
-              {sprints.map((sprint) => (
-                <li key={sprint.id}>
-                  <Link
-                    href={`/dashboard/sprints/${sprint.id}`}
-                    className="block px-6 py-4 transition-colors hover:bg-gray-50"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                            sprint.status === "ACTIVE"
-                              ? "bg-green-100"
-                              : sprint.status === "CLOSED"
-                              ? "bg-gray-100"
-                              : "bg-yellow-100"
-                          }`}
-                        >
-                          <Calendar
-                            className={`h-5 w-5 ${
-                              sprint.status === "ACTIVE"
-                                ? "text-green-600"
-                                : sprint.status === "CLOSED"
-                                ? "text-gray-600"
-                                : "text-yellow-600"
-                            }`}
-                          />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {sprint.label}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {sprint.startDate && sprint.endDate
-                              ? `${new Date(
-                                  sprint.startDate
-                                ).toLocaleDateString()} - ${new Date(
-                                  sprint.endDate
-                                ).toLocaleDateString()}`
-                              : t("noDatesSet")}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          sprint.status === "ACTIVE"
-                            ? "bg-green-100 text-green-700"
-                            : sprint.status === "CLOSED"
-                            ? "bg-gray-100 text-gray-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {sprint.status}
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="px-6 py-8 text-center text-gray-500">
-              {t("noSprintsCreated")}
-            </div>
-          )}
-        </div>
+        <CardSection
+          title={tSprints("title")}
+          isEmpty={!sprints || sprints.length === 0}
+          emptyMessage={t("noSprintsCreated")}
+          className="lg:col-span-2"
+        >
+          <ul className="divide-y">
+            {sprints?.map((sprint) => (
+              <li key={sprint.id}>
+                <Link
+                  href={`/dashboard/sprints/${sprint.id}`}
+                  className="block transition-colors hover:bg-gray-50"
+                >
+                  <ItemCard
+                    icon={Calendar}
+                    iconBgColor={
+                      sprint.status === "ACTIVE"
+                        ? "bg-green-100"
+                        : sprint.status === "CLOSED"
+                        ? "bg-gray-100"
+                        : "bg-yellow-100"
+                    }
+                    iconColor={
+                      sprint.status === "ACTIVE"
+                        ? "text-green-600"
+                        : sprint.status === "CLOSED"
+                        ? "text-gray-600"
+                        : "text-yellow-600"
+                    }
+                    title={sprint.label}
+                    subtitle={
+                      sprint.startDate && sprint.endDate
+                        ? `${new Date(
+                            sprint.startDate
+                          ).toLocaleDateString()} - ${new Date(
+                            sprint.endDate
+                          ).toLocaleDateString()}`
+                        : t("noDatesSet")
+                    }
+                    rightContent={
+                      <StatusBadge
+                        label={sprint.status}
+                        variant={getSprintStatusVariant(
+                          sprint.status as
+                            | "ACTIVE"
+                            | "CLOSED"
+                            | "FUTURE"
+                            | "CREATED"
+                        )}
+                      />
+                    }
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </CardSection>
       </div>
 
       {/* Tasks Section */}
@@ -503,142 +435,108 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Add Repository Modal */}
-      {showAddRepoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t("addGithubRepository")}
-              </h3>
+      <Modal
+        isOpen={showAddRepoModal}
+        onClose={() => {
+          setShowAddRepoModal(false);
+          setFormError(null);
+        }}
+        title={t("addGithubRepository")}
+      >
+        <form onSubmit={handleAddRepo} className="space-y-4">
+          <FormError message={formError} />
+
+          <FormField label={t("displayName")} htmlFor="repoName">
+            <input
+              type="text"
+              id="repoName"
+              value={repoForm.name}
+              onChange={(e) =>
+                setRepoForm({ ...repoForm, name: e.target.value })
+              }
+              className="input"
+              placeholder="My Repository"
+            />
+          </FormField>
+
+          <FormField
+            label={t("repositoryUrl")}
+            htmlFor="repoUrl"
+            helpText={t("fullUrlToRepo")}
+          >
+            <input
+              type="url"
+              id="repoUrl"
+              value={repoForm.url}
+              onChange={(e) =>
+                setRepoForm({ ...repoForm, url: e.target.value })
+              }
+              className="input"
+              placeholder="https://github.com/owner/repo"
+            />
+          </FormField>
+
+          <FormField
+            label={t("accessToken")}
+            htmlFor="accessToken"
+            helpText={t("accessTokenScopes")}
+          >
+            <div className="relative">
+              <input
+                type={showTokenFor === -1 ? "text" : "password"}
+                id="accessToken"
+                value={repoForm.accessToken}
+                onChange={(e) =>
+                  setRepoForm({ ...repoForm, accessToken: e.target.value })
+                }
+                className="input pr-10"
+                placeholder="ghp_xxxxxxxxxxxx"
+              />
               <button
-                onClick={() => {
-                  setShowAddRepoModal(false);
-                  setFormError(null);
-                }}
-                className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                type="button"
+                onClick={() => setShowTokenFor(showTokenFor === -1 ? null : -1)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600"
               >
-                <X className="h-5 w-5" />
+                {showTokenFor === -1 ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
+          </FormField>
 
-            <form onSubmit={handleAddRepo} className="space-y-4">
-              {formError && (
-                <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {formError}
-                </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddRepoModal(false);
+                setFormError(null);
+              }}
+              className="btn-secondary"
+            >
+              {tCommon("cancel")}
+            </button>
+            <button
+              type="submit"
+              disabled={addRepoMutation.isLoading}
+              className="btn-primary flex items-center gap-2"
+            >
+              {addRepoMutation.isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  {t("adding")}
+                </>
+              ) : (
+                <>
+                  <Github className="h-4 w-4" />
+                  {t("addRepository")}
+                </>
               )}
-
-              <div>
-                <label
-                  htmlFor="repoName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  {t("displayName")}
-                </label>
-                <input
-                  type="text"
-                  id="repoName"
-                  value={repoForm.name}
-                  onChange={(e) =>
-                    setRepoForm({ ...repoForm, name: e.target.value })
-                  }
-                  className="input mt-1"
-                  placeholder="My Repository"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="repoUrl"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  {t("repositoryUrl")}
-                </label>
-                <input
-                  type="url"
-                  id="repoUrl"
-                  value={repoForm.url}
-                  onChange={(e) =>
-                    setRepoForm({ ...repoForm, url: e.target.value })
-                  }
-                  className="input mt-1"
-                  placeholder="https://github.com/owner/repo"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  {t("fullUrlToRepo")}
-                </p>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="accessToken"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  {t("accessToken")}
-                </label>
-                <div className="relative mt-1">
-                  <input
-                    type={showTokenFor === -1 ? "text" : "password"}
-                    id="accessToken"
-                    value={repoForm.accessToken}
-                    onChange={(e) =>
-                      setRepoForm({ ...repoForm, accessToken: e.target.value })
-                    }
-                    className="input pr-10"
-                    placeholder="ghp_xxxxxxxxxxxx"
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowTokenFor(showTokenFor === -1 ? null : -1)
-                    }
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600"
-                  >
-                    {showTokenFor === -1 ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  {t("accessTokenScopes")}
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddRepoModal(false);
-                    setFormError(null);
-                  }}
-                  className="btn-secondary"
-                >
-                  {tCommon("cancel")}
-                </button>
-                <button
-                  type="submit"
-                  disabled={addRepoMutation.isLoading}
-                  className="btn-primary flex items-center gap-2"
-                >
-                  {addRepoMutation.isLoading ? (
-                    <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      {t("adding")}
-                    </>
-                  ) : (
-                    <>
-                      <Github className="h-4 w-4" />
-                      {t("addRepository")}
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+            </button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
 
       {/* Manage Members Modal */}
       {canEditMembers && (

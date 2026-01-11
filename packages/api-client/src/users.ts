@@ -56,4 +56,9 @@ export const usersApi = {
    * Check if current user is admin
    */
   checkAdmin: () => api.get<AdminCheckResponse>("/users/checker/admin"),
+
+  /**
+   * Delete user (Admin only)
+   */
+  delete: (id: string) => api.delete<void>(`/users/${id}`),
 };

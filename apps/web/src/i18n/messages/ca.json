@@ -4,8 +4,10 @@
     "save": "Desar",
     "cancel": "Cancel·lar",
     "delete": "Eliminar",
+    "deleting": "Eliminant...",
     "edit": "Editar",
     "create": "Crear",
+    "creating": "Creant...",
     "search": "Cercar",
     "filter": "Filtrar",
     "sortBy": "Ordenar per",
@@ -23,7 +25,8 @@
     "info": "Informació",
     "by": "per",
     "showing": "Mostrant",
-    "of": "de"
+    "of": "de",
+    "actions": "Accions"
   },
   "auth": {
     "login": "Iniciar sessió",
@@ -345,6 +348,29 @@
     "confirmNewPassword": "Confirmar Nova Contrasenya",
     "updatePassword": "Actualitzar Contrasenya",
     "saveChanges": "Desar Canvis"
+  },
+  "users": {
+    "title": "Usuaris",
+    "subtitle": "Gestionar usuaris de la plataforma i els seus permisos",
+    "createUser": "Crear Usuari",
+    "username": "Nom d'Usuari",
+    "email": "Correu Electrònic",
+    "password": "Contrasenya",
+    "userType": "Tipus d'usuari",
+    "roles": "Rols",
+    "status": "Estat",
+    "active": "Actiu",
+    "inactive": "Inactiu",
+    "searchPlaceholder": "Cercar usuaris per nom o correu...",
+    "noUsers": "No s'han trobat usuaris",
+    "noUsersDescription": "Comença creant el teu primer usuari",
+    "accessDenied": "Accés Denegat",
+    "adminOnly": "Només els administradors poden accedir a aquesta pàgina",
+    "passwordHint": "La contrasenya ha de tenir com a mínim 8 caràcters",
+    "deleteUser": "Eliminar Usuari",
+    "deleteUserTitle": "Eliminar Usuari",
+    "deleteUserConfirmation": "Estàs segur que vols eliminar aquest usuari? Aquesta acció no es pot desfer. L'usuari només es pot eliminar si no té dependències (assignatures pròpies, tasques, cursos, etc.).",
+    "cannotDeleteSelf": "No pots eliminar el teu propi compte"
   },
   "languages": {
     "en": "Anglès",
