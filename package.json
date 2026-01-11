@@ -30,9 +30,8 @@
   "packageManager": "pnpm@9.15.0",
   "pnpm": {
     "overrides": {
-      "@trackdev/web>@types/react": "^19.0.0",
-      "@trackdev/web>@types/react-dom": "^19.0.0",
-      "@trackdev/api-client>@types/react": "^19.0.0"
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0"
     },
     "neverBuiltDependencies": [],
     "peerDependencyRules": {
