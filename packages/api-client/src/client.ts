@@ -14,10 +14,7 @@ export interface ApiClientConfig {
 }
 
 let config: ApiClientConfig = {
-  baseUrl:
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.EXPO_PUBLIC_API_URL ||
-    "http://localhost:8080",
+  baseUrl: "http://localhost:8080",
 };
 
 export function configureApiClient(newConfig: Partial<ApiClientConfig>) {
