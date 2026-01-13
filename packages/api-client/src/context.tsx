@@ -70,11 +70,7 @@ export function AuthProvider({
   // Configure API client once on mount (baseUrl changes are rare)
   useEffect(() => {
     configureApiClient({
-      baseUrl:
-        baseUrl ||
-        process.env.NEXT_PUBLIC_API_URL ||
-        process.env.EXPO_PUBLIC_API_URL ||
-        "http://localhost:8080",
+      baseUrl: baseUrl || "http://localhost:8080",
       apiPrefix: "/api",
       getToken: () => tokenRef.current,
       setToken: async (newToken: string) => {
