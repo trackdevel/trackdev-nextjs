@@ -75,6 +75,7 @@ export function AuthProvider({
         process.env.NEXT_PUBLIC_API_URL ||
         process.env.EXPO_PUBLIC_API_URL ||
         "http://localhost:8080",
+      apiPrefix: "/api",
       getToken: () => tokenRef.current,
       setToken: async (newToken: string) => {
         // Update state with refreshed token (sliding session)

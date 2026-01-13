@@ -6,6 +6,7 @@ import type { ApiError } from "@trackdev/types";
 
 export interface ApiClientConfig {
   baseUrl: string;
+  apiPrefix?: string;
   getToken?: () => string | null | Promise<string | null>;
   setToken?: (token: string) => void | Promise<void>;
   onUnauthorized?: () => void;
@@ -165,7 +166,8 @@ export async function fetchApi<T>(
 
   let response: Response;
   try {
-    response = await fetch(`${config.baseUrl}${endpoint}`, {
+    const prefix = config.apiPrefix || "";
+    response = await fetch(`${config.baseUrl}${prefix}${endpoint}`, {
       ...options,
       headers: {
         "Content-Type": "application/json",
