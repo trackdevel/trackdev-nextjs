@@ -66,7 +66,8 @@
     "sprints": "Sprints",
     "settings": "Configuració",
     "users": "Usuaris",
-    "students": "Estudiants"
+    "students": "Estudiants",
+    "workspaces": "Espais de Treball"
   },
   "dashboard": {
     "title": "Panell",
@@ -188,7 +189,21 @@
     "sprint": "Sprint",
     "parentTask": "Tasca Pare",
     "childTasks": "Tasques Filles",
-    "viewParentStory": "Veure història pare"
+    "viewParentStory": "Veure història pare",
+    "history": "Historial de canvis",
+    "loadingHistory": "Carregant historial...",
+    "errorLoadingHistory": "Error en carregar l'historial",
+    "noHistoryYet": "No hi ha canvis registrats encara",
+    "changedName": "va canviar el nom",
+    "changedDescription": "va actualitzar la descripció",
+    "changedStatus": "va canviar l'estat de {from} a {to}",
+    "changedAssignee": "va canviar l'assignat de {from} a {to}",
+    "changedEstimation": "va canviar l'estimació de {from} a {to} punts",
+    "changedType": "va canviar el tipus de {from} a {to}",
+    "changedReporter": "va canviar el reportador de {from} a {to}",
+    "changedRank": "va canviar el rang",
+    "changedField": "va canviar {field}",
+    "none": "cap"
   },
   "projects": {
     "title": "Projectes",
@@ -285,7 +300,8 @@
     "noCoursesAdminProfessor": "Encara no has creat cap curs.",
     "noCoursesStudent": "Encara no estàs matriculat a cap curs.",
     "createFirstCourse": "Crea El Teu Primer Curs",
-    "course": "Curs"
+    "course": "Curs",
+    "selectCourse": "Selecciona un curs..."
   },
   "subjects": {
     "title": "Assignatures",
@@ -354,9 +370,13 @@
     "subtitle": "Gestionar usuaris de la plataforma i els seus permisos",
     "createUser": "Crear Usuari",
     "username": "Nom d'Usuari",
+    "usernameHint": "Només caràcters alfanumèrics, guions (-), guions baixos (_) i coixinets (#). Sense espais.",
+    "fullName": "Nom Complet",
     "email": "Correu Electrònic",
     "password": "Contrasenya",
     "userType": "Tipus d'usuari",
+    "workspace": "Espai de Treball",
+    "selectWorkspace": "Seleccionar un espai de treball",
     "roles": "Rols",
     "status": "Estat",
     "active": "Actiu",
@@ -370,7 +390,12 @@
     "deleteUser": "Eliminar Usuari",
     "deleteUserTitle": "Eliminar Usuari",
     "deleteUserConfirmation": "Estàs segur que vols eliminar aquest usuari? Aquesta acció no es pot desfer. L'usuari només es pot eliminar si no té dependències (assignatures pròpies, tasques, cursos, etc.).",
-    "cannotDeleteSelf": "No pots eliminar el teu propi compte"
+    "cannotDeleteSelf": "No pots eliminar el teu propi compte",
+    "selectUserTypeToCreate": "Quin tipus d'usuari vols crear?",
+    "adminDescription": "Accés complet a tots els recursos i configuracions",
+    "workspaceAdminDescription": "Gestiona un espai de treball i els seus professors",
+    "changeUserType": "Canviar tipus d'usuari",
+    "creatingRole": "Creant"
   },
   "languages": {
     "en": "Anglès",
@@ -379,6 +404,7 @@
   },
   "userTypes": {
     "admin": "Administrador",
+    "workspaceAdmin": "Administrador d'Espai de Treball",
     "professor": "Professor",
     "student": "Estudiant",
     "user": "Usuari"
@@ -386,5 +412,54 @@
   "emptyStates": {
     "noData": "No hi ha dades disponibles",
     "noDataDescription": "No hi ha dades per mostrar en aquest moment."
+  },
+  "workspaces": {
+    "title": "Espais de Treball",
+    "subtitle": "Gestionar espais de treball i la seva organització",
+    "createWorkspace": "Crear Espai de Treball",
+    "editWorkspace": "Editar Espai de Treball",
+    "deleteWorkspace": "Eliminar Espai de Treball",
+    "deleteWorkspaceTitle": "Eliminar Espai de Treball",
+    "deleteWorkspaceConfirmation": "Estàs segur que vols eliminar l'espai de treball \"{name}\"? Aquesta acció no es pot desfer. L'espai de treball només es pot eliminar si no té usuaris, assignatures o cursos associats.",
+    "name": "Nom",
+    "namePlaceholder": "Introdueix el nom de l'espai de treball",
+    "searchPlaceholder": "Cercar espais de treball per nom...",
+    "noWorkspaces": "No s'han trobat espais de treball",
+    "noWorkspacesDescription": "Comença creant el teu primer espai de treball",
+    "accessDenied": "Accés Denegat",
+    "adminOnly": "Només els administradors poden accedir a aquesta pàgina",
+    "errorLoading": "Error en carregar els espais de treball"
+  },
+  "wsUsers": {
+    "title": "Usuaris de l'Espai de Treball",
+    "subtitle": "Gestiona professors i administradors al teu espai de treball",
+    "createProfessor": "Afegir Professor",
+    "editUser": "Editar Usuari",
+    "deleteUser": "Eliminar Usuari",
+    "deleteUserTitle": "Eliminar Usuari",
+    "deleteUserConfirmation": "Estàs segur que vols eliminar a \"{name}\"? Aquesta acció no es pot desfer. L'usuari només es pot eliminar si no té dependències (cursos, tasques, etc.).",
+    "user": "Usuari",
+    "fullName": "Nom Complet",
+    "role": "Rol",
+    "status": "Estat",
+    "active": "Actiu",
+    "inactive": "Inactiu",
+    "username": "Nom d'usuari",
+    "usernameHint": "Només caràcters alfanumèrics, guions (-), guions baixos (_) i coixinets (#). Sense espais.",
+    "email": "Correu electrònic",
+    "password": "Contrasenya",
+    "usernamePlaceholder": "Introdueix el nom d'usuari",
+    "fullNamePlaceholder": "Introdueix el nom complet",
+    "emailPlaceholder": "Introdueix el correu electrònic",
+    "passwordPlaceholder": "Introdueix la contrasenya",
+    "passwordHint": "La contrasenya ha de tenir com a mínim 8 caràcters",
+    "userEnabled": "L'usuari està habilitat",
+    "searchPlaceholder": "Cercar usuaris per nom o correu...",
+    "noUsers": "No s'han trobat usuaris",
+    "noUsersDescription": "Comença afegint el teu primer professor",
+    "accessDenied": "Accés Denegat",
+    "workspaceAdminOnly": "Només els administradors de l'espai de treball poden accedir a aquesta pàgina",
+    "errorLoading": "Error en carregar usuaris",
+    "you": "Tu"
   }
 }

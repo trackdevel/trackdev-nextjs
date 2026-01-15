@@ -66,7 +66,8 @@
     "sprints": "Sprints",
     "settings": "Configuración",
     "users": "Usuarios",
-    "students": "Estudiantes"
+    "students": "Estudiantes",
+    "workspaces": "Espacios de Trabajo"
   },
   "dashboard": {
     "title": "Panel",
@@ -188,7 +189,21 @@
     "sprint": "Sprint",
     "parentTask": "Tarea Padre",
     "childTasks": "Tareas Hijas",
-    "viewParentStory": "Ver historia padre"
+    "viewParentStory": "Ver historia padre",
+    "history": "Historial de cambios",
+    "loadingHistory": "Cargando historial...",
+    "errorLoadingHistory": "Error al cargar el historial",
+    "noHistoryYet": "No hay cambios registrados aún",
+    "changedName": "cambió el nombre",
+    "changedDescription": "actualizó la descripción",
+    "changedStatus": "cambió el estado de {from} a {to}",
+    "changedAssignee": "cambió el asignado de {from} a {to}",
+    "changedEstimation": "cambió la estimación de {from} a {to} puntos",
+    "changedType": "cambió el tipo de {from} a {to}",
+    "changedReporter": "cambió el reportero de {from} a {to}",
+    "changedRank": "cambió el rango",
+    "changedField": "cambió {field}",
+    "none": "ninguno"
   },
   "projects": {
     "title": "Proyectos",
@@ -285,7 +300,8 @@
     "noCoursesAdminProfessor": "Aún no has creado ningún curso.",
     "noCoursesStudent": "Aún no estás matriculado en ningún curso.",
     "createFirstCourse": "Crea Tu Primer Curso",
-    "course": "Curso"
+    "course": "Curso",
+    "selectCourse": "Selecciona un curso..."
   },
   "subjects": {
     "title": "Asignaturas",
@@ -354,9 +370,13 @@
     "subtitle": "Gestionar usuarios de la plataforma y sus permisos",
     "createUser": "Crear Usuario",
     "username": "Nombre de Usuario",
+    "usernameHint": "Solo caracteres alfanuméricos, guiones (-), guiones bajos (_) y almohadillas (#). Sin espacios.",
+    "fullName": "Nombre Completo",
     "email": "Correo Electrónico",
     "password": "Contraseña",
     "userType": "Tipo de usuario",
+    "workspace": "Espacio de Trabajo",
+    "selectWorkspace": "Seleccionar un espacio de trabajo",
     "roles": "Roles",
     "status": "Estado",
     "active": "Activo",
@@ -370,7 +390,12 @@
     "deleteUser": "Eliminar Usuario",
     "deleteUserTitle": "Eliminar Usuario",
     "deleteUserConfirmation": "¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer. El usuario solo puede eliminarse si no tiene dependencias (asignaturas propias, tareas, cursos, etc.).",
-    "cannotDeleteSelf": "No puedes eliminar tu propia cuenta"
+    "cannotDeleteSelf": "No puedes eliminar tu propia cuenta",
+    "selectUserTypeToCreate": "¿Qué tipo de usuario deseas crear?",
+    "adminDescription": "Acceso completo a todos los recursos y configuraciones",
+    "workspaceAdminDescription": "Gestiona un espacio de trabajo y sus profesores",
+    "changeUserType": "Cambiar tipo de usuario",
+    "creatingRole": "Creando"
   },
   "languages": {
     "en": "Inglés",
@@ -379,6 +404,7 @@
   },
   "userTypes": {
     "admin": "Administrador",
+    "workspaceAdmin": "Administrador de Espacio de Trabajo",
     "professor": "Profesor",
     "student": "Estudiante",
     "user": "Usuario"
@@ -386,5 +412,54 @@
   "emptyStates": {
     "noData": "No hay datos disponibles",
     "noDataDescription": "No hay datos para mostrar en este momento."
+  },
+  "workspaces": {
+    "title": "Espacios de Trabajo",
+    "subtitle": "Gestionar espacios de trabajo y su organización",
+    "createWorkspace": "Crear Espacio de Trabajo",
+    "editWorkspace": "Editar Espacio de Trabajo",
+    "deleteWorkspace": "Eliminar Espacio de Trabajo",
+    "deleteWorkspaceTitle": "Eliminar Espacio de Trabajo",
+    "deleteWorkspaceConfirmation": "¿Estás seguro de que quieres eliminar el espacio de trabajo \"{name}\"? Esta acción no se puede deshacer. El espacio de trabajo solo puede eliminarse si no tiene usuarios, asignaturas o cursos asociados.",
+    "name": "Nombre",
+    "namePlaceholder": "Introduce el nombre del espacio de trabajo",
+    "searchPlaceholder": "Buscar espacios de trabajo por nombre...",
+    "noWorkspaces": "No se encontraron espacios de trabajo",
+    "noWorkspacesDescription": "Comienza creando tu primer espacio de trabajo",
+    "accessDenied": "Acceso Denegado",
+    "adminOnly": "Solo los administradores pueden acceder a esta página",
+    "errorLoading": "Error al cargar los espacios de trabajo"
+  },
+  "wsUsers": {
+    "title": "Usuarios del Espacio de Trabajo",
+    "subtitle": "Gestiona profesores y administradores en tu espacio de trabajo",
+    "createProfessor": "Añadir Profesor",
+    "editUser": "Editar Usuario",
+    "deleteUser": "Eliminar Usuario",
+    "deleteUserTitle": "Eliminar Usuario",
+    "deleteUserConfirmation": "¿Estás seguro de que quieres eliminar a \"{name}\"? Esta acción no se puede deshacer. El usuario solo puede eliminarse si no tiene dependencias (cursos, tareas, etc.).",
+    "user": "Usuario",
+    "fullName": "Nombre Completo",
+    "role": "Rol",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "username": "Nombre de usuario",
+    "usernameHint": "Solo caracteres alfanuméricos, guiones (-), guiones bajos (_) y almohadillas (#). Sin espacios.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "usernamePlaceholder": "Introduce el nombre de usuario",
+    "fullNamePlaceholder": "Introduce el nombre completo",
+    "emailPlaceholder": "Introduce el correo electrónico",
+    "passwordPlaceholder": "Introduce la contraseña",
+    "passwordHint": "La contraseña debe tener al menos 8 caracteres",
+    "userEnabled": "El usuario está habilitado",
+    "searchPlaceholder": "Buscar usuarios por nombre o correo...",
+    "noUsers": "No se encontraron usuarios",
+    "noUsersDescription": "Comienza añadiendo tu primer profesor",
+    "accessDenied": "Acceso Denegado",
+    "workspaceAdminOnly": "Solo los administradores del espacio de trabajo pueden acceder a esta página",
+    "errorLoading": "Error al cargar usuarios",
+    "you": "Tú"
   }
 }
