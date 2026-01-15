@@ -120,8 +120,12 @@ export const tasksApi = {
   /**
    * Get task history/logs
    */
-  getHistory: (taskId: number) =>
-    api.get<TaskLog[]>(`/tasks/${taskId}/history`),
+  getHistory: async (taskId: number) => {
+    const response = await api.get<{ history: TaskLog[]; entityId: number }>(
+      `/tasks/${taskId}/history`
+    );
+    return response.history;
+  },
 
   /**
    * Get pull request change history for a task
