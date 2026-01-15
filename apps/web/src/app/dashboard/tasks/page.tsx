@@ -2,7 +2,12 @@
 
 import { BackButton } from "@/components/BackButton";
 import { TaskList } from "@/components/tasks";
-import { EmptyState, LoadingContainer, Pagination } from "@/components/ui";
+import {
+  EmptyState,
+  LoadingContainer,
+  Pagination,
+  Select,
+} from "@/components/ui";
 import {
   tasksApi,
   useAuth,
@@ -136,47 +141,43 @@ export default function TasksListPage() {
           </div>
 
           {/* Type filter */}
-          <select
+          <Select
             value={filters.type}
-            onChange={(e) => handleFilterChange("type", e.target.value)}
-            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            {TASK_TYPES.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => handleFilterChange("type", value)}
+            options={TASK_TYPES.map((option) => ({
+              value: option.value,
+              label: option.label,
+            }))}
+            className="w-auto"
+          />
 
           {/* Status filter */}
-          <select
+          <Select
             value={filters.status}
-            onChange={(e) => handleFilterChange("status", e.target.value)}
-            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            {TASK_STATUSES.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => handleFilterChange("status", value)}
+            options={TASK_STATUSES.map((option) => ({
+              value: option.value,
+              label: option.label,
+            }))}
+            className="w-auto"
+          />
 
           {/* Assignee filter */}
-          <select
+          <Select
             value={filters.assigneeId}
-            onChange={(e) => handleFilterChange("assigneeId", e.target.value)}
-            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="">{t("allAssignees")}</option>
-            {user && <option value={user.id}>{t("assignedToMe")}</option>}
-            {assigneeOptions
-              .filter((opt) => opt.value !== user?.id)
-              .map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-          </select>
+            onChange={(value) => handleFilterChange("assigneeId", value)}
+            options={[
+              { value: "", label: t("allAssignees") },
+              ...(user ? [{ value: user.id, label: t("assignedToMe") }] : []),
+              ...assigneeOptions
+                .filter((opt) => opt.value !== user?.id)
+                .map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                })),
+            ]}
+            className="w-auto"
+          />
 
           {/* Sort order toggle */}
           <button

@@ -1,5 +1,6 @@
 "use client";
 
+import { Select } from "@/components/ui";
 import { useLanguage } from "@/i18n";
 import { languageNames, locales, type Locale } from "@/i18n/config";
 import { Globe } from "lucide-react";
@@ -27,18 +28,15 @@ export function LanguageSelector({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {showLabel && <Globe className="h-5 w-5 text-gray-400" />}
-      <select
+      <Select
         value={locale}
-        onChange={(e) => setLocale(e.target.value as Locale)}
-        className="select"
+        onChange={(value) => setLocale(value as Locale)}
+        options={locales.map((loc) => ({
+          value: loc,
+          label: languageNames[loc],
+        }))}
         aria-label="Select language"
-      >
-        {locales.map((loc) => (
-          <option key={loc} value={loc}>
-            {languageNames[loc]}
-          </option>
-        ))}
-      </select>
+      />
     </div>
   );
 }
