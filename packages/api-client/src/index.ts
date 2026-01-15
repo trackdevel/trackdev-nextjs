@@ -16,3 +16,4 @@ export * from "./sprints";
 export * from "./subjects";
 export * from "./tasks";
 export * from "./users";
+export * from "./workspaces";

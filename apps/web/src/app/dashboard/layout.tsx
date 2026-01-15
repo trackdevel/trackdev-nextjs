@@ -6,6 +6,7 @@ import { useAuth } from "@trackdev/api-client";
 import type { RoleName } from "@trackdev/types";
 import {
   BookOpen,
+  Building2,
   FolderKanban,
   Layers,
   LayoutDashboard,
@@ -49,10 +50,22 @@ const navItemsConfig: NavItem[] = [
     roles: ["ADMIN"],
   },
   {
+    href: "/dashboard/ws-users",
+    labelKey: "users",
+    icon: <Users className="h-5 w-5" />,
+    roles: ["WORKSPACE_ADMIN"],
+  },
+  {
+    href: "/dashboard/workspaces",
+    labelKey: "workspaces",
+    icon: <Building2 className="h-5 w-5" />,
+    roles: ["ADMIN"],
+  },
+  {
     href: "/dashboard/subjects",
     labelKey: "subjects",
     icon: <BookOpen className="h-5 w-5" />,
-    roles: ["ADMIN", "PROFESSOR"],
+    roles: ["ADMIN", "WORKSPACE_ADMIN", "PROFESSOR"],
   },
   {
     href: "/dashboard/settings",
