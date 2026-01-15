@@ -87,8 +87,15 @@ export default function SprintBoardPage() {
 
   // Mutation for updating task status
   const updateTaskMutation = useMutation(
-    ({ taskId, status }: { taskId: number; status: TaskStatus }) =>
-      tasksApi.update(taskId, { status }),
+    ({
+      taskId,
+      status,
+      previousStatus: _previousStatus, // Store for error recovery (unused in main function)
+    }: {
+      taskId: number;
+      status: TaskStatus;
+      previousStatus: TaskStatus;
+    }) => tasksApi.update(taskId, { status }),
     {
       onSuccess: () => {
         // Keep the optimistic update in place - it shows the correct status
@@ -96,10 +103,10 @@ export default function SprintBoardPage() {
         // This avoids the flash back to old status since sprintBoard.tasks is stale
       },
       onError: (error, variables) => {
-        // Revert optimistic update on error
+        // Revert to the actual previous status (before the failed drag)
         setLocalTaskUpdates((prev) => {
           const next = new Map(prev);
-          next.delete(variables.taskId);
+          next.set(variables.taskId, variables.previousStatus);
           return next;
         });
         // Set error message to display
@@ -223,6 +230,9 @@ export default function SprintBoardPage() {
         return;
       }
 
+      // Store the previous status before optimistic update
+      const previousStatus = currentStatus;
+
       // Optimistically update the UI
       setLocalTaskUpdates((prev) => {
         const next = new Map(prev);
@@ -230,8 +240,12 @@ export default function SprintBoardPage() {
         return next;
       });
 
-      // Call the API to update the task status
-      updateTaskMutation.mutate({ taskId: draggedTask.id, status: columnId });
+      // Call the API to update the task status, passing previousStatus for error recovery
+      updateTaskMutation.mutate({
+        taskId: draggedTask.id,
+        status: columnId,
+        previousStatus,
+      });
 
       setDraggedTask(null);
     },
