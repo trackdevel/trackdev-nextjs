@@ -13,6 +13,7 @@ import {
   TaskDescription,
   TaskDiscussion,
   TaskHeader,
+  TaskHistory,
   TaskPullRequests,
   TaskSidebar,
 } from "./components";
@@ -319,6 +320,9 @@ export default function TaskDetailPage() {
             pullRequests={deferredTask.pullRequests || []}
             taskId={taskId}
           />
+
+          {/* Task History - Only visible to professors */}
+          <TaskHistory taskId={taskId} />
 
           {/* Discussion/Comments */}
           <TaskDiscussion

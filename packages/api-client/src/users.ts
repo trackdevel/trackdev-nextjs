@@ -26,6 +26,11 @@ export const usersApi = {
   getAll: () => api.get<UsersResponse>("/users"),
 
   /**
+   * Get workspace users - WORKSPACE_ADMIN and PROFESSOR users from current user's workspace
+   */
+  getWorkspaceUsers: () => api.get<UsersResponse>("/users/workspace"),
+
+  /**
    * Get user by UUID
    */
   getByUuid: (uuid: string) => api.get<UserPublic>(`/users/uuid/${uuid}`),
@@ -51,6 +56,12 @@ export const usersApi = {
    */
   update: (id: string, data: UserAdminUpdateRequest) =>
     api.patch<User>(`/users/${id}`, data),
+
+  /**
+   * Update a workspace user (Workspace Admin)
+   */
+  updateWorkspaceUser: (id: string, data: UserAdminUpdateRequest) =>
+    api.patch<User>(`/users/workspace/${id}`, data),
 
   /**
    * Check if current user is admin

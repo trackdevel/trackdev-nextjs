@@ -1,5 +1,6 @@
 "use client";
 
+import { Select } from "@/components/ui";
 import type { TaskStatus, TaskType } from "@trackdev/types";
 import { Check, Loader2, Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -216,18 +217,14 @@ export const TaskSidebar = memo(function TaskSidebar({
             </div>
             {editState.field === "type" ? (
               <div className="space-y-2">
-                <select
+                <Select
                   value={editState.taskType}
-                  onChange={(e) => onTypeChange(e.target.value as TaskType)}
-                  className="select"
-                  autoFocus
-                >
-                  {availableTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {getTypeLabel(type)}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => onTypeChange(value as TaskType)}
+                  options={availableTypes.map((type) => ({
+                    value: type,
+                    label: getTypeLabel(type),
+                  }))}
+                />
                 <div className="flex gap-2">
                   <button
                     onClick={onSave}
@@ -276,18 +273,14 @@ export const TaskSidebar = memo(function TaskSidebar({
             </div>
             {editState.field === "status" ? (
               <div className="space-y-2">
-                <select
+                <Select
                   value={editState.status}
-                  onChange={(e) => onStatusChange(e.target.value as TaskStatus)}
-                  className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900 bg-white font-sans focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none cursor-pointer"
-                  autoFocus
-                >
-                  {availableStatuses.map((status) => (
-                    <option key={status} value={status}>
-                      {getStatusLabel(status)}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => onStatusChange(value as TaskStatus)}
+                  options={availableStatuses.map((status) => ({
+                    value: status,
+                    label: getStatusLabel(status),
+                  }))}
+                />
                 <div className="flex gap-2">
                   <button
                     onClick={onSave}

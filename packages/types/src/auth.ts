@@ -14,9 +14,12 @@ export interface LoginResponse {
 
 export interface RegisterRequest {
   username: string;
+  fullName: string;
   email: string;
   password: string;
   userType: RoleName;
+  workspaceId?: number;
+  courseId?: number;
 }
 
 export interface PasswordChangeRequest {

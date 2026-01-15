@@ -15,6 +15,7 @@ export interface ApiClientConfig {
 
 let config: ApiClientConfig = {
   baseUrl: "http://localhost:8080",
+  apiPrefix: "/api",
 };
 
 export function configureApiClient(newConfig: Partial<ApiClientConfig>) {

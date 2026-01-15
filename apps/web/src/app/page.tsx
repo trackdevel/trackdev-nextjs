@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useAuth } from '@trackdev/api-client';
-import Link from 'next/link';
-import { ArrowRight, CheckCircle, Layers, Users } from 'lucide-react';
+import { useAuth } from "@trackdev/api-client";
+import { ArrowRight, CheckCircle, Layers, Users } from "lucide-react";
+import Link from "next/link";
 
 export default function HomePage() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -35,14 +35,9 @@ export default function HomePage() {
                 </Link>
               </>
             ) : (
-              <>
-                <Link href="/login" className="btn-outline">
-                  Sign In
-                </Link>
-                <Link href="/register" className="btn-primary">
-                  Get Started
-                </Link>
-              </>
+              <Link href="/login" className="btn-primary">
+                Sign In
+              </Link>
             )}
           </div>
         </div>
@@ -56,25 +51,27 @@ export default function HomePage() {
             <span className="block text-primary-600">for Education</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            TrackDev helps students learn agile methodologies by working together
-            on real projects. Manage sprints, tasks, and track your team's progress.
+            TrackDev helps students learn agile methodologies by working
+            together on real projects. Manage sprints, tasks, and track your
+            team's progress.
           </p>
           <div className="mt-10 flex justify-center gap-4">
             {isAuthenticated ? (
-              <Link href="/dashboard" className="btn-primary flex items-center gap-2 px-6 py-3 text-base">
+              <Link
+                href="/dashboard"
+                className="btn-primary flex items-center gap-2 px-6 py-3 text-base"
+              >
                 Go to Dashboard
                 <ArrowRight className="h-5 w-5" />
               </Link>
             ) : (
-              <>
-                <Link href="/register" className="btn-primary flex items-center gap-2 px-6 py-3 text-base">
-                  Get Started
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-                <Link href="/login" className="btn-outline px-6 py-3 text-base">
-                  Sign In
-                </Link>
-              </>
+              <Link
+                href="/login"
+                className="btn-primary flex items-center gap-2 px-6 py-3 text-base"
+              >
+                Sign In
+                <ArrowRight className="h-5 w-5" />
+              </Link>
             )}
           </div>
         </div>

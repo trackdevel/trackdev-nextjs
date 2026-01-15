@@ -1,11 +1,11 @@
-import '../global.css';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { AuthProvider } from '@trackdev/api-client';
-import * as SecureStore from 'expo-secure-store';
-import { useCallback } from 'react';
+import { AuthProvider } from "@trackdev/api-client";
+import { Stack } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { StatusBar } from "expo-status-bar";
+import { useCallback } from "react";
+import "../global.css";
 
-const TOKEN_KEY = 'trackdev_token';
+const TOKEN_KEY = "trackdev_token";
 
 export default function RootLayout() {
   const getStoredToken = useCallback(async () => {
@@ -37,17 +37,19 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#3b82f6',
+            backgroundColor: "#3b82f6",
           },
-          headerTintColor: '#fff',
+          headerTintColor: "#fff",
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: "bold",
           },
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ title: 'Sign In', headerShown: false }} />
-        <Stack.Screen name="register" options={{ title: 'Create Account', headerShown: false }} />
+        <Stack.Screen
+          name="login"
+          options={{ title: "Sign In", headerShown: false }}
+        />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />

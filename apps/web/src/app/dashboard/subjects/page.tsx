@@ -34,8 +34,10 @@ export default function SubjectsPage() {
     new Set()
   );
 
-  // Check if user is admin
+  // Check if user is admin or workspace admin (can manage subjects)
   const isAdmin = user?.roles?.includes("ADMIN") ?? false;
+  const isWorkspaceAdmin = user?.roles?.includes("WORKSPACE_ADMIN") ?? false;
+  const canManageSubjects = isAdmin || isWorkspaceAdmin;
 
   // Modal states
   const [showCreateSubject, setShowCreateSubject] = useState(false);
@@ -273,12 +275,12 @@ export default function SubjectsPage() {
       <PageHeader
         title={t("title")}
         description={
-          isAdmin
+          canManageSubjects
             ? t("manageSubjectsDescription")
             : t("browseSubjectsDescription")
         }
         action={
-          isAdmin ? (
+          canManageSubjects ? (
             <button
               onClick={openCreateSubject}
               className="btn-primary flex items-center gap-2"
@@ -314,7 +316,7 @@ export default function SubjectsPage() {
               key={subject.id}
               subject={subject}
               isExpanded={expandedSubjects.has(subject.id)}
-              isAdmin={isAdmin}
+              isAdmin={canManageSubjects}
               userId={user?.id}
               onToggleExpand={toggleSubjectExpand}
               onCreateCourse={openCreateCourse}
@@ -342,10 +344,12 @@ export default function SubjectsPage() {
           icon={<BookOpen className="h-12 w-12" />}
           title={t("noSubjects")}
           description={
-            isAdmin ? t("createFirstSubject") : t("contactAdministrator")
+            canManageSubjects
+              ? t("createFirstSubject")
+              : t("contactAdministrator")
           }
           action={
-            isAdmin ? (
+            canManageSubjects ? (
               <button onClick={openCreateSubject} className="btn-primary">
                 <Plus className="mr-2 h-4 w-4" />
                 {t("createSubject")}

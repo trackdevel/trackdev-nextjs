@@ -16,3 +16,4 @@ export * from "./sprintPattern";
 export * from "./subject";
 export * from "./task";
 export * from "./user";
+export * from "./workspace";
