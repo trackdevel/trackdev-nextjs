@@ -1,23 +1,23 @@
-import { useState } from 'react';
+import { ApiClientError, useAuth } from "@trackdev/api-client";
+import { Link, useRouter } from "expo-router";
+import { AlertCircle, Layers, Lock, Mail } from "lucide-react-native";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
-} from 'react-native';
-import { Link, useRouter } from 'expo-router';
-import { useAuth, ApiClientError } from '@trackdev/api-client';
-import { Layers, Mail, Lock, AlertCircle } from 'lucide-react-native';
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
@@ -25,19 +25,19 @@ export default function LoginScreen() {
 
     try {
       await login({ email, password });
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     } catch (err) {
       if (err instanceof ApiClientError) {
-        setError(err.body?.message || 'Invalid email or password');
+        setError(err.body?.message || "Invalid email or password");
       } else {
-        setError('An unexpected error occurred');
+        setError("An unexpected error occurred");
       }
     }
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-gray-50"
     >
       <ScrollView
@@ -55,14 +55,6 @@ export default function LoginScreen() {
           <Text className="mt-6 text-2xl font-bold text-gray-900">
             Sign in to your account
           </Text>
-          <View className="mt-2 flex-row">
-            <Text className="text-sm text-gray-600">Or </Text>
-            <Link href="/register">
-              <Text className="text-sm font-medium text-primary-600">
-                create a new account
-              </Text>
-            </Link>
-          </View>
         </View>
 
         {/* Form */}
@@ -119,7 +111,9 @@ export default function LoginScreen() {
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-base font-semibold text-white">Sign in</Text>
+              <Text className="text-base font-semibold text-white">
+                Sign in
+              </Text>
             )}
           </Pressable>
         </View>
