@@ -55,8 +55,18 @@ export const projectReportsApi = {
     api.get<Report[]>(`/projects/${projectId}/reports`),
 
   /**
-   * Compute a report for a project
+   * Compute a report for a project with optional status filter
    */
-  compute: (projectId: number, reportId: number) =>
-    api.get<ReportResult>(`/projects/${projectId}/reports/${reportId}/compute`),
+  compute: (projectId: number, reportId: number, statusFilters?: string[]) => {
+    const params = new URLSearchParams();
+    if (statusFilters && statusFilters.length > 0) {
+      // Send all statuses as a single comma-separated parameter
+      params.append("status", statusFilters.join(","));
+    }
+    const queryString = params.toString();
+    const url = `/projects/${projectId}/reports/${reportId}/compute${
+      queryString ? `?${queryString}` : ""
+    }`;
+    return api.get<ReportResult>(url);
+  },
 };
