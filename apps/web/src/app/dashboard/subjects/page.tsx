@@ -6,6 +6,7 @@ import {
   EmptyState,
   LoadingContainer,
   Modal,
+  PageContainer,
   PageHeader,
   SearchInput,
   SimplePagination,
@@ -270,7 +271,7 @@ export default function SubjectsPage() {
   };
 
   return (
-    <div className="p-8">
+    <PageContainer>
       {/* Header */}
       <PageHeader
         title={t("title")}
@@ -306,7 +307,7 @@ export default function SubjectsPage() {
       {isLoading ? (
         <LoadingContainer />
       ) : error ? (
-        <div className="card px-6 py-12 text-center text-red-600">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600">
           {t("failedToLoadSubjects")}
         </div>
       ) : subjects.length > 0 ? (
@@ -455,6 +456,6 @@ export default function SubjectsPage() {
         })}
         isLoading={deleteCourseMutation.isLoading}
       />
-    </div>
+    </PageContainer>
   );
 }

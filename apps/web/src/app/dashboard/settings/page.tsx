@@ -1,6 +1,7 @@
 "use client";
 
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { PageContainer, PageHeader } from "@/components/ui";
 import { useAuth } from "@trackdev/api-client";
 import { Globe, Key, Mail, Palette, Shield, User } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -20,12 +21,8 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-        <p className="mt-1 text-gray-600">{t("subtitle")}</p>
-      </div>
+    <PageContainer>
+      <PageHeader title={t("title")} description={t("subtitle")} />
 
       <div className="grid gap-8 lg:grid-cols-4">
         {/* Sidebar */}
@@ -247,6 +244,6 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

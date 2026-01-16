@@ -134,6 +134,7 @@ export default function UsersPage() {
   const createUserMutation = useMutation(
     (data: {
       username: string;
+      fullName: string;
       email: string;
       password: string;
       userType: RoleName;

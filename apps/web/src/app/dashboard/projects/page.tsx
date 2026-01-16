@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  EmptyState,
+  LoadingContainer,
+  PageContainer,
+  PageHeader,
+} from "@/components/ui";
 import { projectsApi, useAuth, useQuery } from "@trackdev/api-client";
 import { ArrowRight, BookOpen, Calendar, FolderKanban } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -23,26 +29,21 @@ export default function ProjectsPage() {
   const isProfessor = userRoles.includes("PROFESSOR");
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-          <p className="mt-1 text-gray-600">
-            {isProfessor || isAdmin
-              ? t("adminProfessorSubtitle")
-              : t("studentSubtitle")}
-          </p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title={t("title")}
+        description={
+          isProfessor || isAdmin
+            ? t("adminProfessorSubtitle")
+            : t("studentSubtitle")
+        }
+      />
 
       {/* Projects List */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
-        </div>
+        <LoadingContainer />
       ) : error ? (
-        <div className="card px-6 py-12 text-center text-red-600">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600">
           {t("failedToLoad")}
         </div>
       ) : projects && projects.length > 0 ? (
@@ -124,18 +125,16 @@ export default function ProjectsPage() {
           </ul>
         </div>
       ) : (
-        <div className="card px-6 py-12 text-center">
-          <FolderKanban className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
-            {t("noProjects")}
-          </h3>
-          <p className="mt-2 text-gray-500">
-            {isProfessor || isAdmin
+        <EmptyState
+          icon={<FolderKanban className="h-12 w-12" />}
+          title={t("noProjects")}
+          description={
+            isProfessor || isAdmin
               ? t("noProjectsAdminProfessor")
-              : t("noProjectsStudent")}
-          </p>
-        </div>
+              : t("noProjectsStudent")
+          }
+        />
       )}
-    </div>
+    </PageContainer>
   );
 }

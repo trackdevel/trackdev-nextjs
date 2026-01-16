@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  EmptyState,
+  LoadingContainer,
+  PageContainer,
+  PageHeader,
+} from "@/components/ui";
 import { coursesApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { Course } from "@trackdev/types";
 import {
@@ -129,32 +135,29 @@ export default function CoursesPage() {
   const canViewCourseDetails = isAdmin || isProfessor;
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-          <p className="mt-1 text-gray-600">
-            {isProfessor || isAdmin
-              ? t("adminProfessorSubtitle")
-              : t("studentSubtitle")}
-          </p>
-        </div>
-        {(isProfessor || isAdmin) && (
-          <button className="btn-primary flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            {t("newCourse")}
-          </button>
-        )}
-      </div>
+    <PageContainer>
+      <PageHeader
+        title={t("title")}
+        description={
+          isProfessor || isAdmin
+            ? t("adminProfessorSubtitle")
+            : t("studentSubtitle")
+        }
+        action={
+          (isProfessor || isAdmin) && (
+            <button className="btn-primary flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              {t("newCourse")}
+            </button>
+          )
+        }
+      />
 
       {/* Courses Grid */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
-        </div>
+        <LoadingContainer />
       ) : error ? (
-        <div className="card px-6 py-12 text-center text-red-600">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600">
           {t("failedToLoad")}
         </div>
       ) : courses && courses.length > 0 ? (
@@ -176,24 +179,24 @@ export default function CoursesPage() {
           )}
         </div>
       ) : (
-        <div className="card px-6 py-12 text-center">
-          <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
-            {t("noCourses")}
-          </h3>
-          <p className="mt-2 text-gray-500">
-            {isProfessor || isAdmin
+        <EmptyState
+          icon={<BookOpen className="h-12 w-12" />}
+          title={t("noCourses")}
+          description={
+            isProfessor || isAdmin
               ? t("noCoursesAdminProfessor")
-              : t("noCoursesStudent")}
-          </p>
-          {(isProfessor || isAdmin) && (
-            <button className="btn-primary mt-4">
-              <Plus className="mr-2 h-4 w-4" />
-              {t("createFirstCourse")}
-            </button>
-          )}
-        </div>
+              : t("noCoursesStudent")
+          }
+          action={
+            (isProfessor || isAdmin) && (
+              <button className="btn-primary">
+                <Plus className="mr-2 h-4 w-4" />
+                {t("createFirstCourse")}
+              </button>
+            )
+          }
+        />
       )}
-    </div>
+    </PageContainer>
   );
 }

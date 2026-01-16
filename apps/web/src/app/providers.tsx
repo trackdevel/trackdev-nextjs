@@ -1,5 +1,6 @@
 "use client";
 
+import { ToastProvider } from "@/components/ui";
 import { LanguageProvider } from "@/i18n";
 import { AuthProvider } from "@trackdev/api-client";
 import { useRouter } from "next/navigation";
@@ -37,7 +38,7 @@ export function Providers({ children }: { children: ReactNode }) {
         setStoredToken={setStoredToken}
         onAuthExpired={handleAuthExpired}
       >
-        {children}
+        <ToastProvider>{children}</ToastProvider>
       </AuthProvider>
     </LanguageProvider>
   );

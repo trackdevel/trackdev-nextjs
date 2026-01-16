@@ -11,6 +11,7 @@ export * from "./course";
 export * from "./github";
 export * from "./invite";
 export * from "./project";
+export * from "./report";
 export * from "./sprint";
 export * from "./sprintPattern";
 export * from "./subject";

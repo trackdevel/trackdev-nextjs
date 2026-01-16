@@ -5,6 +5,7 @@ import { TaskList } from "@/components/tasks";
 import {
   EmptyState,
   LoadingContainer,
+  PageContainer,
   Pagination,
   Select,
 } from "@/components/ui";
@@ -119,7 +120,7 @@ export default function TasksListPage() {
     filters.type !== "" || filters.status !== "" || filters.assigneeId !== "";
 
   return (
-    <div className="p-8">
+    <PageContainer>
       {/* Header */}
       <div className="mb-6">
         <BackButton
@@ -243,6 +244,6 @@ export default function TasksListPage() {
           />
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }
