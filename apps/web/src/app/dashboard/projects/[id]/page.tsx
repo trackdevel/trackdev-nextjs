@@ -15,6 +15,7 @@ import {
 } from "@/components/ui";
 import {
   githubReposApi,
+  projectReportsApi,
   projectsApi,
   useAuth,
   useMutation,
@@ -23,6 +24,7 @@ import {
 import type {
   AddGitHubRepoRequest,
   GitHubRepoSummary,
+  Report,
   Task,
 } from "@trackdev/types";
 import {
@@ -101,6 +103,12 @@ export default function ProjectDetailPage() {
     { enabled: isAuthenticated && !isNaN(projectId) }
   );
 
+  const { data: reportsResponse } = useQuery(
+    () => projectReportsApi.getAll(projectId),
+    [projectId],
+    { enabled: isAuthenticated && !isNaN(projectId) }
+  );
+
   // Mutations
   const addRepoMutation = useMutation(
     (data: AddGitHubRepoRequest) => githubReposApi.add(projectId, data),
@@ -146,6 +154,9 @@ export default function ProjectDetailPage() {
 
   // Extract github repos
   const githubRepos = githubReposResponse?.repos || [];
+
+  // Extract reports
+  const reports = reportsResponse || [];
 
   const handleAddRepo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -283,17 +294,6 @@ export default function ProjectDetailPage() {
         />
       </div>
 
-      {/* Quick Actions */}
-      <div className="mb-8 flex gap-4">
-        <Link
-          href={`/dashboard/projects/${projectId}/reports`}
-          className="btn-secondary flex items-center gap-2"
-        >
-          <FileBarChart className="h-4 w-4" />
-          {tReports("viewReports")}
-        </Link>
-      </div>
-
       {/* GitHub Integration Section */}
       <div className="mb-8">
         <CardSection
@@ -337,6 +337,38 @@ export default function ProjectDetailPage() {
                   </>
                 }
               />
+            ))}
+          </ul>
+        </CardSection>
+      </div>
+
+      {/* Reports Section */}
+      <div className="mb-8">
+        <CardSection
+          title={tReports("title")}
+          icon={FileBarChart}
+          count={reports.length}
+          isEmpty={reports.length === 0}
+          emptyMessage={tReports("noReportsAvailable")}
+        >
+          <ul className="divide-y">
+            {reports.map((report: Report) => (
+              <li key={report.id}>
+                <Link
+                  href={`/dashboard/projects/${projectId}/reports/${report.id}`}
+                  className="block transition-colors hover:bg-gray-50"
+                >
+                  <ItemCard
+                    icon={FileBarChart}
+                    iconBgColor="bg-blue-100"
+                    iconColor="text-blue-600"
+                    title={report.name}
+                    subtitle={`${tReports("rows")}: ${
+                      report.rowType || "-"
+                    } | ${tReports("columns")}: ${report.columnType || "-"}`}
+                  />
+                </Link>
+              </li>
             ))}
           </ul>
         </CardSection>
