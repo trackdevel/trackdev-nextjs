@@ -9,6 +9,7 @@ import {
   useToast,
 } from "@/components/ui";
 import {
+  coursesApi,
   reportsApi,
   useAuth,
   useMutation,
@@ -36,6 +37,7 @@ export default function EditReportPage() {
   const [columnType, setColumnType] = useState<ReportAxisType | "">("");
   const [element, setElement] = useState<ReportElement | "">("");
   const [magnitude, setMagnitude] = useState<ReportMagnitude | "">("");
+  const [courseId, setCourseId] = useState<number | "">("");
 
   // Check if user is professor
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
@@ -49,6 +51,11 @@ export default function EditReportPage() {
     enabled: isProfessor && !!reportId,
   });
 
+  // Fetch courses for the dropdown (professor's courses)
+  const { data: coursesData } = useQuery(() => coursesApi.getAll(), [], {
+    enabled: isProfessor,
+  });
+
   // Update form when report loads
   useEffect(() => {
     if (report) {
@@ -57,8 +64,12 @@ export default function EditReportPage() {
       setColumnType(report.columnType || "");
       setElement(report.element || "TASK"); // Default to TASK
       setMagnitude(report.magnitude || "");
+      setCourseId(report.course?.id || "");
     }
   }, [report]);
+
+  // Get courses list
+  const courses = coursesData?.courses || [];
 
   // Update mutation
   const { mutate: updateReport, isLoading: isPending } = useMutation(
@@ -69,6 +80,7 @@ export default function EditReportPage() {
         columnType: columnType || undefined,
         element: element || undefined,
         magnitude: magnitude || undefined,
+        courseId: courseId || null,
       }),
     {
       onSuccess: () => {
@@ -161,6 +173,31 @@ export default function EditReportPage() {
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
               required
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="courseId"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {t("assignToCourse")}
+            </label>
+            <Select
+              value={courseId.toString()}
+              onChange={(value) => setCourseId(value ? Number(value) : "")}
+              options={[
+                { value: "", label: t("noCourseAssigned") },
+                ...courses.map((course) => ({
+                  value: course.id.toString(),
+                  label: `${course.subject?.name || ""} (${course.startYear})`,
+                })),
+              ]}
+              placeholder={t("selectCourse")}
+              className="mt-1"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              {t("assignToCourseDescription")}
+            </p>
           </div>
 
           <div>

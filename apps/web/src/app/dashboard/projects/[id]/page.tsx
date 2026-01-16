@@ -34,6 +34,7 @@ import {
   Edit2,
   Eye,
   EyeOff,
+  FileBarChart,
   FolderKanban,
   Github,
   Plus,
@@ -54,6 +55,7 @@ export default function ProjectDetailPage() {
   const tCommon = useTranslations("common");
   const tSprints = useTranslations("sprints");
   const tTasks = useTranslations("tasks");
+  const tReports = useTranslations("reports");
 
   // Check if user is professor or admin
   const userRoles = user?.roles || [];
@@ -279,6 +281,17 @@ export default function ProjectDetailPage() {
           iconBgColor="bg-orange-100"
           iconColor="text-orange-600"
         />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mb-8 flex gap-4">
+        <Link
+          href={`/dashboard/projects/${projectId}/reports`}
+          className="btn-secondary flex items-center gap-2"
+        >
+          <FileBarChart className="h-4 w-4" />
+          {tReports("viewReports")}
+        </Link>
       </div>
 
       {/* GitHub Integration Section */}

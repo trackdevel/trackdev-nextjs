@@ -105,4 +105,12 @@ export const coursesApi = {
    */
   removeStudent: (courseId: number, studentId: string) =>
     api.delete<void>(`/courses/${courseId}/students/${studentId}`),
+
+  /**
+   * Get reports assigned to a course
+   */
+  getReports: (courseId: number) =>
+    api.get<{ reports: import("@trackdev/types").Report[]; courseId: number }>(
+      `/courses/${courseId}/reports`
+    ),
 };

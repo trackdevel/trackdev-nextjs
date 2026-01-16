@@ -3,6 +3,7 @@ import type {
   ReportAxisType,
   ReportElement,
   ReportMagnitude,
+  ReportResult,
 } from "@trackdev/types";
 import { api } from "./client";
 
@@ -33,6 +34,7 @@ export const reportsApi = {
       columnType?: ReportAxisType;
       element?: ReportElement;
       magnitude?: ReportMagnitude;
+      courseId?: number | null;
     }
   ) => api.patch<Report>(`/reports/${id}`, data),
 
@@ -40,4 +42,21 @@ export const reportsApi = {
    * Delete a report (PROFESSOR only)
    */
   delete: (id: number) => api.delete(`/reports/${id}`),
+};
+
+/**
+ * Project reports API - for getting reports available for a project
+ */
+export const projectReportsApi = {
+  /**
+   * Get reports available for a project (from its course)
+   */
+  getAll: (projectId: number) =>
+    api.get<Report[]>(`/projects/${projectId}/reports`),
+
+  /**
+   * Compute a report for a project
+   */
+  compute: (projectId: number, reportId: number) =>
+    api.get<ReportResult>(`/projects/${projectId}/reports/${reportId}/compute`),
 };
