@@ -68,6 +68,12 @@ const navItemsConfig: NavItem[] = [
     roles: ["ADMIN", "WORKSPACE_ADMIN", "PROFESSOR"],
   },
   {
+    href: "/dashboard/reports",
+    labelKey: "reports",
+    icon: <Layers className="h-5 w-5" />,
+    roles: ["PROFESSOR"],
+  },
+  {
     href: "/dashboard/settings",
     labelKey: "settings",
     icon: <Settings className="h-5 w-5" />,

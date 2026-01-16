@@ -11,6 +11,7 @@ export * from "./githubRepos";
 export * from "./hooks";
 export * from "./invites";
 export * from "./projects";
+export * from "./reports";
 export * from "./sprintPatterns";
 export * from "./sprints";
 export * from "./subjects";
