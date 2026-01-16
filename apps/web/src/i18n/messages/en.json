@@ -257,12 +257,18 @@
     "availableReports": "Available Reports",
     "noAvailableReports": "No available reports",
     "noAvailableReportsDescription": "No reports have been assigned to this course yet.",
+    "noReportsAvailable": "No reports have been assigned to this project's course.",
+    "rows": "Rows",
+    "columns": "Columns",
     "computeReport": "Compute Report",
+    "viewReport": "View Report",
     "reportNotConfigured": "Report not configured",
     "failedToCompute": "Failed to compute report",
     "noDataAvailable": "No data available for this report",
     "total": "Total",
-    "close": "Close"
+    "close": "Close",
+    "filterByStatus": "Filter by Task Status",
+    "allStatuses": "All"
   },
   "projects": {
     "title": "Projects",

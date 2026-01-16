@@ -257,12 +257,18 @@
     "availableReports": "Informes Disponibles",
     "noAvailableReports": "No hay informes disponibles",
     "noAvailableReportsDescription": "Aún no se han asignado informes a este curso.",
+    "noReportsAvailable": "No se han asignado informes al curso de este proyecto.",
+    "rows": "Filas",
+    "columns": "Columnas",
     "computeReport": "Calcular Informe",
+    "viewReport": "Ver Informe",
     "reportNotConfigured": "Informe no configurado",
     "failedToCompute": "Error al calcular el informe",
     "noDataAvailable": "No hay datos disponibles para este informe",
     "total": "Total",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "filterByStatus": "Filtrar por Estado de Tarea",
+    "allStatuses": "Todos"
   },
   "projects": {
     "title": "Proyectos",

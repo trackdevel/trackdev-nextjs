@@ -257,12 +257,18 @@
     "availableReports": "Informes Disponibles",
     "noAvailableReports": "No hi ha informes disponibles",
     "noAvailableReportsDescription": "Encara no s'han assignat informes a aquest curs.",
+    "noReportsAvailable": "No s'han assignat informes al curs d'aquest projecte.",
+    "rows": "Files",
+    "columns": "Columnes",
     "computeReport": "Calcular Informe",
+    "viewReport": "Veure Informe",
     "reportNotConfigured": "Informe no configurat",
     "failedToCompute": "Error en calcular l'informe",
     "noDataAvailable": "No hi ha dades disponibles per a aquest informe",
     "total": "Total",
-    "close": "Tancar"
+    "close": "Tancar",
+    "filterByStatus": "Filtrar per Estat de Tasca",
+    "allStatuses": "Tots"
   },
   "projects": {
     "title": "Projectes",
