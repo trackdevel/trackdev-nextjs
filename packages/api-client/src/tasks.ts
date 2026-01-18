@@ -161,4 +161,14 @@ export const tasksApi = {
 
     return api.get<PagedTasksResponse>(`/tasks/my?${params.toString()}`);
   },
+
+  /**
+   * Freeze a task (PROFESSOR only)
+   */
+  freeze: (id: number) => api.post<Task>(`/tasks/${id}/freeze`, {}),
+
+  /**
+   * Unfreeze a task (PROFESSOR only)
+   */
+  unfreeze: (id: number) => api.post<Task>(`/tasks/${id}/unfreeze`, {}),
 };

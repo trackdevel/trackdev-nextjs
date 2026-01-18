@@ -31,6 +31,7 @@ export interface Task {
   description?: string;
   type: TaskType;
   status: TaskStatus;
+  frozen?: boolean;
   rank: number;
   estimationPoints: number;
   createdAt: string;
