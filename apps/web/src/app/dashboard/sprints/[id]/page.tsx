@@ -499,24 +499,35 @@ const TaskCard = memo(function TaskCard({
       onDragStart={(e) => onDragStart(e, task)}
       onDragEnd={onDragEnd}
       className={`block rounded-lg border p-2 shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${
-        isDragging 
-          ? "opacity-50 ring-2 ring-primary-400" 
+        isDragging
+          ? "opacity-50 ring-2 ring-primary-400"
           : task.frozen
           ? "border-gray-300 bg-gray-100 opacity-60 grayscale hover:border-gray-400"
           : "border-gray-200 bg-white hover:border-primary-300"
       }`}
     >
       {task.taskKey && (
-        <span className={`text-[10px] font-mono mb-0.5 block ${task.frozen ? "text-gray-500" : "text-gray-400"}`}>
+        <span
+          className={`text-[10px] font-mono mb-0.5 block ${
+            task.frozen ? "text-gray-500" : "text-gray-400"
+          }`}
+        >
           {task.taskKey}
         </span>
       )}
       <div className="flex items-start gap-1.5">
-        <p className={`text-sm font-medium line-clamp-2 flex-1 ${task.frozen ? "text-gray-600" : "text-gray-900"}`}>
+        <p
+          className={`text-sm font-medium line-clamp-2 flex-1 ${
+            task.frozen ? "text-gray-600" : "text-gray-900"
+          }`}
+        >
           {task.name}
         </p>
         {task.frozen && (
-          <Snowflake className="h-3.5 w-3.5 text-gray-500 flex-shrink-0 mt-0.5" title="Frozen" />
+          <Snowflake
+            className="h-3.5 w-3.5 text-gray-500 flex-shrink-0 mt-0.5"
+            title="Frozen"
+          />
         )}
       </div>
       <div className="mt-2 flex items-center justify-between">
