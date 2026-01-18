@@ -17,6 +17,7 @@ import {
   FolderKanban,
   Loader2,
   PlayCircle,
+  Snowflake,
   User,
 } from "lucide-react";
 import Link from "next/link";
@@ -497,18 +498,27 @@ const TaskCard = memo(function TaskCard({
       draggable
       onDragStart={(e) => onDragStart(e, task)}
       onDragEnd={onDragEnd}
-      className={`block rounded-lg border border-gray-200 bg-white p-2 shadow-sm transition-all hover:shadow-md hover:border-primary-300 cursor-grab active:cursor-grabbing ${
-        isDragging ? "opacity-50 ring-2 ring-primary-400" : ""
+      className={`block rounded-lg border p-2 shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${
+        isDragging 
+          ? "opacity-50 ring-2 ring-primary-400" 
+          : task.frozen
+          ? "border-gray-300 bg-gray-100 opacity-60 grayscale hover:border-gray-400"
+          : "border-gray-200 bg-white hover:border-primary-300"
       }`}
     >
       {task.taskKey && (
-        <span className="text-[10px] font-mono text-gray-400 mb-0.5 block">
+        <span className={`text-[10px] font-mono mb-0.5 block ${task.frozen ? "text-gray-500" : "text-gray-400"}`}>
           {task.taskKey}
         </span>
       )}
-      <p className="text-sm font-medium text-gray-900 line-clamp-2">
-        {task.name}
-      </p>
+      <div className="flex items-start gap-1.5">
+        <p className={`text-sm font-medium line-clamp-2 flex-1 ${task.frozen ? "text-gray-600" : "text-gray-900"}`}>
+          {task.name}
+        </p>
+        {task.frozen && (
+          <Snowflake className="h-3.5 w-3.5 text-gray-500 flex-shrink-0 mt-0.5" title="Frozen" />
+        )}
+      </div>
       <div className="mt-2 flex items-center justify-between">
         {task.assignee ? (
           <div className="flex items-center gap-1">

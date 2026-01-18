@@ -10,17 +10,24 @@ interface TaskDiscussionProps {
   comments: Comment[];
   taskId: number;
   onCommentAdded?: () => void;
+  isFrozen?: boolean;
+  isProfessor?: boolean;
 }
 
 export const TaskDiscussion = memo(function TaskDiscussion({
   comments,
   taskId,
   onCommentAdded,
+  isFrozen = false,
+  isProfessor = false,
 }: TaskDiscussionProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
   const [newComment, setNewComment] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Professors can comment on frozen tasks, students cannot
+  const canComment = !isFrozen || isProfessor;
 
   const { mutate: addComment, isLoading: isSubmitting } = useMutation(
     (content: string) => tasksApi.addComment(taskId, { content }),
@@ -54,7 +61,9 @@ export const TaskDiscussion = memo(function TaskDiscussion({
           {!isExpanded && (
             <button
               onClick={() => setIsExpanded(true)}
-              className="flex items-center gap-1 rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
+              disabled={!canComment}
+              className="flex items-center gap-1 rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title={!canComment ? t("taskIsFrozen") : ""}
             >
               <Plus className="h-4 w-4" />
               {t("addComment")}

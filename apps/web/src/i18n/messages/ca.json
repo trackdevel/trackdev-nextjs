@@ -204,7 +204,15 @@
     "changedReporter": "va canviar el reportador de {from} a {to}",
     "changedRank": "va canviar el rang",
     "changedField": "va canviar {field}",
-    "none": "cap"
+    "none": "cap",
+    "frozen": "Congelada",
+    "freezeTask": "Congelar Tasca",
+    "unfreezeTask": "Descongelar Tasca",
+    "taskIsFrozen": "Aquesta tasca està congelada i no es pot modificar",
+    "taskFrozen": "Tasca congelada correctament",
+    "taskUnfrozen": "Tasca descongelada correctament",
+    "confirmFreezeTask": "Estàs segur que vols congelar aquesta tasca? Ningú podrà fer canvis fins que la descongelis.",
+    "confirmUnfreezeTask": "Estàs segur que vols descongelar aquesta tasca? Els usuaris podran fer canvis de nou."
   },
   "reports": {
     "title": "Informes",

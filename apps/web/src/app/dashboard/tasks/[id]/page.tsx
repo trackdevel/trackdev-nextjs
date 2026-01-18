@@ -82,7 +82,7 @@ export default function TaskDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const taskId = Number(params.id);
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
 
@@ -115,9 +115,14 @@ export default function TaskDetailPage() {
   // Deferred value for smooth UI during saves
   const deferredTask = useDeferredValue(task);
 
+  // Check if user is a professor
+  const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
+
   // Derived values
   const isLoading = authLoading || dataLoading;
-  const canEdit = fetchedTask?.canEdit ?? false;
+  const isFrozen = fetchedTask?.frozen ?? false;
+  // Professors can edit frozen tasks, students cannot
+  const canEdit = (fetchedTask?.canEdit ?? false) && (!isFrozen || isProfessor);
   const availableStatuses: TaskStatus[] =
     task?.type === "USER_STORY"
       ? ["BACKLOG", "DEFINED", "DONE"]
@@ -237,6 +242,32 @@ export default function TaskDetailPage() {
     t,
   ]);
 
+  const handleFreeze = useCallback(async () => {
+    if (!taskId || isNaN(taskId)) return;
+
+    try {
+      const result = await tasksApi.freeze(taskId);
+      dispatch({ type: "SAVE_SUCCESS", result });
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Failed to freeze task:", err);
+      }
+    }
+  }, [taskId]);
+
+  const handleUnfreeze = useCallback(async () => {
+    if (!taskId || isNaN(taskId)) return;
+
+    try {
+      const result = await tasksApi.unfreeze(taskId);
+      dispatch({ type: "SAVE_SUCCESS", result });
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Failed to unfreeze task:", err);
+      }
+    }
+  }, [taskId]);
+
   // Render loading state
   if (isLoading) {
     return (
@@ -282,10 +313,13 @@ export default function TaskDetailPage() {
         task={deferredTask}
         editState={editState}
         canEdit={canEdit}
+        isProfessor={isProfessor}
         onStartEdit={handleStartEdit}
         onSave={handleSave}
         onCancel={handleCancel}
         onNameChange={handleNameChange}
+        onFreeze={handleFreeze}
+        onUnfreeze={handleUnfreeze}
       />
 
       {/* Error Display */}
@@ -329,6 +363,8 @@ export default function TaskDetailPage() {
             comments={deferredTask.discussion || []}
             taskId={taskId}
             onCommentAdded={refetchTask}
+            isFrozen={isFrozen}
+            isProfessor={isProfessor}
           />
         </div>
 

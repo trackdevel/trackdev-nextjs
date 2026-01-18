@@ -1,6 +1,14 @@
 "use client";
 
-import { Calendar, Check, Loader2, Pencil, User, X } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Loader2,
+  Pencil,
+  Snowflake,
+  User,
+  X,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo } from "react";
 import { STATUS_CONFIG, TYPE_CONFIG } from "../constants";
@@ -10,20 +18,26 @@ interface TaskHeaderProps {
   task: TaskWithProject;
   editState: EditState;
   canEdit: boolean;
+  isProfessor: boolean;
   onStartEdit: (field: "name") => void;
   onSave: () => void;
   onCancel: () => void;
   onNameChange: (value: string) => void;
+  onFreeze: () => void;
+  onUnfreeze: () => void;
 }
 
 export const TaskHeader = memo(function TaskHeader({
   task,
   editState,
   canEdit,
+  isProfessor,
   onStartEdit,
   onSave,
   onCancel,
   onNameChange,
+  onFreeze,
+  onUnfreeze,
 }: TaskHeaderProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
@@ -54,6 +68,16 @@ export const TaskHeader = memo(function TaskHeader({
 
   return (
     <div className="mb-8">
+      {/* Frozen Warning Banner */}
+      {task.frozen && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-center gap-2 text-blue-800">
+            <Snowflake className="h-5 w-5" />
+            <span className="font-semibold text-lg">{t("taskIsFrozen")}</span>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-start gap-4">
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-xl ${statusConfig.bgColor}`}
@@ -78,6 +102,12 @@ export const TaskHeader = memo(function TaskHeader({
                   {task.estimationPoints} {t("points")}
                 </span>
               )}
+            {task.frozen && (
+              <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 flex items-center gap-1">
+                <Snowflake className="h-3 w-3" />
+                {t("frozen")}
+              </span>
+            )}
           </div>
 
           {/* Editable Title */}
@@ -151,6 +181,22 @@ export const TaskHeader = memo(function TaskHeader({
             )}
           </div>
         </div>
+
+        {/* Freeze/Unfreeze Button - Professor Only */}
+        {isProfessor && (
+          <button
+            onClick={task.frozen ? onUnfreeze : onFreeze}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              task.frozen
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+            title={task.frozen ? t("unfreezeTask") : t("freezeTask")}
+          >
+            <Snowflake className="h-4 w-4" />
+            {task.frozen ? t("unfreezeTask") : t("freezeTask")}
+          </button>
+        )}
       </div>
     </div>
   );
