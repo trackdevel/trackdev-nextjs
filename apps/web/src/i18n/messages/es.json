@@ -204,7 +204,15 @@
     "changedReporter": "cambió el reportero de {from} a {to}",
     "changedRank": "cambió el rango",
     "changedField": "cambió {field}",
-    "none": "ninguno"
+    "none": "ninguno",
+    "frozen": "Congelada",
+    "freezeTask": "Congelar Tarea",
+    "unfreezeTask": "Descongelar Tarea",
+    "taskIsFrozen": "Esta tarea está congelada y no se puede modificar",
+    "taskFrozen": "Tarea congelada correctamente",
+    "taskUnfrozen": "Tarea descongelada correctamente",
+    "confirmFreezeTask": "¿Estás seguro de que quieres congelar esta tarea? Nadie podrá hacer cambios hasta que la descongeles.",
+    "confirmUnfreezeTask": "¿Estás seguro de que quieres descongelar esta tarea? Los usuarios podrán hacer cambios nuevamente."
   },
   "reports": {
     "title": "Informes",

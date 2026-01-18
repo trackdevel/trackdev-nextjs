@@ -204,7 +204,15 @@
     "changedReporter": "changed reporter from {from} to {to}",
     "changedRank": "changed the rank",
     "changedField": "changed {field}",
-    "none": "none"
+    "none": "none",
+    "frozen": "Frozen",
+    "freezeTask": "Freeze Task",
+    "unfreezeTask": "Unfreeze Task",
+    "taskIsFrozen": "This task is frozen and cannot be modified",
+    "taskFrozen": "Task frozen successfully",
+    "taskUnfrozen": "Task unfrozen successfully",
+    "confirmFreezeTask": "Are you sure you want to freeze this task? No one will be able to make changes until you unfreeze it.",
+    "confirmUnfreezeTask": "Are you sure you want to unfreeze this task? Users will be able to make changes again."
   },
   "reports": {
     "title": "Reports",
