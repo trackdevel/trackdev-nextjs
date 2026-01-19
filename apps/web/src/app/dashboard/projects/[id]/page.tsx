@@ -473,7 +473,7 @@ export default function ProjectDetailPage() {
           tasks={tasks as Task[]}
           showCount
           title={tTasks("recentTasks")}
-          viewAllHref={`/dashboard/projects/${projectId}/backlog`}
+          viewAllHref={`/dashboard/projects/${projectId}/tasks`}
           emptyTitle={t("noTasksCreated")}
           emptyDescription={t("createTasksInBacklog")}
         />
@@ -584,10 +584,11 @@ export default function ProjectDetailPage() {
       </Modal>
 
       {/* Manage Members Modal */}
-      {canEditMembers && (
+      {canEditMembers && project?.course?.id && (
         <ManageMembersModal
           isOpen={showManageMembersModal}
           onClose={() => setShowManageMembersModal(false)}
+          courseId={project.course.id}
           currentMembers={project?.members || []}
           onAddMember={handleAddMember}
           onRemoveMember={handleRemoveMember}

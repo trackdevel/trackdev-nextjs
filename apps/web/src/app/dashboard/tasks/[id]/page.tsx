@@ -1,7 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-import { tasksApi, useAuth, useQuery } from "@trackdev/api-client";
+import { projectsApi, tasksApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { TaskStatus, TaskType } from "@trackdev/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -31,6 +31,7 @@ const initialEditState: EditState = {
   estimation: 0,
   status: "BACKLOG",
   taskType: "TASK",
+  sprintId: null,
   isSaving: false,
   error: null,
   taskOverride: null,
@@ -47,6 +48,7 @@ function editReducer(state: EditState, action: EditAction): EditState {
         estimation: action.task.estimationPoints ?? 0,
         status: action.task.status,
         taskType: action.task.type,
+        sprintId: action.task.activeSprints?.[0]?.id ?? null,
         error: null,
       };
     case "SET_NAME":
@@ -59,6 +61,8 @@ function editReducer(state: EditState, action: EditAction): EditState {
       return { ...state, status: action.value };
     case "SET_TASK_TYPE":
       return { ...state, taskType: action.value };
+    case "SET_SPRINT":
+      return { ...state, sprintId: action.value };
     case "SAVE_START":
       return { ...state, isSaving: true, error: null };
     case "SAVE_SUCCESS":
@@ -100,6 +104,26 @@ export default function TaskDetailPage() {
     enabled: isAuthenticated && !isNaN(taskId),
   });
 
+  // Fetch project sprints for sprint selection (only for TASK/BUG types)
+  const { data: projectSprints } = useQuery(
+    () =>
+      fetchedTask?.project?.id
+        ? projectsApi.getSprints(fetchedTask.project.id)
+        : Promise.resolve({ sprints: [], projectId: 0 }),
+    [fetchedTask?.project?.id],
+    {
+      enabled: isAuthenticated && !!fetchedTask?.project?.id,
+    }
+  );
+
+  // Filter sprints to only show ACTIVE or DRAFT (future) sprints
+  const availableSprints = useMemo(() => {
+    if (!projectSprints?.sprints) return [];
+    return projectSprints.sprints.filter(
+      (sprint) => sprint.status === "ACTIVE" || sprint.status === "DRAFT"
+    );
+  }, [projectSprints?.sprints]);
+
   // Edit state managed by reducer
   const [editState, dispatch] = useReducer(editReducer, initialEditState);
 
@@ -117,12 +141,16 @@ export default function TaskDetailPage() {
 
   // Check if user is a professor
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
+  const isStudent = user?.roles?.includes("STUDENT") ?? false;
 
   // Derived values
   const isLoading = authLoading || dataLoading;
   const isFrozen = fetchedTask?.frozen ?? false;
   // Professors can edit frozen tasks, students cannot
   const canEdit = (fetchedTask?.canEdit ?? false) && (!isFrozen || isProfessor);
+  // Can self-assign if: is a student, task is unassigned, and task is not frozen
+  const canSelfAssign =
+    isStudent && !fetchedTask?.assignee && !isFrozen && !!fetchedTask;
   const availableStatuses: TaskStatus[] =
     task?.type === "USER_STORY"
       ? ["BACKLOG", "DEFINED", "DONE"]
@@ -188,6 +216,10 @@ export default function TaskDetailPage() {
     dispatch({ type: "SET_TASK_TYPE", value });
   }, []);
 
+  const handleSprintChange = useCallback((value: number | null) => {
+    dispatch({ type: "SET_SPRINT", value });
+  }, []);
+
   const handleSave = useCallback(async () => {
     if (!taskId || isNaN(taskId) || !editState.field) return;
 
@@ -217,6 +249,9 @@ export default function TaskDetailPage() {
         case "type":
           updateData = { type: editState.taskType };
           break;
+        case "sprint":
+          updateData = { sprintId: editState.sprintId };
+          break;
       }
 
       const result = await tasksApi.update(taskId, updateData);
@@ -239,6 +274,7 @@ export default function TaskDetailPage() {
     editState.estimation,
     editState.status,
     editState.taskType,
+    editState.sprintId,
     t,
   ]);
 
@@ -267,6 +303,23 @@ export default function TaskDetailPage() {
       }
     }
   }, [taskId]);
+
+  const handleSelfAssign = useCallback(async () => {
+    if (!taskId || isNaN(taskId)) return;
+
+    try {
+      const result = await tasksApi.selfAssign(taskId);
+      dispatch({ type: "SAVE_SUCCESS", result });
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Failed to self-assign task:", err);
+      }
+      dispatch({
+        type: "SAVE_ERROR",
+        error: t("failedToAssign"),
+      });
+    }
+  }, [taskId, t]);
 
   // Render loading state
   if (isLoading) {
@@ -345,8 +398,11 @@ export default function TaskDetailPage() {
           />
 
           {/* Child Tasks (for User Stories) */}
-          {deferredTask.type === "USER_STORY" && deferredTask.childTasks && (
-            <TaskChildren childTasks={deferredTask.childTasks} />
+          {deferredTask.type === "USER_STORY" && (
+            <TaskChildren
+              childTasks={deferredTask.childTasks || []}
+              parentTaskId={taskId}
+            />
           )}
 
           {/* Pull Requests */}
@@ -374,12 +430,16 @@ export default function TaskDetailPage() {
           editState={editState}
           canEdit={canEdit}
           availableStatuses={availableStatuses}
+          availableSprints={availableSprints}
+          canSelfAssign={canSelfAssign}
           onStartEdit={handleStartEdit}
           onSave={handleSave}
           onCancel={handleCancel}
           onEstimationChange={handleEstimationChange}
           onStatusChange={handleStatusChange}
           onTypeChange={handleTypeChange}
+          onSprintChange={handleSprintChange}
+          onSelfAssign={handleSelfAssign}
         />
       </div>
     </div>

@@ -9,6 +9,7 @@ export type InviteStatus = "PENDING" | "ACCEPTED" | "EXPIRED" | "CANCELLED";
 
 export interface CourseInvite {
   id: number;
+  fullName?: string;
   email: string;
   courseId: number;
   invitedById: string;
@@ -66,7 +67,7 @@ export interface ProjectWithMembers {
 }
 
 export interface InviteStudentsRequest {
-  emails: string[];
+  entries: string[];
 }
 
 export interface AcceptInviteRequest {

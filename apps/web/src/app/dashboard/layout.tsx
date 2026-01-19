@@ -7,6 +7,8 @@ import type { RoleName } from "@trackdev/types";
 import {
   BookOpen,
   Building2,
+  ChevronLeft,
+  ChevronRight,
   FolderKanban,
   Layers,
   LayoutDashboard,
@@ -18,7 +20,7 @@ import {
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface NavItem {
   href: string;
@@ -92,6 +94,24 @@ export default function DashboardLayout({
   const tAuth = useTranslations("auth");
   const tUserTypes = useTranslations("userTypes");
 
+  // Sidebar collapsed state with localStorage persistence
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Load collapsed state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebar-collapsed");
+    if (saved !== null) {
+      setIsCollapsed(saved === "true");
+    }
+  }, []);
+
+  // Save collapsed state to localStorage
+  const toggleSidebar = () => {
+    const newValue = !isCollapsed;
+    setIsCollapsed(newValue);
+    localStorage.setItem("sidebar-collapsed", String(newValue));
+  };
+
   // Track navigation history for BackButton functionality
   useNavigationTracking();
 
@@ -158,46 +178,61 @@ export default function DashboardLayout({
 
   const roleBadge = getRoleBadge();
 
+  // Sidebar width classes
+  const sidebarWidth = isCollapsed ? "w-16" : "w-64";
+  const mainMargin = isCollapsed ? "ml-16" : "ml-64";
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r bg-white">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 border-r bg-white transition-all duration-300 ${sidebarWidth}`}
+      >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center gap-2 border-b px-6">
-            <Layers className="h-8 w-8 text-primary-600" />
-            <span className="text-xl font-bold text-gray-900">TrackDev</span>
+          <div className="flex h-16 items-center gap-2 border-b px-4">
+            <Layers className="h-8 w-8 flex-shrink-0 text-primary-600" />
+            {!isCollapsed && (
+              <span className="text-xl font-bold text-gray-900">TrackDev</span>
+            )}
           </div>
 
           {/* User Info */}
-          <div className="border-b px-4 py-4">
+          <div className="border-b px-3 py-4">
             <div className="flex items-center gap-3">
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium text-white"
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
                 style={{ backgroundColor: user?.color || "#3b82f6" }}
+                title={isCollapsed ? user?.username : undefined}
               >
                 {user?.capitalLetters ||
                   user?.username?.slice(0, 2).toUpperCase()}
               </div>
-              <div className="flex-1 truncate">
-                <p className="truncate text-sm font-medium text-gray-900">
-                  {user?.username}
-                </p>
-                <p className="truncate text-xs text-gray-500">{user?.email}</p>
+              {!isCollapsed && (
+                <div className="flex-1 truncate">
+                  <p className="truncate text-sm font-medium text-gray-900">
+                    {user?.username}
+                  </p>
+                  <p className="truncate text-xs text-gray-500">
+                    {user?.email}
+                  </p>
+                </div>
+              )}
+            </div>
+            {!isCollapsed && (
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${roleBadge.color}`}
+                >
+                  <Shield className="h-3 w-3" />
+                  {roleBadge.label}
+                </span>
               </div>
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${roleBadge.color}`}
-              >
-                <Shield className="h-3 w-3" />
-                {roleBadge.label}
-              </span>
-            </div>
+            )}
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+          <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
             {navItems.map((item) => {
               const isActive =
                 pathname === item.href ||
@@ -211,30 +246,52 @@ export default function DashboardLayout({
                     isActive
                       ? "bg-primary-50 text-primary-700"
                       : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                  } ${isCollapsed ? "justify-center" : ""}`}
+                  title={isCollapsed ? item.label : undefined}
                 >
-                  {item.icon}
-                  {item.label}
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  {!isCollapsed && item.label}
                 </Link>
               );
             })}
           </nav>
 
+          {/* Collapse Toggle */}
+          <div className="border-t p-2">
+            <button
+              onClick={toggleSidebar}
+              className="flex w-full items-center justify-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+              title={isCollapsed ? t("expandSidebar") : t("collapseSidebar")}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-5 w-5" />
+              ) : (
+                <>
+                  <ChevronLeft className="h-5 w-5" />
+                  <span className="flex-1 text-left">{t("collapse")}</span>
+                </>
+              )}
+            </button>
+          </div>
+
           {/* Logout */}
-          <div className="border-t p-3">
+          <div className="border-t p-2">
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 ${
+                isCollapsed ? "justify-center" : ""
+              }`}
+              title={isCollapsed ? tAuth("logout") : undefined}
             >
-              <LogOut className="h-5 w-5" />
-              {tAuth("logout")}
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              {!isCollapsed && tAuth("logout")}
             </button>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 flex-1">
+      <main className={`flex-1 transition-all duration-300 ${mainMargin}`}>
         <div className="min-h-screen">
           <ErrorBoundary>{children}</ErrorBoundary>
         </div>
