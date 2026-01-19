@@ -201,12 +201,11 @@ function InviteStudentsModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [emails, setEmails] = useState("");
+  const [entries, setEntries] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const inviteMutation = useMutation(
-    (emailList: string[]) =>
-      coursesApi.sendInvites(courseId, { emails: emailList }),
+    (entries: string[]) => coursesApi.sendInvites(courseId, { entries }),
     {
       onSuccess: () => {
         onSuccess();
@@ -221,27 +220,51 @@ function InviteStudentsModal({
     e.preventDefault();
     setError(null);
 
-    // Parse emails (comma, semicolon, newline, or space separated)
-    const emailList = emails
-      .split(/[,;\s\n]+/)
-      .map((email) => email.trim().toLowerCase())
-      .filter((email) => email.length > 0);
+    // Parse entries (newline separated, each can be "Full Name", email OR just email)
+    const entryList = entries
+      .split(/\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
 
-    if (emailList.length === 0) {
-      setError("Please enter at least one email address");
+    if (entryList.length === 0) {
+      setError("Please enter at least one entry");
       return;
     }
 
-    // Basic email validation
-    const invalidEmails = emailList.filter(
-      (email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    );
-    if (invalidEmails.length > 0) {
-      setError(`Invalid email addresses: ${invalidEmails.join(", ")}`);
+    // Basic validation: each entry should either be:
+    // 1. "Full Name", email format
+    // 2. Just an email
+    const quotePattern = /^"([^"]+)"\s*,\s*(.+)$/;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const invalidEntries: string[] = [];
+
+    entryList.forEach((entry) => {
+      const match = quotePattern.exec(entry);
+      if (match) {
+        // Has full name format - validate the email part
+        const email = match[2].trim();
+        if (!emailPattern.test(email)) {
+          invalidEntries.push(entry);
+        }
+      } else {
+        // Plain email - validate it
+        if (!emailPattern.test(entry)) {
+          invalidEntries.push(entry);
+        }
+      }
+    });
+
+    if (invalidEntries.length > 0) {
+      setError(
+        `Invalid entries (check email format or use \"Full Name\", email format):\n${invalidEntries
+          .slice(0, 3)
+          .join("\n")}${invalidEntries.length > 3 ? "\n..." : ""}`
+      );
       return;
     }
 
-    inviteMutation.mutate(emailList);
+    inviteMutation.mutate(entryList);
   };
 
   return (
@@ -262,16 +285,17 @@ function InviteStudentsModal({
         <form onSubmit={handleSubmit} className="p-4">
           <div className="mb-4">
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              Email Addresses
+              Student Invitations
             </label>
             <textarea
-              value={emails}
-              onChange={(e) => setEmails(e.target.value)}
+              value={entries}
+              onChange={(e) => setEntries(e.target.value)}
               className="h-32 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              placeholder="Enter email addresses, one per line or separated by commas&#10;&#10;student1@example.com&#10;student2@example.com"
+              placeholder='Enter one per line. Formats:&#10;&#10;"John Doe", john.doe@example.com&#10;"Jane Smith", jane@example.com&#10;&#10;Or just emails:&#10;student@example.com'
             />
             <p className="mt-1 text-xs text-gray-500">
-              Separate multiple emails with commas, semicolons, or new lines
+              Use \"Full Name\", email format (full name in quotes) or just
+              email addresses, one per line
             </p>
           </div>
 
@@ -309,6 +333,11 @@ function InviteStudentsModal({
             How it works:
           </h3>
           <ul className="space-y-1 text-xs text-gray-500">
+            <li>
+              • Use \"Full Name\", email format to include student names in
+              invitations
+            </li>
+            <li>• Or just enter email addresses (backward compatible)</li>
             <li>
               • Each student will receive an email with a unique invitation link
             </li>
