@@ -90,15 +90,32 @@ export const tasksApi = {
 
   /**
    * Create a subtask under a user story
+   * @param parentId - The ID of the parent USER_STORY task
+   * @param data - The subtask data
+   * @param sprintId - Optional sprint ID to assign the subtask to
    */
-  createSubtask: (parentId: number, data: TaskCreateRequest) =>
-    api.post<IdObject>(`/tasks/${parentId}/subtasks`, data),
+  createSubtask: (
+    parentId: number,
+    data: TaskCreateRequest,
+    sprintId?: number
+  ) => api.post<IdObject>(`/tasks/${parentId}/subtasks`, { ...data, sprintId }),
 
   /**
    * Update a task
+   * Note: sprintId is converted to activeSprints array for backend compatibility
    */
-  update: (id: number, data: TaskUpdateRequest) =>
-    api.patch<Task>(`/tasks/${id}`, data),
+  update: (id: number, data: TaskUpdateRequest) => {
+    // Transform sprintId to activeSprints for backend
+    const { sprintId, ...rest } = data;
+    const backendData: Record<string, unknown> = { ...rest };
+
+    if (sprintId !== undefined) {
+      // sprintId: null means remove from all sprints, sprintId: number means add to that sprint
+      backendData.activeSprints = sprintId === null ? [] : [sprintId];
+    }
+
+    return api.patch<Task>(`/tasks/${id}`, backendData);
+  },
 
   /**
    * Delete a task
@@ -171,4 +188,14 @@ export const tasksApi = {
    * Unfreeze a task (PROFESSOR only)
    */
   unfreeze: (id: number) => api.post<Task>(`/tasks/${id}/unfreeze`, {}),
+
+  /**
+   * Self-assign task to current user
+   */
+  selfAssign: (id: number) => api.post<Task>(`/tasks/${id}/assign`, {}),
+
+  /**
+   * Unassign task from current user
+   */
+  unassign: (id: number) => api.delete<Task>(`/tasks/${id}/assign`),
 };
