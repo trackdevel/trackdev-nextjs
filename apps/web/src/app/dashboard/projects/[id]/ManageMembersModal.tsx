@@ -1,7 +1,7 @@
 "use client";
 
 import { Modal, SearchInput } from "@/components/ui";
-import { useQuery, usersApi } from "@trackdev/api-client";
+import { coursesApi, useQuery } from "@trackdev/api-client";
 import type { UserPublic } from "@trackdev/types";
 import { Plus, Trash2, Users as UsersIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -10,6 +10,7 @@ import { useState } from "react";
 interface ManageMembersModalProps {
   isOpen: boolean;
   onClose: () => void;
+  courseId: number;
   currentMembers: UserPublic[];
   onAddMember: (userId: string) => void;
   onRemoveMember: (userId: string) => void;
@@ -21,6 +22,7 @@ const ITEMS_PER_PAGE = 5;
 export function ManageMembersModal({
   isOpen,
   onClose,
+  courseId,
   currentMembers,
   onAddMember,
   onRemoveMember,
@@ -31,21 +33,18 @@ export function ManageMembersModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch all users
-  const { data: usersResponse, isLoading: loadingUsers } = useQuery(
-    () => usersApi.getAll(),
-    [],
-    { enabled: isOpen }
+  // Fetch students enrolled in the course
+  const { data: studentsResponse, isLoading: loadingStudents } = useQuery(
+    () => coursesApi.getStudents(courseId),
+    [courseId],
+    { enabled: isOpen && !!courseId }
   );
 
-  const allUsers = usersResponse?.users || [];
-
-  // Filter to get only students
-  const students = allUsers.filter((user) => user.roles?.includes("STUDENT"));
+  const courseStudents = studentsResponse?.students || [];
 
   // Filter students not currently in the project
   const currentMemberIds = new Set(currentMembers.map((m) => m.id));
-  const availableStudents = students.filter(
+  const availableStudents = courseStudents.filter(
     (student) => !currentMemberIds.has(student.id)
   );
 
@@ -129,101 +128,98 @@ export function ManageMembersModal({
           )}
         </div>
 
-        {/* Available Students Section */}
+        {/* Add Students Section - Search-based */}
         <div>
           <h3 className="mb-3 text-sm font-medium text-gray-900">
             {t("availableStudents")}
           </h3>
 
-          <div className="mb-3">
+          <div className="relative">
             <SearchInput
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder={t("searchStudents")}
             />
-          </div>
 
-          {loadingUsers ? (
-            <div className="rounded-lg border px-4 py-8 text-center text-gray-500">
-              <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
-              <p className="mt-2 text-sm">{t("loadingStudents")}</p>
-            </div>
-          ) : paginatedStudents.length > 0 ? (
-            <>
-              <ul className="divide-y rounded-lg border">
-                {paginatedStudents.map((student) => (
-                  <li
-                    key={student.id}
-                    className="flex items-center justify-between px-4 py-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium text-white"
-                        style={{
-                          backgroundColor: student.color || "#3b82f6",
-                        }}
-                      >
-                        {student.capitalLetters ||
-                          student.username?.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {student.username}
-                        </p>
-                        <p className="text-sm text-gray-500">{student.email}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => onAddMember(student.id)}
-                      disabled={isLoading}
-                      className="flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
-                    >
-                      <Plus className="h-4 w-4" />
-                      {t("addMember")}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
-                  <span>
-                    {tCommon("showing")}{" "}
-                    {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
-                    {Math.min(
-                      currentPage * ITEMS_PER_PAGE,
-                      filteredStudents.length
-                    )}{" "}
-                    {tCommon("of")} {filteredStudents.length}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="rounded border px-3 py-1 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      {tCommon("previous")}
-                    </button>
-                    <button
-                      onClick={() =>
-                        setCurrentPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      disabled={currentPage === totalPages}
-                      className="rounded border px-3 py-1 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      {tCommon("next")}
-                    </button>
+            {/* Search Results - shown immediately below search bar */}
+            {searchQuery.length > 0 && (
+              <div className="mt-2 max-h-64 overflow-y-auto rounded-lg border bg-white shadow-lg">
+                {loadingStudents ? (
+                  <div className="px-4 py-6 text-center text-gray-500">
+                    <div className="mx-auto h-5 w-5 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
+                    <p className="mt-2 text-sm">{t("loadingStudents")}</p>
                   </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="rounded-lg border border-dashed px-4 py-8 text-center text-gray-500">
-              <UsersIcon className="mx-auto h-8 w-8 text-gray-300" />
-              <p className="mt-2 text-sm">{t("noStudentsFound")}</p>
-            </div>
-          )}
+                ) : paginatedStudents.length > 0 ? (
+                  <>
+                    <ul className="divide-y">
+                      {paginatedStudents.map((student) => (
+                        <li
+                          key={student.id}
+                          className="flex items-center justify-between px-4 py-2 hover:bg-gray-50"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium text-white"
+                              style={{
+                                backgroundColor: student.color || "#3b82f6",
+                              }}
+                            >
+                              {student.capitalLetters ||
+                                student.username?.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                {student.username}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {student.email}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              onAddMember(student.id);
+                              setSearchQuery("");
+                            }}
+                            disabled={isLoading}
+                            className="flex items-center gap-1 rounded bg-primary-600 px-2 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+                          >
+                            <Plus className="h-3 w-3" />
+                            {t("addMember")}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    {/* Pagination info */}
+                    {filteredStudents.length > ITEMS_PER_PAGE && (
+                      <div className="border-t px-4 py-2 text-center text-xs text-gray-500">
+                        {tCommon("showing")} {paginatedStudents.length}{" "}
+                        {tCommon("of")} {filteredStudents.length} •{" "}
+                        <button
+                          onClick={() => setCurrentPage((p) => p + 1)}
+                          disabled={currentPage >= totalPages}
+                          className="text-primary-600 hover:underline disabled:text-gray-400"
+                        >
+                          {tCommon("showMore")}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="px-4 py-6 text-center text-gray-500">
+                    <p className="text-sm">{t("noStudentsFound")}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Hint when not searching */}
+            {searchQuery.length === 0 && !loadingStudents && (
+              <p className="mt-2 text-xs text-gray-500">
+                {t("typeToSearchStudents")}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Actions */}
