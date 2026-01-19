@@ -144,6 +144,11 @@ function formatChange(
       });
     case "rank":
       return t("changedRank");
+    case "active_sprints":
+      return t("changedSprint", {
+        from: log.oldValue || t("noSprint"),
+        to: log.newValue || t("noSprint"),
+      });
     default:
       return t("changedField", { field: log.field });
   }

@@ -1,11 +1,12 @@
 "use client";
 
 import { Select } from "@/components/ui";
+import type { SprintSummary } from "@trackdev/api-client";
 import type { TaskStatus, TaskType } from "@trackdev/types";
-import { Check, Loader2, Pencil, X } from "lucide-react";
+import { Check, Loader2, Pencil, UserPlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { STATUS_CONFIG, TYPE_CONFIG } from "../constants";
 import type { EditField, EditState, TaskWithProject } from "../types";
 
@@ -14,12 +15,16 @@ interface TaskSidebarProps {
   editState: EditState;
   canEdit: boolean;
   availableStatuses: TaskStatus[];
+  availableSprints: SprintSummary[];
+  canSelfAssign: boolean;
   onStartEdit: (field: EditField) => void;
   onSave: () => void;
   onCancel: () => void;
   onEstimationChange: (value: number) => void;
   onStatusChange: (value: TaskStatus) => void;
   onTypeChange: (value: TaskType) => void;
+  onSprintChange: (value: number | null) => void;
+  onSelfAssign: () => Promise<void>;
 }
 
 export const TaskSidebar = memo(function TaskSidebar({
@@ -27,17 +32,22 @@ export const TaskSidebar = memo(function TaskSidebar({
   editState,
   canEdit,
   availableStatuses,
+  availableSprints,
+  canSelfAssign,
   onStartEdit,
   onSave,
   onCancel,
   onEstimationChange,
   onStatusChange,
   onTypeChange,
+  onSprintChange,
+  onSelfAssign,
 }: TaskSidebarProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
   const statusConfig = STATUS_CONFIG[task.status] || STATUS_CONFIG.TODO;
   const typeConfig = TYPE_CONFIG[task.type] || TYPE_CONFIG.TASK;
+  const [isAssigning, setIsAssigning] = useState(false);
 
   // Determine which types are available based on entity constraints:
   // - USER_STORY with child tasks cannot change type
@@ -64,6 +74,16 @@ export const TaskSidebar = memo(function TaskSidebar({
 
   // Can edit type only if there are available types to choose from
   const canEditType = canEdit && availableTypes.length > 1;
+
+  // USER_STORY can edit sprint only if ALL subtasks are unassigned from any sprint
+  const userStoryCanEditSprint = useMemo(() => {
+    if (task.type !== "USER_STORY") return false;
+    if (!task.childTasks || task.childTasks.length === 0) return true; // No subtasks = can assign
+    // Check if all subtasks have no sprint
+    return task.childTasks.every(
+      (subtask) => !subtask.activeSprints || subtask.activeSprints.length === 0
+    );
+  }, [task.type, task.childTasks]);
 
   // Translation helpers for status and type labels
   const getStatusLabel = (status: string) => {
@@ -113,7 +133,31 @@ export const TaskSidebar = memo(function TaskSidebar({
                 <span className="text-gray-900">{task.assignee.username}</span>
               </div>
             ) : (
-              <span className="text-gray-500">{t("unassigned")}</span>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-500">{t("unassigned")}</span>
+                {canSelfAssign && (
+                  <button
+                    onClick={async () => {
+                      setIsAssigning(true);
+                      try {
+                        await onSelfAssign();
+                      } finally {
+                        setIsAssigning(false);
+                      }
+                    }}
+                    disabled={isAssigning}
+                    className="inline-flex items-center gap-1 rounded-md bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100 disabled:opacity-50"
+                    title={t("assignToMe")}
+                  >
+                    {isAssigning ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <UserPlus className="h-3 w-3" />
+                    )}
+                    {t("assignToMe")}
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
@@ -343,25 +387,103 @@ export const TaskSidebar = memo(function TaskSidebar({
             </div>
           )}
 
-          {/* Active Sprints */}
-          {task.activeSprints && task.activeSprints.length > 0 && (
+          {/* Sprint - Editable for TASK/BUG, or USER_STORY with all subtasks unassigned */}
+          {(task.type !== "USER_STORY" || userStoryCanEditSprint) && (
             <div className="px-6 py-3">
-              <p className="text-sm font-medium text-gray-500 mb-1">
-                {t("sprint")}
-              </p>
-              <div className="space-y-1">
-                {task.activeSprints.map((sprint) => (
-                  <Link
-                    key={sprint.id}
-                    href={`/dashboard/sprints/${sprint.id}`}
-                    className="block text-primary-600 hover:underline"
-                  >
-                    {sprint.name}
-                  </Link>
-                ))}
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-medium text-gray-500">
+                  {t("sprint")}
+                </p>
+                {canEdit &&
+                  task.status !== "DONE" &&
+                  editState.field !== "sprint" && (
+                    <button
+                      onClick={() => onStartEdit("sprint")}
+                      className="p-1 text-gray-400 hover:text-gray-600"
+                      title={t("sprint")}
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                  )}
               </div>
+              {editState.field === "sprint" ? (
+                <div className="space-y-2">
+                  <Select
+                    value={editState.sprintId?.toString() || ""}
+                    onChange={(value) =>
+                      onSprintChange(value ? Number(value) : null)
+                    }
+                    options={[
+                      { value: "", label: t("noSprint") },
+                      ...availableSprints.map((sprint) => ({
+                        value: sprint.id.toString(),
+                        label: sprint.label,
+                      })),
+                    ]}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={onSave}
+                      disabled={editState.isSaving}
+                      className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                    >
+                      {editState.isSaving ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4" />
+                      )}
+                      {tCommon("save")}
+                    </button>
+                    <button
+                      onClick={onCancel}
+                      disabled={editState.isSaving}
+                      className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                    >
+                      <X className="h-4 w-4" />
+                      {tCommon("cancel")}
+                    </button>
+                  </div>
+                </div>
+              ) : task.activeSprints && task.activeSprints.length > 0 ? (
+                <div className="space-y-1">
+                  {task.activeSprints.map((sprint) => (
+                    <Link
+                      key={sprint.id}
+                      href={`/dashboard/sprints/${sprint.id}`}
+                      className="block text-primary-600 hover:underline"
+                    >
+                      {sprint.name}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-gray-500">{t("noSprint")}</span>
+              )}
             </div>
           )}
+
+          {/* Active Sprints - For USER_STORY (read-only, derived from subtasks when some have sprints) */}
+          {task.type === "USER_STORY" &&
+            !userStoryCanEditSprint &&
+            task.activeSprints &&
+            task.activeSprints.length > 0 && (
+              <div className="px-6 py-3">
+                <p className="text-sm font-medium text-gray-500 mb-1">
+                  {t("sprint")}
+                </p>
+                <div className="space-y-1">
+                  {task.activeSprints.map((sprint) => (
+                    <Link
+                      key={sprint.id}
+                      href={`/dashboard/sprints/${sprint.id}`}
+                      className="block text-primary-600 hover:underline"
+                    >
+                      {sprint.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
         </div>
       </div>
     </div>
