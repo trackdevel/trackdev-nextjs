@@ -10,6 +10,7 @@ export type EditField =
   | "estimation"
   | "status"
   | "type"
+  | "sprint"
   | null;
 
 export interface EditState {
@@ -19,6 +20,7 @@ export interface EditState {
   estimation: number;
   status: TaskStatus;
   taskType: TaskType;
+  sprintId: number | null;
   isSaving: boolean;
   error: string | null;
   // Local task data that can be updated optimistically
@@ -32,6 +34,7 @@ export type EditAction =
   | { type: "SET_ESTIMATION"; value: number }
   | { type: "SET_STATUS"; value: TaskStatus }
   | { type: "SET_TASK_TYPE"; value: TaskType }
+  | { type: "SET_SPRINT"; value: number | null }
   | { type: "SAVE_START" }
   | { type: "SAVE_SUCCESS"; result: Partial<TaskWithProject> }
   | { type: "SAVE_ERROR"; error: string }
