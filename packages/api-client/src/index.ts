@@ -3,6 +3,7 @@
 // Shared fetch client for web and mobile apps
 // ============================================
 
+export * from "./activities";
 export * from "./auth";
 export * from "./client";
 export * from "./context";
