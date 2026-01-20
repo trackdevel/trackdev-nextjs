@@ -70,6 +70,7 @@
     "users": "Users",
     "students": "Students",
     "workspaces": "Workspaces",
+    "activity": "Activity",
     "collapse": "Collapse",
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar"
@@ -573,5 +574,30 @@
     "workspaceAdminOnly": "Only workspace administrators can access this page",
     "errorLoading": "Error loading users",
     "you": "You"
+  },
+  "activity": {
+    "title": "Activity",
+    "noActivity": "No activity yet",
+    "noActivityDescription": "Activity from your projects will appear here",
+    "loadMore": "Load More",
+    "loading": "Loading activity...",
+    "markAllRead": "Mark all as read",
+    "newActivity": "New activity",
+    "eventTaskCreated": "{actor} created task {taskKey}",
+    "eventTaskUpdated": "{actor} updated task {taskKey}",
+    "eventTaskStatusChanged": "{actor} changed status of {taskKey} from {oldValue} to {newValue}",
+    "eventTaskAssigned": "{actor} assigned {taskKey} to {newValue}",
+    "eventTaskUnassigned": "{actor} unassigned {oldValue} from {taskKey}",
+    "eventTaskEstimationChanged": "{actor} changed estimation of {taskKey} from {oldValue} to {newValue} points",
+    "eventCommentAdded": "{actor} commented on {taskKey}",
+    "eventPrLinked": "{actor} linked a pull request to {taskKey}",
+    "eventPrUnlinked": "{actor} unlinked a pull request from {taskKey}",
+    "eventPrStateChanged": "{actor} changed PR state on {taskKey}",
+    "eventPrMerged": "{actor} merged a pull request on {taskKey}",
+    "eventTaskAddedToSprint": "{actor} added {taskKey} to sprint {newValue}",
+    "eventTaskRemovedFromSprint": "{actor} removed {taskKey} from sprint {oldValue}",
+    "projectActivity": "Project: {projectName}",
+    "timeAgo": "{time} ago",
+    "justNow": "Just now"
   }
 }

@@ -70,6 +70,7 @@
     "users": "Usuaris",
     "students": "Estudiants",
     "workspaces": "Espais de treball",
+    "activity": "Activitat",
     "collapse": "Contraure",
     "collapseSidebar": "Contraure barra lateral",
     "expandSidebar": "Expandir barra lateral"
@@ -573,5 +574,30 @@
     "workspaceAdminOnly": "Només els administradors de l'espai de treball poden accedir a aquesta pàgina",
     "errorLoading": "Error en carregar usuaris",
     "you": "Tu"
+  },
+  "activity": {
+    "title": "Activitat",
+    "noActivity": "Sense activitat encara",
+    "noActivityDescription": "L'activitat dels teus projectes apareixerà aquí",
+    "loadMore": "Carregar Més",
+    "loading": "Carregant activitat...",
+    "markAllRead": "Marcar tot com a llegit",
+    "newActivity": "Nova activitat",
+    "eventTaskCreated": "{actor} va crear la tasca {taskKey}",
+    "eventTaskUpdated": "{actor} va actualitzar la tasca {taskKey}",
+    "eventTaskStatusChanged": "{actor} va canviar l'estat de {taskKey} de {oldValue} a {newValue}",
+    "eventTaskAssigned": "{actor} va assignar {taskKey} a {newValue}",
+    "eventTaskUnassigned": "{actor} va desassignar a {oldValue} de {taskKey}",
+    "eventTaskEstimationChanged": "{actor} va canviar l'estimació de {taskKey} de {oldValue} a {newValue} punts",
+    "eventCommentAdded": "{actor} va comentar a {taskKey}",
+    "eventPrLinked": "{actor} va enllaçar un pull request a {taskKey}",
+    "eventPrUnlinked": "{actor} va desenllaçar un pull request de {taskKey}",
+    "eventPrStateChanged": "{actor} va canviar l'estat del PR a {taskKey}",
+    "eventPrMerged": "{actor} va fusionar un pull request a {taskKey}",
+    "eventTaskAddedToSprint": "{actor} va afegir {taskKey} a l'sprint {newValue}",
+    "eventTaskRemovedFromSprint": "{actor} va eliminar {taskKey} de l'sprint {oldValue}",
+    "projectActivity": "Projecte: {projectName}",
+    "timeAgo": "fa {time}",
+    "justNow": "Ara mateix"
   }
 }
