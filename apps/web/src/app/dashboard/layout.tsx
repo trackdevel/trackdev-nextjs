@@ -2,9 +2,10 @@
 
 import { useNavigationTracking } from "@/components/BackButton";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useAuth } from "@trackdev/api-client";
+import { activitiesApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { RoleName } from "@trackdev/types";
 import {
+  Activity,
   BookOpen,
   Building2,
   ChevronLeft,
@@ -20,13 +21,14 @@ import {
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface NavItem {
   href: string;
   labelKey: string;
   icon: React.ReactNode;
   roles?: RoleName[];
+  showBadge?: boolean;
 }
 
 const navItemsConfig: NavItem[] = [
@@ -44,6 +46,13 @@ const navItemsConfig: NavItem[] = [
     href: "/dashboard/projects",
     labelKey: "projects",
     icon: <FolderKanban className="h-5 w-5" />,
+  },
+  {
+    href: "/dashboard/activity",
+    labelKey: "activity",
+    icon: <Activity className="h-5 w-5" />,
+    roles: ["STUDENT"],
+    showBadge: true,
   },
   {
     href: "/dashboard/users",
@@ -126,6 +135,39 @@ export default function DashboardLayout({
   const isAdmin = userRoles.includes("ADMIN");
   const isProfessor = userRoles.includes("PROFESSOR");
   const isStudent = userRoles.includes("STUDENT");
+
+  // Track if we were on the activity page to trigger refetch when leaving
+  const isOnActivityPage = pathname === "/dashboard/activity";
+  const wasOnActivityPageRef = useRef(false);
+
+  // Query for unread activity count (only for students)
+  const {
+    data: unreadData,
+    isError: unreadError,
+    refetch: refetchUnread,
+  } = useQuery(() => activitiesApi.getUnreadCount(), [isStudent], {
+    enabled: isAuthenticated && isStudent,
+  });
+  const hasUnreadActivity = unreadData?.hasUnread ?? false;
+
+  // Refetch unread count when leaving the activity page
+  useEffect(() => {
+    if (wasOnActivityPageRef.current && !isOnActivityPage && isStudent) {
+      // User just left the activity page, refetch the unread count
+      refetchUnread();
+    }
+    wasOnActivityPageRef.current = isOnActivityPage;
+  }, [isOnActivityPage, isStudent, refetchUnread]);
+
+  // Debug logging for activity badge
+  useEffect(() => {
+    if (isStudent) {
+      console.log("[Activity Badge] isStudent:", isStudent);
+      console.log("[Activity Badge] unreadData:", unreadData);
+      console.log("[Activity Badge] hasUnreadActivity:", hasUnreadActivity);
+      console.log("[Activity Badge] unreadError:", unreadError);
+    }
+  }, [isStudent, unreadData, hasUnreadActivity, unreadError]);
 
   // Create nav items with translated labels
   const navItems = useMemo(
@@ -237,6 +279,8 @@ export default function DashboardLayout({
               const isActive =
                 pathname === item.href ||
                 (item.href !== "/dashboard" && pathname?.startsWith(item.href));
+              const showBadge =
+                item.showBadge && hasUnreadActivity && !isActive;
 
               return (
                 <Link
@@ -249,8 +293,20 @@ export default function DashboardLayout({
                   } ${isCollapsed ? "justify-center" : ""}`}
                   title={isCollapsed ? item.label : undefined}
                 >
-                  <span className="flex-shrink-0">{item.icon}</span>
-                  {!isCollapsed && item.label}
+                  <span className="relative flex-shrink-0">
+                    {item.icon}
+                    {showBadge && (
+                      <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                    )}
+                  </span>
+                  {!isCollapsed && (
+                    <span className="flex items-center gap-2">
+                      {item.label}
+                      {showBadge && (
+                        <span className="h-2 w-2 rounded-full bg-red-500" />
+                      )}
+                    </span>
+                  )}
                 </Link>
               );
             })}

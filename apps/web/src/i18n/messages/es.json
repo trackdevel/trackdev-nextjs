@@ -70,6 +70,7 @@
     "users": "Usuarios",
     "students": "Estudiantes",
     "workspaces": "Espacios de trabajo",
+    "activity": "Actividad",
     "collapse": "Contraer",
     "collapseSidebar": "Contraer barra lateral",
     "expandSidebar": "Expandir barra lateral"
@@ -573,5 +574,30 @@
     "workspaceAdminOnly": "Solo los administradores del espacio de trabajo pueden acceder a esta página",
     "errorLoading": "Error al cargar usuarios",
     "you": "Tú"
+  },
+  "activity": {
+    "title": "Actividad",
+    "noActivity": "Sin actividad aún",
+    "noActivityDescription": "La actividad de tus proyectos aparecerá aquí",
+    "loadMore": "Cargar Más",
+    "loading": "Cargando actividad...",
+    "markAllRead": "Marcar todo como leído",
+    "newActivity": "Nueva actividad",
+    "eventTaskCreated": "{actor} creó la tarea {taskKey}",
+    "eventTaskUpdated": "{actor} actualizó la tarea {taskKey}",
+    "eventTaskStatusChanged": "{actor} cambió el estado de {taskKey} de {oldValue} a {newValue}",
+    "eventTaskAssigned": "{actor} asignó {taskKey} a {newValue}",
+    "eventTaskUnassigned": "{actor} desasignó a {oldValue} de {taskKey}",
+    "eventTaskEstimationChanged": "{actor} cambió la estimación de {taskKey} de {oldValue} a {newValue} puntos",
+    "eventCommentAdded": "{actor} comentó en {taskKey}",
+    "eventPrLinked": "{actor} enlazó un pull request a {taskKey}",
+    "eventPrUnlinked": "{actor} desenlazó un pull request de {taskKey}",
+    "eventPrStateChanged": "{actor} cambió el estado del PR en {taskKey}",
+    "eventPrMerged": "{actor} fusionó un pull request en {taskKey}",
+    "eventTaskAddedToSprint": "{actor} añadió {taskKey} al sprint {newValue}",
+    "eventTaskRemovedFromSprint": "{actor} eliminó {taskKey} del sprint {oldValue}",
+    "projectActivity": "Proyecto: {projectName}",
+    "timeAgo": "hace {time}",
+    "justNow": "Ahora mismo"
   }
 }
