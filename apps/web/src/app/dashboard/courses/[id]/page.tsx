@@ -1,7 +1,9 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/components/ui/Toast";
 import {
+  ApiClientError,
   coursesApi,
   useAuth,
   useMutation,
@@ -201,8 +203,9 @@ function InviteStudentsModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const toast = useToast();
   const [entries, setEntries] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const inviteMutation = useMutation(
     (entries: string[]) => coursesApi.sendInvites(courseId, { entries }),
@@ -211,14 +214,18 @@ function InviteStudentsModal({
         onSuccess();
       },
       onError: (err: Error) => {
-        setError(err.message || "Failed to send invitations");
+        const errorMessage =
+          err instanceof ApiClientError && (err as ApiClientError).body?.message
+            ? (err as ApiClientError).body!.message
+            : "Failed to send invitations";
+        toast.error(errorMessage);
       },
     }
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setValidationError(null);
 
     // Parse entries (newline separated, each can be "Full Name", email OR just email)
     const entryList = entries
@@ -227,7 +234,7 @@ function InviteStudentsModal({
       .filter((line) => line.length > 0);
 
     if (entryList.length === 0) {
-      setError("Please enter at least one entry");
+      setValidationError("Please enter at least one entry");
       return;
     }
 
@@ -256,7 +263,7 @@ function InviteStudentsModal({
     });
 
     if (invalidEntries.length > 0) {
-      setError(
+      setValidationError(
         `Invalid entries (check email format or use \"Full Name\", email format):\n${invalidEntries
           .slice(0, 3)
           .join("\n")}${invalidEntries.length > 3 ? "\n..." : ""}`
@@ -299,9 +306,9 @@ function InviteStudentsModal({
             </p>
           </div>
 
-          {error && (
-            <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
-              {error}
+          {validationError && (
+            <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700 whitespace-pre-line">
+              {validationError}
             </div>
           )}
 

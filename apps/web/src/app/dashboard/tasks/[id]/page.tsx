@@ -1,13 +1,26 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-import { projectsApi, tasksApi, useAuth, useQuery } from "@trackdev/api-client";
+import { useToast } from "@/components/ui/Toast";
+import {
+  ApiClientError,
+  projectsApi,
+  tasksApi,
+  useAuth,
+  useQuery,
+} from "@trackdev/api-client";
 import type { TaskStatus, TaskType } from "@trackdev/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { useCallback, useDeferredValue, useMemo, useReducer } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useReducer,
+} from "react";
 import {
   TaskChildren,
   TaskDescription,
@@ -89,6 +102,7 @@ export default function TaskDetailPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
+  const toast = useToast();
 
   // Get navigation source from query params (e.g., ?from=sprint&sprintId=123)
   const fromSource = searchParams.get("from");
@@ -126,6 +140,15 @@ export default function TaskDetailPage() {
 
   // Edit state managed by reducer
   const [editState, dispatch] = useReducer(editReducer, initialEditState);
+
+  // Show error toast when an error occurs
+  useEffect(() => {
+    if (editState.error) {
+      toast.error(editState.error);
+      // Clear the error from state after showing toast
+      dispatch({ type: "CANCEL" });
+    }
+  }, [editState.error, toast]);
 
   // Merge fetched data with local overrides - this is the single source of truth for display
   const task = useMemo<TaskWithProject | null>(() => {
@@ -261,9 +284,14 @@ export default function TaskDetailPage() {
       if (process.env.NODE_ENV !== "production") {
         console.error("Failed to update task:", err);
       }
+      // Extract error message from API response or use fallback
+      const errorMessage =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : t("failedToUpdate");
       dispatch({
         type: "SAVE_ERROR",
-        error: t("failedToUpdate"),
+        error: errorMessage,
       });
     }
   }, [
@@ -374,13 +402,6 @@ export default function TaskDetailPage() {
         onFreeze={handleFreeze}
         onUnfreeze={handleUnfreeze}
       />
-
-      {/* Error Display */}
-      {editState.error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {editState.error}
-        </div>
-      )}
 
       {/* Main Content Grid */}
       <div className="grid gap-8 lg:grid-cols-3">

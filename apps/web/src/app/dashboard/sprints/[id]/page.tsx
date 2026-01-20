@@ -1,6 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/components/ui/Toast";
 import {
   projectsApi,
   sprintsApi,
@@ -71,6 +72,7 @@ export default function SprintBoardPage() {
   const sprintId = Number(params.id);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const t = useTranslations("sprints");
+  const toast = useToast();
 
   // Backlog panel state
   const [isBacklogOpen, setIsBacklogOpen] = useState(true);
@@ -130,8 +132,7 @@ export default function SprintBoardPage() {
         refetchProjectTasks();
       },
       onError: (error) => {
-        setUpdateError(error.message || "Failed to add task to sprint");
-        setTimeout(() => setUpdateError(null), 5000);
+        toast.error(error.message || "Failed to add task to sprint");
       },
     }
   );
@@ -160,16 +161,11 @@ export default function SprintBoardPage() {
           next.set(variables.taskId, variables.previousStatus);
           return next;
         });
-        // Set error message to display
-        setUpdateError(error.message || "Failed to update task status");
-        // Clear error after 5 seconds
-        setTimeout(() => setUpdateError(null), 5000);
+        // Show error toast
+        toast.error(error.message || "Failed to update task status");
       },
     }
   );
-
-  // Error state for task updates
-  const [updateError, setUpdateError] = useState<string | null>(null);
 
   // Show loading while auth is loading or data is loading
   const isLoading = authLoading || dataLoading;
@@ -331,8 +327,7 @@ export default function SprintBoardPage() {
 
       // Validation 1: Backlog tasks can only be moved to TODO column
       if (columnId !== "TODO") {
-        setUpdateError(t("backlogTaskMustGoToTodo"));
-        setTimeout(() => setUpdateError(null), 5000);
+        toast.error(t("backlogTaskMustGoToTodo"));
         setDraggedBacklogTask(null);
         return;
       }
@@ -347,8 +342,7 @@ export default function SprintBoardPage() {
         const isFuture = endDate && endDate >= now;
 
         if (!isActive && !isFuture) {
-          setUpdateError(t("cannotAddToClosedSprint"));
-          setTimeout(() => setUpdateError(null), 5000);
+          toast.error(t("cannotAddToClosedSprint"));
           setDraggedBacklogTask(null);
           return;
         }
@@ -426,20 +420,6 @@ export default function SprintBoardPage() {
 
   return (
     <div className="flex h-full flex-col p-8">
-      {/* Error Toast */}
-      {updateError && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 shadow-lg">
-          <AlertCircle className="h-5 w-5" />
-          <span className="text-sm font-medium">{updateError}</span>
-          <button
-            onClick={() => setUpdateError(null)}
-            className="ml-2 text-red-500 hover:text-red-700"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
       {/* Header */}
       <div className="mb-6">
         <BackButton

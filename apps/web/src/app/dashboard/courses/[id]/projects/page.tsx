@@ -3,7 +3,6 @@
 import { BackButton } from "@/components/BackButton";
 import {
   EmptyState,
-  FormError,
   FormField,
   LinkCard,
   LoadingContainer,
@@ -11,7 +10,9 @@ import {
   SimplePagination,
   StatusBadge,
 } from "@/components/ui";
+import { useToast } from "@/components/ui/Toast";
 import {
+  ApiClientError,
   coursesApi,
   useAuth,
   useMutation,
@@ -190,9 +191,10 @@ function CreateProjectModal({
   onSuccess: () => void;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [projectName, setProjectName] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const createMutation = useMutation<IdObject, ProjectCreateRequest>(
     (data: ProjectCreateRequest) => coursesApi.createProject(courseId, data),
@@ -204,23 +206,25 @@ function CreateProjectModal({
       },
       onError: (err: unknown) => {
         const errorMessage =
-          err instanceof Error ? err.message : "Failed to create project";
-        setError(errorMessage);
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : "Failed to create project";
+        toast.error(errorMessage);
       },
     }
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setValidationError(null);
 
     // Validation
     if (!projectName.trim()) {
-      setError("Project name is required");
+      setValidationError("Project name is required");
       return;
     }
     if (projectName.length < 1 || projectName.length > 100) {
-      setError("Project name must be between 1 and 100 characters");
+      setValidationError("Project name must be between 1 and 100 characters");
       return;
     }
 
@@ -301,7 +305,11 @@ function CreateProjectModal({
           )}
         </FormField>
 
-        <FormError message={error} className="mb-4" />
+        {validationError && (
+          <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+            {validationError}
+          </div>
+        )}
 
         <div className="flex justify-end gap-3">
           <button type="button" onClick={onClose} className="btn-secondary">
