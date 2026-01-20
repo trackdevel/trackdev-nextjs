@@ -1,7 +1,14 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-import { tasksApi, useAuth, useMutation, useQuery } from "@trackdev/api-client";
+import { useToast } from "@/components/ui/Toast";
+import {
+  ApiClientError,
+  tasksApi,
+  useAuth,
+  useMutation,
+  useQuery,
+} from "@trackdev/api-client";
 import type { TaskType } from "@trackdev/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -21,11 +28,13 @@ export default function NewSubtaskPage() {
   const fromSource = searchParams.get("from");
   const sprintId = searchParams.get("sprintId");
 
+  const toast = useToast();
+
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [taskType, setTaskType] = useState<TaskType>("TASK");
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Fetch parent task to verify it's a USER_STORY
   const {
@@ -53,7 +62,11 @@ export default function NewSubtaskPage() {
         }
       },
       onError: (err) => {
-        setError(err.message || t("failedToCreateSubtask"));
+        const errorMessage =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("failedToCreateSubtask");
+        toast.error(errorMessage);
       },
     }
   );
@@ -65,16 +78,16 @@ export default function NewSubtaskPage() {
 
       // Validation
       if (!name.trim()) {
-        setError(t("taskNameRequired"));
+        setValidationError(t("taskNameRequired"));
         return;
       }
 
       if (name.trim().length > 100) {
-        setError(t("taskNameTooLong"));
+        setValidationError(t("taskNameTooLong"));
         return;
       }
 
-      setError(null);
+      setValidationError(null);
       createSubtaskMutation.mutate({
         name: name.trim(),
         description: description.trim() || undefined,
@@ -155,10 +168,10 @@ export default function NewSubtaskPage() {
       {/* Form */}
       <div className="card max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
-          {/* Error Display */}
-          {error && (
+          {/* Validation Error Display */}
+          {validationError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
+              {validationError}
             </div>
           )}
 

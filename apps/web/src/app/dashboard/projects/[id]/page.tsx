@@ -4,7 +4,6 @@ import { BackButton } from "@/components/BackButton";
 import { RecentTasksCard } from "@/components/tasks";
 import {
   CardSection,
-  FormError,
   FormField,
   ItemCard,
   MemberItem,
@@ -13,7 +12,9 @@ import {
   StatusBadge,
   getSprintStatusVariant,
 } from "@/components/ui";
+import { useToast } from "@/components/ui/Toast";
 import {
+  ApiClientError,
   githubReposApi,
   projectReportsApi,
   projectsApi,
@@ -74,7 +75,8 @@ export default function ProjectDetailPage() {
     url: "",
     accessToken: "",
   });
-  const [formError, setFormError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const toast = useToast();
 
   const {
     data: project,
@@ -116,11 +118,15 @@ export default function ProjectDetailPage() {
       onSuccess: () => {
         setShowAddRepoModal(false);
         setRepoForm({ name: "", url: "", accessToken: "" });
-        setFormError(null);
+        setValidationError(null);
         refetchRepos();
       },
       onError: (error) => {
-        setFormError(error.message || "Failed to add repository");
+        const errorMessage =
+          error instanceof ApiClientError && error.body?.message
+            ? error.body.message
+            : "Failed to add repository";
+        toast.error(errorMessage);
       },
     }
   );
@@ -141,7 +147,11 @@ export default function ProjectDetailPage() {
         refetchProject();
       },
       onError: (error) => {
-        alert(error.message || t("failedToUpdateMembers"));
+        const errorMessage =
+          error instanceof ApiClientError && error.body?.message
+            ? error.body.message
+            : t("failedToUpdateMembers");
+        toast.error(errorMessage);
       },
     }
   );
@@ -160,18 +170,18 @@ export default function ProjectDetailPage() {
 
   const handleAddRepo = (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
+    setValidationError(null);
 
     if (!repoForm.name.trim()) {
-      setFormError(t("repoNameRequired"));
+      setValidationError(t("repoNameRequired"));
       return;
     }
     if (!repoForm.url.trim()) {
-      setFormError(t("repoUrlRequired"));
+      setValidationError(t("repoUrlRequired"));
       return;
     }
     if (!repoForm.accessToken.trim()) {
-      setFormError(t("accessTokenRequired"));
+      setValidationError(t("accessTokenRequired"));
       return;
     }
 
@@ -484,12 +494,16 @@ export default function ProjectDetailPage() {
         isOpen={showAddRepoModal}
         onClose={() => {
           setShowAddRepoModal(false);
-          setFormError(null);
+          setValidationError(null);
         }}
         title={t("addGithubRepository")}
       >
         <form onSubmit={handleAddRepo} className="space-y-4">
-          <FormError message={formError} />
+          {validationError && (
+            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+              {validationError}
+            </div>
+          )}
 
           <FormField label={t("displayName")} htmlFor="repoName">
             <input
@@ -556,7 +570,7 @@ export default function ProjectDetailPage() {
               type="button"
               onClick={() => {
                 setShowAddRepoModal(false);
-                setFormError(null);
+                setValidationError(null);
               }}
               className="btn-secondary"
             >

@@ -1,6 +1,12 @@
 "use client";
 
-import { invitesApi, useMutation, useQuery } from "@trackdev/api-client";
+import { useToast } from "@/components/ui/Toast";
+import {
+  ApiClientError,
+  invitesApi,
+  useMutation,
+  useQuery,
+} from "@trackdev/api-client";
 import {
   AlertCircle,
   BookOpen,
@@ -17,9 +23,10 @@ import { useState } from "react";
 export default function AcceptInvitePage() {
   const params = useParams();
   const token = params.token as string;
+  const toast = useToast();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const {
@@ -38,7 +45,11 @@ export default function AcceptInvitePage() {
         setSuccess(true);
       },
       onError: (err: Error) => {
-        setError(err.message || "Failed to accept invitation");
+        const errorMessage =
+          err instanceof ApiClientError && (err as ApiClientError).body?.message
+            ? (err as ApiClientError).body!.message
+            : "Failed to accept invitation";
+        toast.error(errorMessage);
       },
     }
   );
@@ -128,16 +139,16 @@ export default function AcceptInvitePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setValidationError(null);
 
     // If password is provided, validate it
     if (password) {
       if (password.length < 8) {
-        setError("Password must be at least 8 characters");
+        setValidationError("Password must be at least 8 characters");
         return;
       }
       if (password !== confirmPassword) {
-        setError("Passwords do not match");
+        setValidationError("Passwords do not match");
         return;
       }
     }
@@ -227,9 +238,9 @@ export default function AcceptInvitePage() {
               </div>
             )}
 
-            {error && (
+            {validationError && (
               <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
-                {error}
+                {validationError}
               </div>
             )}
 
