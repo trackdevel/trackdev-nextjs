@@ -9,6 +9,7 @@ import {
   PageContainer,
   PageHeader,
 } from "@/components/ui";
+import { useDateFormat } from "@/utils/useDateFormat";
 import {
   reportsApi,
   useAuth,
@@ -26,6 +27,7 @@ export default function ReportsPage() {
   const t = useTranslations("reports");
   const tCommon = useTranslations("common");
   const router = useRouter();
+  const { formatDateOnly } = useDateFormat();
 
   // Check if user is professor
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
@@ -55,7 +57,7 @@ export default function ReportsPage() {
         setReportName("");
         refetch();
       },
-    }
+    },
   );
 
   const deleteReportMutation = useMutation(
@@ -66,7 +68,7 @@ export default function ReportsPage() {
         setReportToDelete(null);
         refetch();
       },
-    }
+    },
   );
 
   const handleCreateReport = () => {
@@ -153,15 +155,7 @@ export default function ReportsPage() {
                       </h3>
                       <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
                         <span>
-                          {t("createdAt")}:{" "}
-                          {new Date(report.createdAt).toLocaleDateString(
-                            undefined,
-                            {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            }
-                          )}
+                          {t("createdAt")}: {formatDateOnly(report.createdAt)}
                         </span>
                         {report.owner && (
                           <span>

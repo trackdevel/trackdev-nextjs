@@ -1,5 +1,6 @@
 "use client";
 
+import { useDateFormat } from "@/utils/useDateFormat";
 import { tasksApi, useMutation } from "@trackdev/api-client";
 import type { Comment } from "@trackdev/types";
 import { Loader2, MessageSquare, Plus, Send } from "lucide-react";
@@ -23,6 +24,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
 }: TaskDiscussionProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
+  const { formatDateTime } = useDateFormat();
   const [newComment, setNewComment] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -37,7 +39,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
         setIsExpanded(false);
         onCommentAdded?.();
       },
-    }
+    },
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -133,7 +135,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                     </span>
                     <span className="text-sm text-gray-500">
                       {comment.createdAt
-                        ? new Date(comment.createdAt).toLocaleString()
+                        ? formatDateTime(comment.createdAt)
                         : ""}
                     </span>
                   </div>

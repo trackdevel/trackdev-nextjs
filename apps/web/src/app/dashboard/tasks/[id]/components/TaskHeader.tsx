@@ -1,5 +1,6 @@
 "use client";
 
+import { useDateFormat } from "@/utils/useDateFormat";
 import {
   Calendar,
   Check,
@@ -41,6 +42,7 @@ export const TaskHeader = memo(function TaskHeader({
 }: TaskHeaderProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
+  const { formatDateTime } = useDateFormat();
   const statusConfig = STATUS_CONFIG[task.status] || STATUS_CONFIG.TODO;
   const typeConfig = TYPE_CONFIG[task.type] || TYPE_CONFIG.TASK;
 
@@ -169,9 +171,7 @@ export const TaskHeader = memo(function TaskHeader({
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               {t("createdAt")}{" "}
-              {task.createdAt
-                ? new Date(task.createdAt).toLocaleDateString()
-                : t("unknown")}
+              {task.createdAt ? formatDateTime(task.createdAt) : t("unknown")}
             </span>
             {task.reporter && (
               <span className="flex items-center gap-1">

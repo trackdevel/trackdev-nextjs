@@ -1,6 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { useDateFormat } from "@/utils/useDateFormat";
 import {
   coursesApi,
   sprintPatternsApi,
@@ -44,9 +45,10 @@ export default function SprintPatternsPage() {
   const params = useParams();
   const courseId = Number(params.id);
   const { user } = useAuth();
+  const { formatDateTimeRange } = useDateFormat();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPattern, setEditingPattern] = useState<SprintPattern | null>(
-    null
+    null,
   );
   const [formData, setFormData] = useState<PatternFormData>({
     name: "",
@@ -57,7 +59,7 @@ export default function SprintPatternsPage() {
   const { data: course } = useQuery(
     () => coursesApi.getDetails(courseId),
     [courseId],
-    { enabled: !!courseId }
+    { enabled: !!courseId },
   );
 
   // Fetch sprint patterns for this course
@@ -86,7 +88,7 @@ export default function SprintPatternsPage() {
         resetForm();
         refetch();
       },
-    }
+    },
   );
 
   // Update mutation
@@ -99,7 +101,7 @@ export default function SprintPatternsPage() {
         resetForm();
         refetch();
       },
-    }
+    },
   );
 
   // Delete mutation
@@ -109,7 +111,7 @@ export default function SprintPatternsPage() {
       onSuccess: () => {
         refetch();
       },
-    }
+    },
   );
 
   const resetForm = () => {
@@ -153,12 +155,12 @@ export default function SprintPatternsPage() {
   const updateItem = (
     index: number,
     field: keyof SprintPatternItemRequest,
-    value: string | number
+    value: string | number,
   ) => {
     setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
+        i === index ? { ...item, [field]: value } : item,
       ),
     }));
   };
@@ -306,15 +308,7 @@ export default function SprintPatternsPage() {
                     {item.startDate && item.endDate && (
                       <span className="flex items-center gap-1 text-xs text-gray-500">
                         <Calendar className="h-3 w-3" />
-                        {new Date(item.startDate).toLocaleString(undefined, {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}{" "}
-                        -{" "}
-                        {new Date(item.endDate).toLocaleString(undefined, {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}
+                        {formatDateTimeRange(item.startDate, item.endDate)}
                       </span>
                     )}
                   </div>
