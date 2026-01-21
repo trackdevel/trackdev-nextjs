@@ -101,7 +101,7 @@ export default function UsersPage() {
     [],
     {
       enabled: isAuthenticated && isAdmin,
-    }
+    },
   );
 
   const workspaces = workspacesResponse || [];
@@ -113,7 +113,7 @@ export default function UsersPage() {
     ? users.filter(
         (user) =>
           user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase())
+          user.email.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : users;
 
@@ -121,7 +121,7 @@ export default function UsersPage() {
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   // Reset page when search changes
@@ -155,7 +155,7 @@ export default function UsersPage() {
         });
         refetch();
       },
-    }
+    },
   );
 
   const deleteUserMutation = useMutation(
@@ -165,7 +165,7 @@ export default function UsersPage() {
         setUserToDelete(null);
         refetch();
       },
-    }
+    },
   );
 
   // Handlers
@@ -339,8 +339,8 @@ export default function UsersPage() {
                               role === "ADMIN"
                                 ? "bg-purple-100 text-purple-800"
                                 : role === "PROFESSOR"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-green-100 text-green-800"
                             }`}
                           >
                             {role === "ADMIN" && <Shield className="h-3 w-3" />}
@@ -487,7 +487,7 @@ export default function UsersPage() {
                 required
                 minLength={1}
                 maxLength={50}
-                pattern="^[a-zA-Z0-9_\\-#]+$"
+                pattern="^[a-zA-Z0-9_#-]+$"
               />
               <p className="form-hint">{t("usernameHint")}</p>
             </div>
