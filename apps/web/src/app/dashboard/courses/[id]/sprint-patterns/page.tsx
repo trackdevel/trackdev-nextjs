@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Calendar,
   Clock,
+  Copy,
   Edit2,
   Layers,
   Loader2,
@@ -122,6 +123,20 @@ export default function SprintPatternsPage() {
     setEditingPattern(pattern);
     setFormData({
       name: pattern.name,
+      items: pattern.items.map((item, idx) => ({
+        name: item.name,
+        // Convert UTC dates to local timezone for datetime-local input
+        startDate: toLocal(item.startDate),
+        endDate: toLocal(item.endDate),
+        orderIndex: item.orderIndex ?? idx,
+      })),
+    });
+  };
+
+  const openDuplicateModal = (pattern: SprintPattern) => {
+    setShowCreateModal(true);
+    setFormData({
+      name: `Copy of ${pattern.name}`,
       items: pattern.items.map((item, idx) => ({
         name: item.name,
         // Convert UTC dates to local timezone for datetime-local input
@@ -282,6 +297,13 @@ export default function SprintPatternsPage() {
                       title="Edit"
                     >
                       <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => openDuplicateModal(pattern)}
+                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      title="Duplicate"
+                    >
+                      <Copy className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(pattern.id)}
