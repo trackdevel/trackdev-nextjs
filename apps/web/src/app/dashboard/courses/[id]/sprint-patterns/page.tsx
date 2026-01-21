@@ -45,7 +45,7 @@ export default function SprintPatternsPage() {
   const params = useParams();
   const courseId = Number(params.id);
   const { user } = useAuth();
-  const { formatDateTimeRange } = useDateFormat();
+  const { formatDateTimeRange, toLocal, toUTC } = useDateFormat();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPattern, setEditingPattern] = useState<SprintPattern | null>(
     null,
@@ -124,9 +124,9 @@ export default function SprintPatternsPage() {
       name: pattern.name,
       items: pattern.items.map((item, idx) => ({
         name: item.name,
-        // Keep datetime format for datetime-local input (YYYY-MM-DDTHH:mm)
-        startDate: item.startDate ? item.startDate.slice(0, 16) : "",
-        endDate: item.endDate ? item.endDate.slice(0, 16) : "",
+        // Convert UTC dates to local timezone for datetime-local input
+        startDate: toLocal(item.startDate),
+        endDate: toLocal(item.endDate),
         orderIndex: item.orderIndex ?? idx,
       })),
     });
@@ -171,8 +171,9 @@ export default function SprintPatternsPage() {
       items: formData.items.map((item, idx) => ({
         ...item,
         orderIndex: idx,
-        startDate: item.startDate || undefined,
-        endDate: item.endDate || undefined,
+        // Convert local datetime input to UTC for API
+        startDate: toUTC(item.startDate) || undefined,
+        endDate: toUTC(item.endDate) || undefined,
       })),
     };
 

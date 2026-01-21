@@ -16,6 +16,8 @@ import {
   formatDateTime,
   formatDateTimeRange,
   getTimezoneAcronym,
+  localDateTimeToUTC,
+  utcToLocalDateTime,
   type FormatDateOptions,
 } from "./dateFormat";
 
@@ -43,6 +45,10 @@ export interface UseDateFormatReturn {
     startDate: string | Date | undefined | null,
     endDate: string | Date | undefined | null,
   ) => string;
+  /** Convert local datetime (from datetime-local input) to UTC ISO 8601 format */
+  toUTC: (localDatetime: string | undefined | null) => string;
+  /** Convert UTC ISO 8601 datetime to local datetime format (for datetime-local input) */
+  toLocal: (utcDatetime: string | undefined | null) => string;
 }
 
 /**
@@ -120,6 +126,20 @@ export function useDateFormat(): UseDateFormatReturn {
     [timezone],
   );
 
+  const toUTC = useCallback(
+    (localDatetime: string | undefined | null) => {
+      return localDateTimeToUTC(localDatetime, timezone);
+    },
+    [timezone],
+  );
+
+  const toLocal = useCallback(
+    (utcDatetime: string | undefined | null) => {
+      return utcToLocalDateTime(utcDatetime, timezone);
+    },
+    [timezone],
+  );
+
   return {
     timezone,
     getAcronym,
@@ -128,5 +148,7 @@ export function useDateFormat(): UseDateFormatReturn {
     formatDateOnly: formatDateOnlyCallback,
     formatDateRange: formatDateRangeCallback,
     formatDateTimeRange: formatDateTimeRangeCallback,
+    toUTC,
+    toLocal,
   };
 }

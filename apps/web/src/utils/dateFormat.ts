@@ -324,3 +324,123 @@ export function formatDateTimeRange(
 
   return `${formattedStart} - ${formattedEnd}`;
 }
+
+/**
+ * Convert a local datetime string (from datetime-local input) to ISO 8601 UTC format.
+ * The input is interpreted as being in the specified timezone.
+ *
+ * @param localDatetime - DateTime string in format "YYYY-MM-DDTHH:mm" (no timezone)
+ * @param timezone - The IANA timezone the localDatetime is expressed in (e.g., "Europe/Madrid")
+ * @returns ISO 8601 string with UTC offset (e.g., "2025-01-21T13:30:00+00:00") or empty string if invalid
+ *
+ * @example
+ * // User in Madrid enters 14:30, which is 13:30 UTC in winter (CET = UTC+1)
+ * localDateTimeToUTC("2025-01-21T14:30", "Europe/Madrid")
+ * // Returns: "2025-01-21T13:30:00+00:00"
+ */
+export function localDateTimeToUTC(
+  localDatetime: string | undefined | null,
+  timezone: string = "UTC",
+): string {
+  if (!localDatetime) {
+    return "";
+  }
+
+  try {
+    // Parse the local datetime string
+    // The datetime-local input gives us "YYYY-MM-DDTHH:mm"
+    const [datePart, timePart] = localDatetime.split("T");
+    if (!datePart || !timePart) {
+      return "";
+    }
+
+    const [year, month, day] = datePart.split("-").map(Number);
+    const [hours, minutes] = timePart.split(":").map(Number);
+
+    // Create a Date object interpreted as the user's timezone
+    // We need to find the UTC equivalent of this local time
+
+    // First, create a formatter that will give us the offset for this timezone at this time
+    const tempDate = new Date(year, month - 1, day, hours, minutes);
+
+    // Get the timezone offset for the target timezone at this date
+    const offsetFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      timeZoneName: "longOffset",
+    });
+    const offsetParts = offsetFormatter.formatToParts(tempDate);
+    const tzPart =
+      offsetParts.find((p) => p.type === "timeZoneName")?.value || "GMT";
+
+    // Parse offset like "GMT+01:00" or "GMT-05:00" or "GMT"
+    let offsetMinutes = 0;
+    const offsetMatch = tzPart.match(/GMT([+-])(\d{2}):(\d{2})/);
+    if (offsetMatch) {
+      const sign = offsetMatch[1] === "+" ? 1 : -1;
+      offsetMinutes =
+        sign * (parseInt(offsetMatch[2]) * 60 + parseInt(offsetMatch[3]));
+    }
+
+    // Create the UTC date by subtracting the offset
+    // If timezone is UTC+1, the local time 14:30 means 13:30 UTC
+    const utcDate = new Date(year, month - 1, day, hours, minutes);
+    utcDate.setMinutes(
+      utcDate.getMinutes() - offsetMinutes - utcDate.getTimezoneOffset(),
+    );
+
+    // Format as ISO 8601 with +00:00 suffix (UTC)
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${utcDate.getUTCFullYear()}-${pad(utcDate.getUTCMonth() + 1)}-${pad(utcDate.getUTCDate())}T${pad(utcDate.getUTCHours())}:${pad(utcDate.getUTCMinutes())}:00+00:00`;
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Convert a UTC ISO 8601 datetime to a local datetime string for datetime-local input.
+ * The output is expressed in the specified timezone.
+ *
+ * @param utcDatetime - ISO 8601 datetime string (e.g., "2025-01-21T13:30:00+00:00")
+ * @param timezone - The IANA timezone to express the result in (e.g., "Europe/Madrid")
+ * @returns DateTime string in format "YYYY-MM-DDTHH:mm" for datetime-local input
+ *
+ * @example
+ * // UTC 13:30 displayed in Madrid timezone (CET = UTC+1) in winter
+ * utcToLocalDateTime("2025-01-21T13:30:00+00:00", "Europe/Madrid")
+ * // Returns: "2025-01-21T14:30"
+ */
+export function utcToLocalDateTime(
+  utcDatetime: string | undefined | null,
+  timezone: string = "UTC",
+): string {
+  if (!utcDatetime) {
+    return "";
+  }
+
+  try {
+    const date = new Date(utcDatetime);
+    if (isNaN(date.getTime())) {
+      return "";
+    }
+
+    // Format the date in the target timezone
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    const parts = formatter.formatToParts(date);
+    const getPart = (type: string) =>
+      parts.find((p) => p.type === type)?.value || "00";
+
+    // Format as YYYY-MM-DDTHH:mm for datetime-local input
+    return `${getPart("year")}-${getPart("month")}-${getPart("day")}T${getPart("hour")}:${getPart("minute")}`;
+  } catch {
+    return "";
+  }
+}

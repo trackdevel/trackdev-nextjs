@@ -67,7 +67,7 @@ export default function WorkspaceUsersPage() {
     ? users.filter(
         (user) =>
           user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase())
+          user.email.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : users;
 
@@ -75,7 +75,7 @@ export default function WorkspaceUsersPage() {
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   // Reset page when search changes
@@ -105,7 +105,7 @@ export default function WorkspaceUsersPage() {
         setCreateForm({ username: "", fullName: "", email: "", password: "" });
         refetch();
       },
-    }
+    },
   );
 
   const updateUserMutation = useMutation(
@@ -122,7 +122,7 @@ export default function WorkspaceUsersPage() {
         setEditForm({ username: "", enabled: true });
         refetch();
       },
-    }
+    },
   );
 
   const deleteUserMutation = useMutation((id: string) => usersApi.delete(id), {
@@ -383,7 +383,7 @@ export default function WorkspaceUsersPage() {
               required
               minLength={1}
               maxLength={50}
-              pattern="^[a-zA-Z0-9_\\-#]+$"
+              pattern="^[a-zA-Z0-9_#-]+$"
               placeholder={t("usernamePlaceholder")}
             />
             <p className="mt-1 text-xs text-gray-500">{t("usernameHint")}</p>
