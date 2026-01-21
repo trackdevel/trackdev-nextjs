@@ -17,6 +17,7 @@ export interface User {
   changePassword: boolean;
   githubInfo?: GithubInfo;
   workspaceId?: number;
+  timezone: string;
 }
 
 export interface UserPublic {
@@ -44,6 +45,7 @@ export interface UserUpdateRequest {
   color?: string;
   currentProject?: number;
   githubInfo?: Partial<GithubInfo>;
+  timezone?: string;
 }
 
 export interface UserAdminUpdateRequest extends UserUpdateRequest {

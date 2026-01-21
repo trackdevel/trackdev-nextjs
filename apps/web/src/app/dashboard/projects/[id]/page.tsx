@@ -13,6 +13,7 @@ import {
   getSprintStatusVariant,
 } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
+import { useDateFormat } from "@/utils/useDateFormat";
 import {
   ApiClientError,
   githubReposApi,
@@ -59,6 +60,7 @@ export default function ProjectDetailPage() {
   const tSprints = useTranslations("sprints");
   const tTasks = useTranslations("tasks");
   const tReports = useTranslations("reports");
+  const { formatDateRange } = useDateFormat();
 
   // Check if user is professor or admin
   const userRoles = user?.roles || [];
@@ -90,25 +92,25 @@ export default function ProjectDetailPage() {
   const { data: tasksResponse } = useQuery(
     () => projectsApi.getTasks(projectId),
     [projectId],
-    { enabled: isAuthenticated && !isNaN(projectId) }
+    { enabled: isAuthenticated && !isNaN(projectId) },
   );
 
   const { data: sprintsResponse } = useQuery(
     () => projectsApi.getSprints(projectId),
     [projectId],
-    { enabled: isAuthenticated && !isNaN(projectId) }
+    { enabled: isAuthenticated && !isNaN(projectId) },
   );
 
   const { data: githubReposResponse, refetch: refetchRepos } = useQuery(
     () => githubReposApi.getAll(projectId),
     [projectId],
-    { enabled: isAuthenticated && !isNaN(projectId) }
+    { enabled: isAuthenticated && !isNaN(projectId) },
   );
 
   const { data: reportsResponse } = useQuery(
     () => projectReportsApi.getAll(projectId),
     [projectId],
-    { enabled: isAuthenticated && !isNaN(projectId) }
+    { enabled: isAuthenticated && !isNaN(projectId) },
   );
 
   // Mutations
@@ -128,7 +130,7 @@ export default function ProjectDetailPage() {
             : "Failed to add repository";
         toast.error(errorMessage);
       },
-    }
+    },
   );
 
   const deleteRepoMutation = useMutation(
@@ -137,7 +139,7 @@ export default function ProjectDetailPage() {
       onSuccess: () => {
         refetchRepos();
       },
-    }
+    },
   );
 
   const updateMembersMutation = useMutation(
@@ -153,7 +155,7 @@ export default function ProjectDetailPage() {
             : t("failedToUpdateMembers");
         toast.error(errorMessage);
       },
-    }
+    },
   );
 
   // Extract tasks array from response object
@@ -437,24 +439,20 @@ export default function ProjectDetailPage() {
                       sprint.status === "ACTIVE"
                         ? "bg-green-100"
                         : sprint.status === "CLOSED"
-                        ? "bg-gray-100"
-                        : "bg-yellow-100"
+                          ? "bg-gray-100"
+                          : "bg-yellow-100"
                     }
                     iconColor={
                       sprint.status === "ACTIVE"
                         ? "text-green-600"
                         : sprint.status === "CLOSED"
-                        ? "text-gray-600"
-                        : "text-yellow-600"
+                          ? "text-gray-600"
+                          : "text-yellow-600"
                     }
                     title={sprint.label}
                     subtitle={
                       sprint.startDate && sprint.endDate
-                        ? `${new Date(
-                            sprint.startDate
-                          ).toLocaleDateString()} - ${new Date(
-                            sprint.endDate
-                          ).toLocaleDateString()}`
+                        ? formatDateRange(sprint.startDate, sprint.endDate)
                         : t("noDatesSet")
                     }
                     rightContent={
@@ -465,7 +463,7 @@ export default function ProjectDetailPage() {
                             | "ACTIVE"
                             | "CLOSED"
                             | "FUTURE"
-                            | "CREATED"
+                            | "CREATED",
                         )}
                       />
                     }

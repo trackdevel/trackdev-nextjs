@@ -1,5 +1,6 @@
 "use client";
 
+import { useDateFormat } from "@/utils/useDateFormat";
 import { tasksApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { TaskLog } from "@trackdev/types";
 import { Clock, User } from "lucide-react";
@@ -73,18 +74,13 @@ interface HistoryEntryProps {
 
 function HistoryEntry({ log }: HistoryEntryProps) {
   const t = useTranslations("tasks");
+  const { formatDateTime } = useDateFormat();
 
   // Format the change message
   const changeMessage = formatChange(log, t);
 
-  // Format timestamp
-  const timestamp = new Date(log.timestamp).toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  // Format timestamp with user's timezone
+  const timestamp = formatDateTime(log.timestamp);
 
   return (
     <div className="flex gap-3 border-l-2 border-gray-200 pl-4">
@@ -106,7 +102,7 @@ function HistoryEntry({ log }: HistoryEntryProps) {
 
 function formatChange(
   log: TaskLog,
-  t: (key: string, values?: Record<string, string | number>) => string
+  t: (key: string, values?: Record<string, string | number>) => string,
 ): string {
   const field = log.field.toLowerCase();
 

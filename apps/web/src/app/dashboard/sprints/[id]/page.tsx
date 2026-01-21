@@ -2,6 +2,7 @@
 
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/components/ui/Toast";
+import { useDateFormat } from "@/utils/useDateFormat";
 import {
   projectsApi,
   sprintsApi,
@@ -73,11 +74,12 @@ export default function SprintBoardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const t = useTranslations("sprints");
   const toast = useToast();
+  const { formatDateRange } = useDateFormat();
 
   // Backlog panel state
   const [isBacklogOpen, setIsBacklogOpen] = useState(true);
   const [draggedBacklogTask, setDraggedBacklogTask] = useState<Task | null>(
-    null
+    null,
   );
 
   // Drag and drop state
@@ -110,14 +112,14 @@ export default function SprintBoardPage() {
     [sprintBoard?.project?.id],
     {
       enabled: isAuthenticated && !!sprintBoard?.project?.id,
-    }
+    },
   );
 
   // Filter backlog tasks (tasks not assigned to any sprint)
   const backlogTasks = useMemo(() => {
     if (!projectTasks?.tasks) return [];
     return projectTasks.tasks.filter(
-      (task) => !task.activeSprints || task.activeSprints.length === 0
+      (task) => !task.activeSprints || task.activeSprints.length === 0,
     );
   }, [projectTasks?.tasks]);
 
@@ -134,7 +136,7 @@ export default function SprintBoardPage() {
       onError: (error) => {
         toast.error(error.message || "Failed to add task to sprint");
       },
-    }
+    },
   );
 
   // Mutation for updating task status
@@ -164,7 +166,7 @@ export default function SprintBoardPage() {
         // Show error toast
         toast.error(error.message || "Failed to update task status");
       },
-    }
+    },
   );
 
   // Show loading while auth is loading or data is loading
@@ -229,7 +231,7 @@ export default function SprintBoardPage() {
         return effectiveStatus === columnId;
       });
     },
-    [localTaskUpdates]
+    [localTaskUpdates],
   );
 
   // Drag and drop handlers
@@ -255,7 +257,7 @@ export default function SprintBoardPage() {
       e.dataTransfer.dropEffect = "move";
       setDragOverColumn({ storyId, columnId });
     },
-    []
+    [],
   );
 
   const handleDragLeave = useCallback(() => {
@@ -296,7 +298,7 @@ export default function SprintBoardPage() {
 
       setDraggedTask(null);
     },
-    [draggedTask, localTaskUpdates, updateTaskMutation]
+    [draggedTask, localTaskUpdates, updateTaskMutation],
   );
 
   // Backlog drag handlers
@@ -308,7 +310,7 @@ export default function SprintBoardPage() {
       const target = e.target as HTMLElement;
       target.style.opacity = "0.5";
     },
-    []
+    [],
   );
 
   const handleBacklogDragEnd = useCallback((e: React.DragEvent) => {
@@ -372,7 +374,7 @@ export default function SprintBoardPage() {
       assignToSprintMutation,
       updateTaskMutation,
       t,
-    ]
+    ],
   );
 
   // Combined drop handler that handles both sprint tasks and backlog tasks
@@ -384,7 +386,7 @@ export default function SprintBoardPage() {
         handleDrop(e, storyId, columnId);
       }
     },
-    [draggedBacklogTask, handleDropFromBacklog, handleDrop]
+    [draggedBacklogTask, handleDropFromBacklog, handleDrop],
   );
 
   if (isLoading) {
@@ -435,8 +437,8 @@ export default function SprintBoardPage() {
                 sprintBoard.status === "ACTIVE"
                   ? "bg-green-100"
                   : sprintBoard.status === "CLOSED"
-                  ? "bg-gray-100"
-                  : "bg-yellow-100"
+                    ? "bg-gray-100"
+                    : "bg-yellow-100"
               }`}
             >
               {sprintBoard.status === "ACTIVE" ? (
@@ -464,11 +466,10 @@ export default function SprintBoardPage() {
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
                   {sprintBoard.startDate && sprintBoard.endDate
-                    ? `${new Date(
-                        sprintBoard.startDate
-                      ).toLocaleDateString()} - ${new Date(
-                        sprintBoard.endDate
-                      ).toLocaleDateString()}`
+                    ? formatDateRange(
+                        sprintBoard.startDate,
+                        sprintBoard.endDate,
+                      )
                     : "No dates set"}
                 </span>
                 <span
@@ -476,8 +477,8 @@ export default function SprintBoardPage() {
                     sprintBoard.status === "ACTIVE"
                       ? "bg-green-100 text-green-700"
                       : sprintBoard.status === "CLOSED"
-                      ? "bg-gray-100 text-gray-700"
-                      : "bg-yellow-100 text-yellow-700"
+                        ? "bg-gray-100 text-gray-700"
+                        : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
                   {sprintBoard.statusText || sprintBoard.status}
@@ -694,8 +695,8 @@ const TaskCard = memo(function TaskCard({
         isDragging
           ? "opacity-50 ring-2 ring-primary-400"
           : task.frozen
-          ? "border-gray-300 bg-gray-100 opacity-60 grayscale hover:border-gray-400"
-          : "border-gray-200 bg-white hover:border-primary-300"
+            ? "border-gray-300 bg-gray-100 opacity-60 grayscale hover:border-gray-400"
+            : "border-gray-200 bg-white hover:border-primary-300"
       }`}
     >
       {task.taskKey && (

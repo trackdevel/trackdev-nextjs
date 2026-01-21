@@ -2,6 +2,8 @@
 
 import { BackButton } from "@/components/BackButton";
 import { EmptyState, LoadingContainer, PageContainer } from "@/components/ui";
+import { formatDateOnly } from "@/utils/dateFormat";
+import { useDateFormat } from "@/utils/useDateFormat";
 import { activitiesApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { Activity, ActivityType } from "@trackdev/types";
 import {
@@ -22,7 +24,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const PAGE_SIZE = 20;
 
 // Helper to format relative time
-function formatRelativeTime(dateString: string): string {
+function formatRelativeTime(
+  dateString: string,
+  timezone: string = "UTC",
+): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -35,7 +40,7 @@ function formatRelativeTime(dateString: string): string {
   if (diffMinutes < 60) return `${diffMinutes}m`;
   if (diffHours < 24) return `${diffHours}h`;
   if (diffDays < 7) return `${diffDays}d`;
-  return date.toLocaleDateString();
+  return formatDateOnly(dateString, timezone);
 }
 
 // Get icon for activity type
@@ -92,6 +97,7 @@ interface ActivityItemProps {
 
 function ActivityItem({ activity, t }: ActivityItemProps) {
   const translationKey = getActivityTranslationKey(activity.type);
+  const { timezone } = useDateFormat();
 
   return (
     <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
@@ -118,7 +124,7 @@ function ActivityItem({ activity, t }: ActivityItemProps) {
             {activity.projectName && `${activity.projectName}`}
           </span>
           <span className="text-xs text-gray-400">
-            {formatRelativeTime(activity.createdAt)}
+            {formatRelativeTime(activity.createdAt, timezone)}
           </span>
         </div>
       </div>
@@ -141,7 +147,7 @@ export default function ActivityPage() {
   } = useQuery(
     () => activitiesApi.getActivities({ page: currentPage, size: PAGE_SIZE }),
     [currentPage],
-    { enabled: isAuthenticated }
+    { enabled: isAuthenticated },
   );
 
   // Mark as read when page loads (only once per page visit)
@@ -164,7 +170,7 @@ export default function ActivityPage() {
         setAllActivities((prev) => {
           const existingIds = new Set(prev.map((a) => a.id));
           const newActivities = activitiesResponse.activities.filter(
-            (a) => !existingIds.has(a.id)
+            (a) => !existingIds.has(a.id),
           );
           return [...prev, ...newActivities];
         });

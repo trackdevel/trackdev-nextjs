@@ -2,6 +2,7 @@
 
 import { BackButton } from "@/components/BackButton";
 import { SimplePagination } from "@/components/ui";
+import { useDateFormat } from "@/utils/useDateFormat";
 import {
   coursesApi,
   useAuth,
@@ -20,6 +21,7 @@ export default function CourseInvitesPage() {
   const params = useParams();
   const courseId = Number(params.id);
   const { user } = useAuth();
+  const { formatDateOnly } = useDateFormat();
   const [currentPage, setCurrentPage] = useState(1);
 
   const {
@@ -42,14 +44,14 @@ export default function CourseInvitesPage() {
   const totalPages = Math.ceil(invites.length / ITEMS_PER_PAGE);
   const paginatedInvites = invites.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const cancelMutation = useMutation(
     (inviteId: number) => coursesApi.cancelInvite(courseId, inviteId),
     {
       onSuccess: () => refetch(),
-    }
+    },
   );
 
   const handleCancelInvite = (invite: CourseInvite) => {
@@ -190,7 +192,7 @@ export default function CourseInvitesPage() {
                     <td className="whitespace-nowrap px-6 py-4">
                       <span
                         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeClass(
-                          invite.status
+                          invite.status,
                         )}`}
                       >
                         {getStatusIcon(invite.status)}
@@ -198,11 +200,11 @@ export default function CourseInvitesPage() {
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {new Date(invite.createdAt).toLocaleDateString()}
+                      {formatDateOnly(invite.createdAt)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {invite.expiresAt
-                        ? new Date(invite.expiresAt).toLocaleDateString()
+                        ? formatDateOnly(invite.expiresAt)
                         : "-"}
                     </td>
                     {canManage && (

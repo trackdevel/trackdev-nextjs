@@ -1,6 +1,7 @@
 "use client";
 
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { TimezoneSelector } from "@/components/settings/TimezoneSelector";
 import { PageContainer, PageHeader } from "@/components/ui";
 import { useAuth } from "@trackdev/api-client";
 import { Globe, Key, Mail, Palette, Shield, User } from "lucide-react";
@@ -83,8 +84,8 @@ export default function SettingsPage() {
                             role === "ADMIN"
                               ? "bg-red-100 text-red-700"
                               : role === "PROFESSOR"
-                              ? "bg-purple-100 text-purple-700"
-                              : "bg-blue-100 text-blue-700"
+                                ? "bg-purple-100 text-purple-700"
+                                : "bg-blue-100 text-blue-700"
                           }`}
                         >
                           <Shield className="h-3 w-3" />
@@ -179,6 +180,13 @@ export default function SettingsPage() {
                       {t("languageDescription")}
                     </p>
                     <LanguageSelector showLabel={false} />
+                  </div>
+                  <div>
+                    <label className="label">{t("timezone")}</label>
+                    <p className="mb-2 text-sm text-gray-500">
+                      {t("timezoneDescription")}
+                    </p>
+                    <TimezoneSelector showLabel={false} />
                   </div>
                 </div>
               </div>
