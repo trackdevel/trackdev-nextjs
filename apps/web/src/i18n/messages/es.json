@@ -27,7 +27,8 @@
     "showing": "Mostrando",
     "of": "de",
     "actions": "Acciones",
-    "showMore": "Mostrar más"
+    "showMore": "Mostrar más",
+    "itemsPerPage": "Elementos por página"
   },
   "auth": {
     "login": "Iniciar sesión",

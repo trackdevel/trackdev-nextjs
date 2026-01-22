@@ -27,7 +27,8 @@
     "showing": "Mostrant",
     "of": "de",
     "actions": "Accions",
-    "showMore": "Mostrar més"
+    "showMore": "Mostrar més",
+    "itemsPerPage": "Elements per pàgina"
   },
   "auth": {
     "login": "Iniciar sessió",

@@ -27,7 +27,8 @@
     "showing": "Showing",
     "of": "of",
     "actions": "Actions",
-    "showMore": "Show more"
+    "showMore": "Show more",
+    "itemsPerPage": "Items per page"
   },
   "auth": {
     "login": "Sign in",

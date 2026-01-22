@@ -4,7 +4,7 @@ import { BackButton } from "@/components/BackButton";
 import {
   EmptyState,
   FormField,
-  LinkCard,
+  ItemCard,
   LoadingContainer,
   Modal,
   SimplePagination,
@@ -24,16 +24,21 @@ import type {
   UserPublic,
 } from "@trackdev/types";
 import { FolderKanban, Plus, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const ITEMS_PER_PAGE = 9;
+const PAGE_SIZE_OPTIONS = [15, 30, 50];
+const DEFAULT_PAGE_SIZE = 15;
 
 export default function CourseProjectsPage() {
   const params = useParams();
   const courseId = Number(params.id);
   const { user } = useAuth();
+  const t = useTranslations("common");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const {
@@ -50,14 +55,21 @@ export default function CourseProjectsPage() {
   const isProfessor = userRoles.includes("PROFESSOR");
   const canManage = isAdmin || (isProfessor && course?.ownerId === user?.id);
 
+  // Projects are already sorted alphabetically from the backend
   const projects = course?.projects || [];
 
   // Pagination
-  const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(projects.length / pageSize);
   const paginatedProjects = projects.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
   );
+
+  // Reset to page 1 when page size changes
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
 
   if (isLoading) {
     return <LoadingContainer className="py-12" />;
@@ -109,7 +121,7 @@ export default function CourseProjectsPage() {
         </div>
       </div>
 
-      {/* Projects Grid */}
+      {/* Projects List */}
       {projects.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
@@ -118,33 +130,55 @@ export default function CourseProjectsPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Page Size Selector */}
+          <div className="mb-4 flex items-center justify-end gap-2">
+            <label htmlFor="pageSize" className="text-sm text-gray-600">
+              {t("itemsPerPage")}:
+            </label>
+            <select
+              id="pageSize"
+              value={pageSize}
+              onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+              className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            >
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Projects Item List */}
+          <div className="card divide-y divide-gray-200">
             {paginatedProjects.map((project) => (
-              <LinkCard
+              <Link
                 key={project.id}
                 href={`/dashboard/projects/${project.id}`}
-                icon={FolderKanban}
-                iconBgColor="bg-blue-100"
-                iconColor="text-blue-600"
-                title={project.name}
-                metadata={
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Users className="h-4 w-4" />
-                      <span>
-                        {project.members?.length || 0} member
-                        {project.members?.length !== 1 ? "s" : ""}
-                      </span>
+                className="block transition-colors hover:bg-gray-50"
+              >
+                <ItemCard
+                  icon={FolderKanban}
+                  iconBgColor="bg-blue-100"
+                  iconColor="text-blue-600"
+                  title={project.name}
+                  subtitle={`${project.members?.length || 0} member${project.members?.length !== 1 ? "s" : ""}`}
+                  rightContent={
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <Users className="h-4 w-4" />
+                        <span>{project.members?.length || 0}</span>
+                      </div>
+                      {project.qualification != null && (
+                        <StatusBadge
+                          label={`${project.qualification.toFixed(1)}/10`}
+                          variant="primary"
+                        />
+                      )}
                     </div>
-                    {project.qualification != null && (
-                      <StatusBadge
-                        label={`${project.qualification.toFixed(1)}/10`}
-                        variant="primary"
-                      />
-                    )}
-                  </div>
-                }
-              />
+                  }
+                />
+              </Link>
             ))}
           </div>
 
@@ -153,7 +187,7 @@ export default function CourseProjectsPage() {
               currentPage={currentPage}
               totalPages={totalPages}
               totalItems={projects.length}
-              itemsPerPage={ITEMS_PER_PAGE}
+              itemsPerPage={pageSize}
               onPageChange={setCurrentPage}
               itemLabel="projects"
             />
@@ -211,7 +245,7 @@ function CreateProjectModal({
             : "Failed to create project";
         toast.error(errorMessage);
       },
-    }
+    },
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -240,7 +274,7 @@ function CreateProjectModal({
     setSelectedMembers((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 
