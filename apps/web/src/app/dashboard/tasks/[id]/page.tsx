@@ -127,15 +127,23 @@ export default function TaskDetailPage() {
     [fetchedTask?.project?.id],
     {
       enabled: isAuthenticated && !!fetchedTask?.project?.id,
-    }
+    },
   );
 
-  // Filter sprints to only show ACTIVE or DRAFT (future) sprints
+  // Filter sprints to only show ACTIVE or DRAFT (future) sprints, sorted by start date
   const availableSprints = useMemo(() => {
     if (!projectSprints?.sprints) return [];
-    return projectSprints.sprints.filter(
-      (sprint) => sprint.status === "ACTIVE" || sprint.status === "DRAFT"
-    );
+    return projectSprints.sprints
+      .filter(
+        (sprint) => sprint.status === "ACTIVE" || sprint.status === "DRAFT",
+      )
+      .sort((a, b) => {
+        if (!a.startDate) return 1;
+        if (!b.startDate) return -1;
+        return (
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        );
+      });
   }, [projectSprints?.sprints]);
 
   // Edit state managed by reducer
@@ -212,7 +220,7 @@ export default function TaskDetailPage() {
         dispatch({ type: "START_EDIT", field, task });
       }
     },
-    [task]
+    [task],
   );
 
   const handleCancel = useCallback(() => {

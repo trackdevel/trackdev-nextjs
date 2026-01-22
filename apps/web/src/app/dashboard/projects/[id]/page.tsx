@@ -222,8 +222,12 @@ export default function ProjectDetailPage() {
   // Extract tasks array from response object
   const tasks = tasksResponse?.tasks || [];
 
-  // Extract sprints array from response object
-  const sprints = sprintsResponse?.sprints || [];
+  // Extract sprints array from response object and sort by start date ascending
+  const sprints = [...(sprintsResponse?.sprints || [])].sort((a, b) => {
+    if (!a.startDate) return 1;
+    if (!b.startDate) return -1;
+    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+  });
 
   // Extract github repos
   const githubRepos = githubReposResponse?.repos || [];
@@ -738,17 +742,27 @@ export default function ProjectDetailPage() {
                     {pattern.items.length === 1 ? "sprint" : "sprints"}
                   </div>
                   <div className="mt-2 space-y-1">
-                    {pattern.items.slice(0, 3).map((item, idx) => (
-                      <div
-                        key={item.id || idx}
-                        className="flex items-center gap-2 text-xs text-gray-500"
-                      >
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
-                          {idx + 1}
-                        </span>
-                        <span>{item.name}</span>
-                      </div>
-                    ))}
+                    {[...pattern.items]
+                      .sort((a, b) => {
+                        if (!a.startDate) return 1;
+                        if (!b.startDate) return -1;
+                        return (
+                          new Date(a.startDate).getTime() -
+                          new Date(b.startDate).getTime()
+                        );
+                      })
+                      .slice(0, 3)
+                      .map((item, idx) => (
+                        <div
+                          key={item.id || idx}
+                          className="flex items-center gap-2 text-xs text-gray-500"
+                        >
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
+                            {idx + 1}
+                          </span>
+                          <span>{item.name}</span>
+                        </div>
+                      ))}
                     {pattern.items.length > 3 && (
                       <div className="text-xs text-gray-400">
                         +{pattern.items.length - 3} more...

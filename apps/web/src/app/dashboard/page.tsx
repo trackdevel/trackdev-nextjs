@@ -102,7 +102,7 @@ export default function DashboardPage() {
     return Array.from(courseMap.values());
   }, [projects, isStudent]);
 
-  // For students, get active sprints with their project info
+  // For students, get active sprints with their project info, sorted by start date
   const activeSprintsWithProjects = useMemo(() => {
     if (!isStudent) return [];
     const result: Array<{
@@ -118,7 +118,15 @@ export default function DashboardPage() {
           });
       }
     });
-    return result;
+    // Sort by sprint start date ascending
+    return result.sort((a, b) => {
+      if (!a.sprint.startDate) return 1;
+      if (!b.sprint.startDate) return -1;
+      return (
+        new Date(a.sprint.startDate).getTime() -
+        new Date(b.sprint.startDate).getTime()
+      );
+    });
   }, [projects, isStudent]);
 
   // Calculate active sprints count

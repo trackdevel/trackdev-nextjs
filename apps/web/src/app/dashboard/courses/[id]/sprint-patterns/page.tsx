@@ -319,25 +319,34 @@ export default function SprintPatternsPage() {
               </div>
 
               <div className="space-y-2">
-                {pattern.items.map((item, idx) => (
-                  <div
-                    key={item.id || idx}
-                    className="flex items-center gap-2 rounded bg-gray-50 px-3 py-2 text-sm"
-                  >
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
-                      {idx + 1}
-                    </span>
-                    <span className="flex-1 font-medium text-gray-700">
-                      {item.name}
-                    </span>
-                    {item.startDate && item.endDate && (
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <Calendar className="h-3 w-3" />
-                        {formatDateTimeRange(item.startDate, item.endDate)}
+                {[...pattern.items]
+                  .sort((a, b) => {
+                    if (!a.startDate) return 1;
+                    if (!b.startDate) return -1;
+                    return (
+                      new Date(a.startDate).getTime() -
+                      new Date(b.startDate).getTime()
+                    );
+                  })
+                  .map((item, idx) => (
+                    <div
+                      key={item.id || idx}
+                      className="flex items-center gap-2 rounded bg-gray-50 px-3 py-2 text-sm"
+                    >
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
+                        {idx + 1}
                       </span>
-                    )}
-                  </div>
-                ))}
+                      <span className="flex-1 font-medium text-gray-700">
+                        {item.name}
+                      </span>
+                      {item.startDate && item.endDate && (
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <Calendar className="h-3 w-3" />
+                          {formatDateTimeRange(item.startDate, item.endDate)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
               </div>
 
               <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">

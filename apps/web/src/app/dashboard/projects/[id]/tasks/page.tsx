@@ -88,7 +88,7 @@ export default function ProjectTasksPage() {
     [projectId],
     {
       enabled: isAuthenticated && !isNaN(projectId),
-    }
+    },
   );
 
   const isLoading = authLoading || dataLoading;
@@ -99,12 +99,21 @@ export default function ProjectTasksPage() {
       { value: BACKLOG_FILTER_VALUE, label: tTasks("backlog") },
     ];
     if (sprintsResponse?.sprints) {
-      sprintsResponse.sprints.forEach((sprint) => {
-        options.push({
-          value: String(sprint.id),
-          label: sprint.label,
+      // Sort sprints by start date ascending
+      [...sprintsResponse.sprints]
+        .sort((a, b) => {
+          if (!a.startDate) return 1;
+          if (!b.startDate) return -1;
+          return (
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          );
+        })
+        .forEach((sprint) => {
+          options.push({
+            value: String(sprint.id),
+            label: sprint.label,
+          });
         });
-      });
     }
     return options;
   }, [sprintsResponse?.sprints, tTasks]);
@@ -129,14 +138,14 @@ export default function ProjectTasksPage() {
       if (filters.sprintId === BACKLOG_FILTER_VALUE) {
         // Filter tasks with no sprints assigned
         tasks = tasks.filter(
-          (task) => !task.activeSprints || task.activeSprints.length === 0
+          (task) => !task.activeSprints || task.activeSprints.length === 0,
         );
       } else {
         // Filter tasks belonging to the selected sprint
         tasks = tasks.filter((task) =>
           task.activeSprints?.some(
-            (sprint) => String(sprint.id) === filters.sprintId
-          )
+            (sprint) => String(sprint.id) === filters.sprintId,
+          ),
         );
       }
     }
