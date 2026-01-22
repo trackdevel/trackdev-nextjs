@@ -57,6 +57,7 @@ interface MemberAvatarsProps {
   members?: Array<{
     id: string;
     username?: string;
+    fullName?: string;
     color?: string;
     capitalLetters?: string;
   }>;
@@ -73,9 +74,11 @@ export function MemberAvatars({ members, max = 3 }: MemberAvatarsProps) {
           key={member.id}
           className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-xs font-medium text-white"
           style={{ backgroundColor: member.color || "#3b82f6" }}
-          title={member.username}
+          title={member.fullName || member.username}
         >
-          {member.capitalLetters || member.username?.slice(0, 2).toUpperCase()}
+          {member.capitalLetters ||
+            member.fullName?.slice(0, 2).toUpperCase() ||
+            member.username?.slice(0, 2).toUpperCase()}
         </div>
       ))}
     </div>
