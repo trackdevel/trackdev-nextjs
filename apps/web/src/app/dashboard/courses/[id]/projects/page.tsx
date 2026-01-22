@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
   coursesApi,
+  projectsApi,
   useAuth,
   useMutation,
   useQuery,
@@ -21,9 +22,10 @@ import {
 import type {
   IdObject,
   ProjectCreateRequest,
+  ProjectWithMembers,
   UserPublic,
 } from "@trackdev/types";
-import { FolderKanban, Plus, Users } from "lucide-react";
+import { FolderKanban, Plus, Trash2, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -37,9 +39,12 @@ export default function CourseProjectsPage() {
   const courseId = Number(params.id);
   const { user } = useAuth();
   const t = useTranslations("common");
+  const toast = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [projectToDelete, setProjectToDelete] =
+    useState<ProjectWithMembers | null>(null);
 
   const {
     data: course,
@@ -49,6 +54,24 @@ export default function CourseProjectsPage() {
   } = useQuery(() => coursesApi.getDetails(courseId), [courseId], {
     enabled: !!courseId,
   });
+
+  const deleteMutation = useMutation<void, number>(
+    (projectId: number) => projectsApi.delete(projectId),
+    {
+      onSuccess: () => {
+        toast.success("Project deleted successfully");
+        setProjectToDelete(null);
+        refetch();
+      },
+      onError: (err: unknown) => {
+        const errorMessage =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : "Failed to delete project";
+        toast.error(errorMessage);
+      },
+    },
+  );
 
   const userRoles = user?.roles || [];
   const isAdmin = userRoles.includes("ADMIN");
@@ -152,33 +175,46 @@ export default function CourseProjectsPage() {
           {/* Projects Item List */}
           <div className="card divide-y divide-gray-200">
             {paginatedProjects.map((project) => (
-              <Link
+              <div
                 key={project.id}
-                href={`/dashboard/projects/${project.id}`}
-                className="block transition-colors hover:bg-gray-50"
+                className="flex items-center transition-colors hover:bg-gray-50"
               >
-                <ItemCard
-                  icon={FolderKanban}
-                  iconBgColor="bg-blue-100"
-                  iconColor="text-blue-600"
-                  title={project.name}
-                  subtitle={`${project.members?.length || 0} member${project.members?.length !== 1 ? "s" : ""}`}
-                  rightContent={
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
-                        <Users className="h-4 w-4" />
-                        <span>{project.members?.length || 0}</span>
+                <Link
+                  href={`/dashboard/projects/${project.id}`}
+                  className="block flex-1"
+                >
+                  <ItemCard
+                    icon={FolderKanban}
+                    iconBgColor="bg-blue-100"
+                    iconColor="text-blue-600"
+                    title={project.name}
+                    subtitle={`${project.members?.length || 0} member${project.members?.length !== 1 ? "s" : ""}`}
+                    rightContent={
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                          <Users className="h-4 w-4" />
+                          <span>{project.members?.length || 0}</span>
+                        </div>
+                        {project.qualification != null && (
+                          <StatusBadge
+                            label={`${project.qualification.toFixed(1)}/10`}
+                            variant="primary"
+                          />
+                        )}
                       </div>
-                      {project.qualification != null && (
-                        <StatusBadge
-                          label={`${project.qualification.toFixed(1)}/10`}
-                          variant="primary"
-                        />
-                      )}
-                    </div>
-                  }
-                />
-              </Link>
+                    }
+                  />
+                </Link>
+                {canManage && (
+                  <button
+                    onClick={() => setProjectToDelete(project)}
+                    className="mr-4 rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                    title="Delete project"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             ))}
           </div>
 
@@ -193,6 +229,49 @@ export default function CourseProjectsPage() {
             />
           )}
         </>
+      )}
+
+      {/* Delete Project Confirmation Modal */}
+      {projectToDelete && (
+        <Modal
+          isOpen={true}
+          onClose={() => setProjectToDelete(null)}
+          title="Delete Project"
+          maxWidth="sm"
+        >
+          <div className="mb-6">
+            <p className="text-gray-600">
+              Are you sure you want to delete the project{" "}
+              <strong className="text-gray-900">{projectToDelete.name}</strong>?
+            </p>
+            <p className="mt-2 text-sm text-gray-500">
+              This action cannot be undone. All sprints associated with this
+              project will also be deleted.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setProjectToDelete(null)}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => deleteMutation.mutate(projectToDelete.id)}
+              disabled={deleteMutation.isLoading}
+              className="btn-danger flex items-center gap-2"
+            >
+              {deleteMutation.isLoading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              Delete
+            </button>
+          </div>
+        </Modal>
       )}
 
       {/* Create Project Modal */}
