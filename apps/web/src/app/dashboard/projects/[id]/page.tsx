@@ -4,6 +4,7 @@ import { BackButton } from "@/components/BackButton";
 import { RecentTasksCard } from "@/components/tasks";
 import {
   CardSection,
+  DropdownMenu,
   FormField,
   ItemCard,
   MemberItem,
@@ -50,12 +51,13 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { ManageMembersModal } from "./ManageMembersModal";
 
 export default function ProjectDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const projectId = Number(params.id);
   const { isAuthenticated, user } = useAuth();
   const t = useTranslations("projects");
@@ -85,6 +87,7 @@ export default function ProjectDetailPage() {
   const [selectedPatternId, setSelectedPatternId] = useState<number | null>(
     null,
   );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const toast = useToast();
 
   const {
@@ -189,6 +192,28 @@ export default function ProjectDetailPage() {
           error instanceof ApiClientError && error.body?.message
             ? error.body.message
             : t("failedToApplyPattern");
+        toast.error(errorMessage);
+      },
+    },
+  );
+
+  const deleteProjectMutation = useMutation(
+    () => projectsApi.delete(projectId),
+    {
+      onSuccess: () => {
+        toast.success(t("projectDeleted"));
+        // Navigate back to the course projects page
+        if (project?.course?.id) {
+          router.push(`/dashboard/courses/${project.course.id}/projects`);
+        } else {
+          router.push("/dashboard/projects");
+        }
+      },
+      onError: (error) => {
+        const errorMessage =
+          error instanceof ApiClientError && error.body?.message
+            ? error.body.message
+            : t("failedToDeleteProject");
         toast.error(errorMessage);
       },
     },
@@ -321,6 +346,21 @@ export default function ProjectDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Actions Menu (Professor only) */}
+        {isProfessor && (
+          <DropdownMenu
+            align="right"
+            items={[
+              {
+                label: tCommon("delete"),
+                icon: <Trash2 className="h-4 w-4" />,
+                onClick: () => setShowDeleteModal(true),
+                variant: "danger",
+              },
+            ]}
+          />
+        )}
       </div>
 
       {/* Stats Grid */}
@@ -765,6 +805,47 @@ export default function ProjectDetailPage() {
           isLoading={updateMembersMutation.isLoading}
         />
       )}
+
+      {/* Delete Project Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title={t("deleteProject")}
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-400">
+            {t("deleteProjectConfirmation")}
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(false)}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            >
+              {tCommon("cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={() => deleteProjectMutation.mutate()}
+              disabled={deleteProjectMutation.isLoading}
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              {deleteProjectMutation.isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  {tCommon("deleting")}
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4" />
+                  {tCommon("delete")}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

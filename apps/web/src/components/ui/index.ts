@@ -5,6 +5,7 @@ export * from "./Badge";
 export * from "./ConfirmDialog";
 export * from "./ContentCard";
 export * from "./DataTable";
+export * from "./DropdownMenu";
 export * from "./EmptyState";
 export * from "./ErrorAlert";
 export * from "./ErrorMessage";
