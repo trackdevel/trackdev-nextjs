@@ -379,7 +379,11 @@
     "repoNameRequired": "El nom del repositori és obligatori",
     "repoUrlRequired": "La URL del repositori és obligatòria",
     "accessTokenRequired": "El token d'accés és obligatori",
-    "confirmRemoveRepo": "Estàs segur que vols eliminar aquest repositori?"
+    "confirmRemoveRepo": "Estàs segur que vols eliminar aquest repositori?",
+    "deleteProject": "Eliminar Projecte",
+    "deleteProjectConfirmation": "Estàs segur que vols eliminar aquest projecte? Aquesta acció no es pot desfer.",
+    "projectDeleted": "Projecte eliminat correctament",
+    "failedToDeleteProject": "Error en eliminar el projecte"
   },
   "sprints": {
     "title": "Sprints",

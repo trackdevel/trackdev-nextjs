@@ -379,7 +379,11 @@
     "repoNameRequired": "El nombre del repositorio es obligatorio",
     "repoUrlRequired": "La URL del repositorio es obligatoria",
     "accessTokenRequired": "El token de acceso es obligatorio",
-    "confirmRemoveRepo": "¿Estás seguro de que quieres eliminar este repositorio?"
+    "confirmRemoveRepo": "¿Estás seguro de que quieres eliminar este repositorio?",
+    "deleteProject": "Eliminar Proyecto",
+    "deleteProjectConfirmation": "¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.",
+    "projectDeleted": "Proyecto eliminado correctamente",
+    "failedToDeleteProject": "Error al eliminar el proyecto"
   },
   "sprints": {
     "title": "Sprints",
