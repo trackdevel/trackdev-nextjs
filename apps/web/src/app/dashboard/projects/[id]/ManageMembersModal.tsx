@@ -37,7 +37,7 @@ export function ManageMembersModal({
   const { data: studentsResponse, isLoading: loadingStudents } = useQuery(
     () => coursesApi.getStudents(courseId),
     [courseId],
-    { enabled: isOpen && !!courseId }
+    { enabled: isOpen && !!courseId },
   );
 
   const courseStudents = studentsResponse?.students || [];
@@ -45,21 +45,22 @@ export function ManageMembersModal({
   // Filter students not currently in the project
   const currentMemberIds = new Set(currentMembers.map((m) => m.id));
   const availableStudents = courseStudents.filter(
-    (student) => !currentMemberIds.has(student.id)
+    (student) => !currentMemberIds.has(student.id),
   );
 
   // Apply search filter
   const filteredStudents = availableStudents.filter(
     (student) =>
+      student.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      student.email?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Pagination
   const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
   const paginatedStudents = filteredStudents.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   // Reset page when search changes
@@ -69,7 +70,11 @@ export function ManageMembersModal({
   };
 
   const handleRemove = (member: UserPublic) => {
-    if (confirm(t("confirmRemoveMember", { name: member.username }))) {
+    if (
+      confirm(
+        t("confirmRemoveMember", { name: member.fullName || member.username }),
+      )
+    ) {
       onRemoveMember(member.id);
     }
   };
@@ -100,11 +105,12 @@ export function ManageMembersModal({
                       style={{ backgroundColor: member.color || "#3b82f6" }}
                     >
                       {member.capitalLetters ||
+                        member.fullName?.slice(0, 2).toUpperCase() ||
                         member.username?.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {member.username}
+                        {member.fullName || member.username}
                       </p>
                       <p className="text-sm text-gray-500">{member.email}</p>
                     </div>
@@ -165,11 +171,12 @@ export function ManageMembersModal({
                               }}
                             >
                               {student.capitalLetters ||
+                                student.fullName?.slice(0, 2).toUpperCase() ||
                                 student.username?.slice(0, 2).toUpperCase()}
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900">
-                                {student.username}
+                                {student.fullName || student.username}
                               </p>
                               <p className="text-xs text-gray-500">
                                 {student.email}

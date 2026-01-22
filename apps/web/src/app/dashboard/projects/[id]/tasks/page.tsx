@@ -187,12 +187,15 @@ export default function ProjectTasksPage() {
     const assignees = new Map<string, string>();
     tasksResponse.tasks.forEach((task: Task) => {
       if (task.assignee) {
-        assignees.set(task.assignee.id, task.assignee.username);
+        assignees.set(
+          task.assignee.id,
+          task.assignee.fullName || task.assignee.username,
+        );
       }
     });
-    return Array.from(assignees.entries()).map(([id, username]) => ({
+    return Array.from(assignees.entries()).map(([id, name]) => ({
       value: id,
-      label: username,
+      label: name,
     }));
   }, [tasksResponse?.tasks]);
 

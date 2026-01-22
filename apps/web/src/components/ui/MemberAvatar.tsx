@@ -44,8 +44,8 @@ export function MemberAvatar({
 }
 
 interface MemberItemProps {
-  /** Member username */
-  username: string;
+  /** Member display name (fullName preferred) */
+  name: string;
   /** Member email */
   email?: string;
   /** Pre-computed capital letters */
@@ -64,7 +64,7 @@ interface MemberItemProps {
  * Complete member list item with avatar, name, email, and optional actions.
  */
 export function MemberItem({
-  username,
+  name,
   email,
   capitalLetters,
   color,
@@ -83,12 +83,12 @@ export function MemberItem({
       type={onClick ? "button" : undefined}
     >
       <MemberAvatar
-        username={username}
+        username={name}
         capitalLetters={capitalLetters}
         color={color}
       />
       <div className="flex-1">
-        <p className="font-medium text-gray-900">{username}</p>
+        <p className="font-medium text-gray-900">{name}</p>
         {email && <p className="text-sm text-gray-500">{email}</p>}
       </div>
       {rightContent}
