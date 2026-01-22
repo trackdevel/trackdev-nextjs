@@ -825,7 +825,6 @@ export default function ProjectDetailPage() {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         title={t("deleteProject")}
-        size="sm"
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">
