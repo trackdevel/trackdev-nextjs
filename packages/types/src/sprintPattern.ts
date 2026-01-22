@@ -19,6 +19,7 @@ export interface SprintPattern {
 }
 
 export interface SprintPatternItemRequest {
+  id?: number; // ID of existing item (null/undefined for new items)
   name: string;
   startDate?: string;
   endDate?: string;

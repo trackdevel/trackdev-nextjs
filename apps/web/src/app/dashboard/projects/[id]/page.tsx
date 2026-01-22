@@ -19,6 +19,7 @@ import {
   githubReposApi,
   projectReportsApi,
   projectsApi,
+  sprintPatternsApi,
   useAuth,
   useMutation,
   useQuery,
@@ -27,6 +28,7 @@ import type {
   AddGitHubRepoRequest,
   GitHubRepoSummary,
   Report,
+  SprintPattern,
   Task,
 } from "@trackdev/types";
 import {
@@ -41,6 +43,7 @@ import {
   FileBarChart,
   FolderKanban,
   Github,
+  Layers,
   Plus,
   Trash2,
   Users,
@@ -60,7 +63,7 @@ export default function ProjectDetailPage() {
   const tSprints = useTranslations("sprints");
   const tTasks = useTranslations("tasks");
   const tReports = useTranslations("reports");
-  const { formatDateRange } = useDateFormat();
+  const { formatDateTimeRange } = useDateFormat();
 
   // Check if user is professor or admin
   const userRoles = user?.roles || [];
@@ -78,6 +81,10 @@ export default function ProjectDetailPage() {
     accessToken: "",
   });
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showApplyPatternModal, setShowApplyPatternModal] = useState(false);
+  const [selectedPatternId, setSelectedPatternId] = useState<number | null>(
+    null,
+  );
   const toast = useToast();
 
   const {
@@ -111,6 +118,16 @@ export default function ProjectDetailPage() {
     () => projectReportsApi.getAll(projectId),
     [projectId],
     { enabled: isAuthenticated && !isNaN(projectId) },
+  );
+
+  // Fetch sprint patterns for the course (only for professors/admins)
+  const { data: patternsData } = useQuery(
+    () => sprintPatternsApi.getByCourse(project?.course?.id || 0),
+    [project?.course?.id],
+    {
+      enabled:
+        isAuthenticated && (isProfessor || isAdmin) && !!project?.course?.id,
+    },
   );
 
   // Mutations
@@ -158,6 +175,25 @@ export default function ProjectDetailPage() {
     },
   );
 
+  const applyPatternMutation = useMutation(
+    (patternId: number) => projectsApi.applySprintPattern(projectId, patternId),
+    {
+      onSuccess: () => {
+        setShowApplyPatternModal(false);
+        setSelectedPatternId(null);
+        refetchProject();
+        toast.success(t("sprintPatternApplied"));
+      },
+      onError: (error) => {
+        const errorMessage =
+          error instanceof ApiClientError && error.body?.message
+            ? error.body.message
+            : t("failedToApplyPattern");
+        toast.error(errorMessage);
+      },
+    },
+  );
+
   // Extract tasks array from response object
   const tasks = tasksResponse?.tasks || [];
 
@@ -169,6 +205,19 @@ export default function ProjectDetailPage() {
 
   // Extract reports
   const reports = reportsResponse || [];
+
+  // Extract sprint patterns
+  const sprintPatterns = patternsData?.sprintPatterns || [];
+  const canApplyPattern =
+    (isProfessor || isAdmin) &&
+    !project?.sprintPatternId &&
+    sprintPatterns.length > 0;
+
+  const handleApplyPattern = () => {
+    if (selectedPatternId) {
+      applyPatternMutation.mutate(selectedPatternId);
+    }
+  };
 
   const handleAddRepo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -422,8 +471,21 @@ export default function ProjectDetailPage() {
         {/* Sprints */}
         <CardSection
           title={tSprints("title")}
+          action={
+            canApplyPattern && (
+              <button
+                onClick={() => setShowApplyPatternModal(true)}
+                className="btn-primary flex items-center gap-1 text-sm"
+              >
+                <Layers className="h-4 w-4" />
+                {t("applyPattern")}
+              </button>
+            )
+          }
           isEmpty={!sprints || sprints.length === 0}
-          emptyMessage={t("noSprintsCreated")}
+          emptyMessage={
+            canApplyPattern ? t("noSprintsApplyPattern") : t("noSprintsCreated")
+          }
           className="lg:col-span-2"
         >
           <ul className="divide-y">
@@ -452,7 +514,7 @@ export default function ProjectDetailPage() {
                     title={sprint.label}
                     subtitle={
                       sprint.startDate && sprint.endDate
-                        ? formatDateRange(sprint.startDate, sprint.endDate)
+                        ? formatDateTimeRange(sprint.startDate, sprint.endDate)
                         : t("noDatesSet")
                     }
                     rightContent={
@@ -593,6 +655,102 @@ export default function ProjectDetailPage() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Apply Sprint Pattern Modal */}
+      <Modal
+        isOpen={showApplyPatternModal}
+        onClose={() => {
+          setShowApplyPatternModal(false);
+          setSelectedPatternId(null);
+        }}
+        title={t("applySprintPattern")}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            {t("applyPatternDescription")}
+          </p>
+
+          <div className="space-y-2">
+            {sprintPatterns.map((pattern: SprintPattern) => (
+              <label
+                key={pattern.id}
+                className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
+                  selectedPatternId === pattern.id
+                    ? "border-primary-500 bg-primary-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="sprintPattern"
+                  value={pattern.id}
+                  checked={selectedPatternId === pattern.id}
+                  onChange={() => setSelectedPatternId(pattern.id)}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">
+                    {pattern.name}
+                  </div>
+                  <div className="mt-1 text-sm text-gray-500">
+                    {pattern.items.length}{" "}
+                    {pattern.items.length === 1 ? "sprint" : "sprints"}
+                  </div>
+                  <div className="mt-2 space-y-1">
+                    {pattern.items.slice(0, 3).map((item, idx) => (
+                      <div
+                        key={item.id || idx}
+                        className="flex items-center gap-2 text-xs text-gray-500"
+                      >
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
+                          {idx + 1}
+                        </span>
+                        <span>{item.name}</span>
+                      </div>
+                    ))}
+                    {pattern.items.length > 3 && (
+                      <div className="text-xs text-gray-400">
+                        +{pattern.items.length - 3} more...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setShowApplyPatternModal(false);
+                setSelectedPatternId(null);
+              }}
+              className="btn-secondary"
+            >
+              {tCommon("cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={handleApplyPattern}
+              disabled={!selectedPatternId || applyPatternMutation.isLoading}
+              className="btn-primary flex items-center gap-2"
+            >
+              {applyPatternMutation.isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  {t("applying")}
+                </>
+              ) : (
+                <>
+                  <Layers className="h-4 w-4" />
+                  {t("applyPattern")}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </Modal>
 
       {/* Manage Members Modal */}

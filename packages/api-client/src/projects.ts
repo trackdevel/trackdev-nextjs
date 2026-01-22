@@ -104,4 +104,10 @@ export const projectsApi = {
    */
   updateMembers: (projectId: number, memberIds: string[]) =>
     api.patch<Project>(`/projects/${projectId}`, { members: memberIds }),
+
+  /**
+   * Apply a sprint pattern to a project, creating sprints from the pattern items (Professor/Admin only)
+   */
+  applySprintPattern: (projectId: number, patternId: number) =>
+    api.post<Project>(`/projects/${projectId}/apply-pattern/${patternId}`, {}),
 };

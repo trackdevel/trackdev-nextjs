@@ -17,6 +17,7 @@ export interface Project {
   tasks?: Task[];
   sprints?: Sprint[];
   qualification?: number;
+  sprintPatternId?: number;
 }
 
 export interface ProjectCreateRequest {

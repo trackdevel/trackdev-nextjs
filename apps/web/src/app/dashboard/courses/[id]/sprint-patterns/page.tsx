@@ -124,6 +124,7 @@ export default function SprintPatternsPage() {
     setFormData({
       name: pattern.name,
       items: pattern.items.map((item, idx) => ({
+        id: item.id, // Preserve ID for existing items
         name: item.name,
         // Convert UTC dates to local timezone for datetime-local input
         startDate: toLocal(item.startDate),
@@ -138,6 +139,7 @@ export default function SprintPatternsPage() {
     setFormData({
       name: `Copy of ${pattern.name}`,
       items: pattern.items.map((item, idx) => ({
+        // Don't include ID for duplicated items - they will be new
         name: item.name,
         // Convert UTC dates to local timezone for datetime-local input
         startDate: toLocal(item.startDate),

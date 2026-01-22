@@ -74,7 +74,7 @@ export default function SprintBoardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const t = useTranslations("sprints");
   const toast = useToast();
-  const { formatDateRange } = useDateFormat();
+  const { formatDateTimeRange } = useDateFormat();
 
   // Backlog panel state
   const [isBacklogOpen, setIsBacklogOpen] = useState(true);
@@ -466,7 +466,7 @@ export default function SprintBoardPage() {
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
                   {sprintBoard.startDate && sprintBoard.endDate
-                    ? formatDateRange(
+                    ? formatDateTimeRange(
                         sprintBoard.startDate,
                         sprintBoard.endDate,
                       )
