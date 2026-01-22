@@ -402,7 +402,7 @@ function CreateProjectModal({
                   />
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900">
-                      {student.username}
+                      {student.fullName || student.username}
                     </div>
                     <div className="text-xs text-gray-500">{student.email}</div>
                   </div>

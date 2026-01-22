@@ -28,7 +28,7 @@ export default function HomePage() {
             {isAuthenticated ? (
               <>
                 <span className="text-sm text-gray-600">
-                  Welcome, {user?.username}
+                  Welcome, {user?.fullName || user?.username}
                 </span>
                 <Link href="/dashboard" className="btn-primary">
                   Dashboard

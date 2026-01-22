@@ -98,9 +98,10 @@ export default function ProjectsPage() {
                             style={{
                               backgroundColor: member.color || "#3b82f6",
                             }}
-                            title={member.username}
+                            title={member.fullName || member.username}
                           >
                             {member.capitalLetters ||
+                              member.fullName?.slice(0, 2).toUpperCase() ||
                               member.username?.slice(0, 2).toUpperCase()}
                           </div>
                         ))}

@@ -69,11 +69,12 @@ export default function SettingsPage() {
                     style={{ backgroundColor: user?.color || "#3b82f6" }}
                   >
                     {user?.capitalLetters ||
+                      user?.fullName?.slice(0, 2).toUpperCase() ||
                       user?.username?.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">
-                      {user?.username}
+                      {user?.fullName || user?.username}
                     </p>
                     <p className="text-sm text-gray-500">{user?.email}</p>
                     <div className="mt-2 flex gap-2">

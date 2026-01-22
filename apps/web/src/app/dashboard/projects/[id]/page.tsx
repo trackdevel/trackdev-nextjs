@@ -503,7 +503,7 @@ export default function ProjectDetailPage() {
             {project.members?.map((member) => (
               <MemberItem
                 key={member.id}
-                username={member.username}
+                name={member.fullName || member.username}
                 email={member.email}
                 capitalLetters={member.capitalLetters}
                 color={member.color}

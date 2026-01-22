@@ -181,7 +181,7 @@ export default function DashboardLayout({
           if (!item.roles) return true;
           return item.roles.some((role) => userRoles.includes(role));
         }),
-    [t, userRoles]
+    [t, userRoles],
   );
 
   const handleLogout = async () => {
@@ -245,15 +245,18 @@ export default function DashboardLayout({
               <div
                 className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
                 style={{ backgroundColor: user?.color || "#3b82f6" }}
-                title={isCollapsed ? user?.username : undefined}
+                title={
+                  isCollapsed ? user?.fullName || user?.username : undefined
+                }
               >
                 {user?.capitalLetters ||
+                  user?.fullName?.slice(0, 2).toUpperCase() ||
                   user?.username?.slice(0, 2).toUpperCase()}
               </div>
               {!isCollapsed && (
                 <div className="flex-1 truncate">
                   <p className="truncate text-sm font-medium text-gray-900">
-                    {user?.username}
+                    {user?.fullName || user?.username}
                   </p>
                   <p className="truncate text-xs text-gray-500">
                     {user?.email}

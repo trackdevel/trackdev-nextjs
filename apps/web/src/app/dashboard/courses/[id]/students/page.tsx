@@ -42,18 +42,22 @@ export default function CourseStudentsPage() {
   const totalPages = Math.ceil(students.length / ITEMS_PER_PAGE);
   const paginatedStudents = students.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const removeMutation = useMutation(
     (studentId: string) => coursesApi.removeStudent(courseId, studentId),
     {
       onSuccess: () => refetch(),
-    }
+    },
   );
 
   const handleRemoveStudent = (student: UserPublic) => {
-    if (confirm(`Remove ${student.username} from this course?`)) {
+    if (
+      confirm(
+        `Remove ${student.fullName || student.username} from this course?`,
+      )
+    ) {
       removeMutation.mutate(student.id);
     }
   };
@@ -156,11 +160,12 @@ export default function CourseStudentsPage() {
                           }}
                         >
                           {student.capitalLetters ||
+                            student.fullName?.slice(0, 2).toUpperCase() ||
                             student.username?.slice(0, 2).toUpperCase()}
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {student.username}
+                            {student.fullName || student.username}
                           </div>
                         </div>
                       </div>
