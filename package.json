@@ -2,10 +2,9 @@
   "name": "trackdev-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "TrackDev Full-Stack Monorepo - React Native, Next.js, Shared API Client",
+  "description": "TrackDev Full-Stack Monorepo - Next.js Web App with Shared API Client",
   "scripts": {
     "dev:web": "pnpm --filter @trackdev/web dev",
-    "dev:mobile": "pnpm --filter @trackdev/mobile start",
     "build:web": "pnpm --filter @trackdev/web build",
     "build:packages": "pnpm --filter @trackdev/types build && pnpm --filter @trackdev/ui build && pnpm --filter @trackdev/api-client build",
     "build:all": "pnpm build:packages && pnpm build:web",
@@ -17,9 +16,7 @@
   "keywords": [
     "trackdev",
     "monorepo",
-    "react-native",
-    "nextjs",
-    "expo"
+    "nextjs"
   ],
   "author": "",
   "license": "MIT",
