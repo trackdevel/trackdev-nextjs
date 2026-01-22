@@ -728,9 +728,10 @@ const TaskCard = memo(function TaskCard({
             <div
               className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium text-white"
               style={{ backgroundColor: task.assignee.color || "#6b7280" }}
-              title={task.assignee.username}
+              title={task.assignee.fullName || task.assignee.username}
             >
               {task.assignee.capitalLetters ||
+                task.assignee.fullName?.slice(0, 2).toUpperCase() ||
                 task.assignee.username?.slice(0, 2).toUpperCase()}
             </div>
           </div>
@@ -810,9 +811,10 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
           <div
             className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium text-white"
             style={{ backgroundColor: task.assignee.color || "#6b7280" }}
-            title={task.assignee.username}
+            title={task.assignee.fullName || task.assignee.username}
           >
             {task.assignee.capitalLetters ||
+              task.assignee.fullName?.slice(0, 2).toUpperCase() ||
               task.assignee.username?.slice(0, 2).toUpperCase()}
           </div>
         ) : (

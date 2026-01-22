@@ -34,7 +34,9 @@ export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
               {showAssignee && task.assignee && (
                 <span className="text-gray-500">
                   •{" "}
-                  <span className="font-medium">{task.assignee.username}</span>
+                  <span className="font-medium">
+                    {task.assignee.fullName || task.assignee.username}
+                  </span>
                 </span>
               )}
             </div>

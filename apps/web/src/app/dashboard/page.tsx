@@ -191,7 +191,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
-          {t("welcome", { name: user?.username || "" })}
+          {t("welcome", { name: user?.fullName || user?.username || "" })}
         </h1>
         <p className="mt-1 text-gray-600">
           {isAdmin && t("adminSubtitle")}
