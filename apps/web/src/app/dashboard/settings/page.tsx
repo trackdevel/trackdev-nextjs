@@ -4,8 +4,20 @@ import { GitHubUsernameEditor } from "@/components/settings/GitHubUsernameEditor
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { TimezoneSelector } from "@/components/settings/TimezoneSelector";
 import { PageContainer, PageHeader } from "@/components/ui";
-import { useAuth } from "@trackdev/api-client";
-import { Globe, Key, Mail, Palette, Shield, User } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
+import { ApiClientError, authApi, useAuth } from "@trackdev/api-client";
+import {
+  AlertCircle,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Globe,
+  Key,
+  Mail,
+  Palette,
+  Shield,
+  User,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -211,65 +223,272 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "security" && (
-            <div className="card">
-              <div className="border-b px-6 py-4">
-                <h2 className="font-semibold text-gray-900">
-                  {t("securitySettings")}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {t("securitySettingsDescription")}
-                </p>
-              </div>
-              <div className="p-6">
-                <form className="space-y-4">
-                  <div>
-                    <label htmlFor="current-password" className="label">
-                      {t("currentPassword")}
-                    </label>
-                    <input
-                      id="current-password"
-                      type="password"
-                      className="input mt-1"
-                      placeholder="••••••••"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="new-password" className="label">
-                      {t("newPassword")}
-                    </label>
-                    <input
-                      id="new-password"
-                      type="password"
-                      className="input mt-1"
-                      placeholder="••••••••"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="confirm-password" className="label">
-                      {t("confirmNewPassword")}
-                    </label>
-                    <input
-                      id="confirm-password"
-                      type="password"
-                      className="input mt-1"
-                      placeholder="••••••••"
-                    />
-                  </div>
-
-                  <div className="flex justify-end pt-4">
-                    <button type="submit" className="btn-primary">
-                      {t("updatePassword")}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
+          {activeTab === "security" && <SecuritySettings />}
         </div>
       </div>
     </PageContainer>
+  );
+}
+
+/**
+ * Security settings component with password change functionality
+ */
+function SecuritySettings() {
+  const t = useTranslations("settings");
+  const toast = useToast();
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Password validation
+  const hasMinLength = newPassword.length >= 8;
+  const hasLowercase = /[a-z]/.test(newPassword);
+  const hasUppercase = /[A-Z]/.test(newPassword);
+  const hasNumber = /\d/.test(newPassword);
+  const passwordsMatch =
+    newPassword === confirmPassword && newPassword.length > 0;
+  const isPasswordValid =
+    hasMinLength && hasLowercase && hasUppercase && hasNumber;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+
+    if (!currentPassword) {
+      setError(t("currentPasswordRequired"));
+      return;
+    }
+
+    if (!passwordsMatch) {
+      setError(t("passwordsDoNotMatch"));
+      return;
+    }
+
+    if (!isPasswordValid) {
+      setError(t("passwordRequirements"));
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await authApi.changePassword({
+        oldPassword: currentPassword,
+        newPassword: newPassword,
+      });
+
+      setSuccess(true);
+      toast.success(t("passwordChangedSuccess"));
+
+      // Clear form
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setError(err.getUserMessage());
+      } else {
+        setError(t("unexpectedError"));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="card">
+      <div className="border-b px-6 py-4">
+        <h2 className="font-semibold text-gray-900">{t("securitySettings")}</h2>
+        <p className="text-sm text-gray-500">
+          {t("securitySettingsDescription")}
+        </p>
+      </div>
+      <div className="p-6">
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          {error && (
+            <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {success && (
+            <div className="flex items-center gap-2 rounded-md bg-green-50 p-4 text-sm text-green-700">
+              <CheckCircle className="h-5 w-5 flex-shrink-0" />
+              <span>{t("passwordChangedSuccess")}</span>
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="current-password" className="label">
+              {t("currentPassword")}
+            </label>
+            <div className="relative mt-1">
+              <input
+                id="current-password"
+                type={showCurrentPassword ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="input pr-10"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showCurrentPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="new-password" className="label">
+              {t("newPassword")}
+            </label>
+            <div className="relative mt-1">
+              <input
+                id="new-password"
+                type={showNewPassword ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="input pr-10"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showNewPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="confirm-password" className="label">
+              {t("confirmNewPassword")}
+            </label>
+            <div className="relative mt-1">
+              <input
+                id="confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="input pr-10"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Password requirements */}
+          {newPassword.length > 0 && (
+            <div className="rounded-md bg-gray-50 p-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                {t("passwordMustContain")}
+              </p>
+              <ul className="space-y-1 text-sm">
+                <li
+                  className={`flex items-center gap-2 ${hasMinLength ? "text-green-600" : "text-gray-500"}`}
+                >
+                  {hasMinLength ? (
+                    <CheckCircle className="h-4 w-4" />
+                  ) : (
+                    <div className="h-4 w-4 rounded-full border border-current" />
+                  )}
+                  {t("atLeast8Characters")}
+                </li>
+                <li
+                  className={`flex items-center gap-2 ${hasLowercase ? "text-green-600" : "text-gray-500"}`}
+                >
+                  {hasLowercase ? (
+                    <CheckCircle className="h-4 w-4" />
+                  ) : (
+                    <div className="h-4 w-4 rounded-full border border-current" />
+                  )}
+                  {t("oneLowercaseLetter")}
+                </li>
+                <li
+                  className={`flex items-center gap-2 ${hasUppercase ? "text-green-600" : "text-gray-500"}`}
+                >
+                  {hasUppercase ? (
+                    <CheckCircle className="h-4 w-4" />
+                  ) : (
+                    <div className="h-4 w-4 rounded-full border border-current" />
+                  )}
+                  {t("oneUppercaseLetter")}
+                </li>
+                <li
+                  className={`flex items-center gap-2 ${hasNumber ? "text-green-600" : "text-gray-500"}`}
+                >
+                  {hasNumber ? (
+                    <CheckCircle className="h-4 w-4" />
+                  ) : (
+                    <div className="h-4 w-4 rounded-full border border-current" />
+                  )}
+                  {t("oneNumber")}
+                </li>
+                <li
+                  className={`flex items-center gap-2 ${passwordsMatch ? "text-green-600" : "text-gray-500"}`}
+                >
+                  {passwordsMatch ? (
+                    <CheckCircle className="h-4 w-4" />
+                  ) : (
+                    <div className="h-4 w-4 rounded-full border border-current" />
+                  )}
+                  {t("passwordsMatch")}
+                </li>
+              </ul>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-4">
+            <button
+              type="submit"
+              disabled={
+                isLoading ||
+                !isPasswordValid ||
+                !passwordsMatch ||
+                !currentPassword
+              }
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                t("updatePassword")
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

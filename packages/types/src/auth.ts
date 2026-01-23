@@ -44,5 +44,20 @@ export interface AuthCheckResponse {
   authenticated: boolean;
 }
 
+// ============ NEW TOKEN-BASED PASSWORD RESET TYPES ============
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface TokenValidationResponse {
+  valid: boolean;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 // Import User and RoleName types for LoginResponse and RegisterRequest
 import { RoleName, User } from "./user";
