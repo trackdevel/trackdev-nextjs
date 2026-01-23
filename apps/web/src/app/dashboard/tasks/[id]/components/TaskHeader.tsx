@@ -59,7 +59,8 @@ export const TaskHeader = memo(function TaskHeader({
     return t(statusKeyMap[status] || status);
   };
 
-  const getTypeLabel = (type: string) => {
+  const getTypeLabel = (type: string | null | undefined) => {
+    if (!type) return t("typeTask"); // Default fallback
     const typeKeyMap: Record<string, string> = {
       USER_STORY: "typeUserStory",
       TASK: "typeTask",
@@ -176,7 +177,8 @@ export const TaskHeader = memo(function TaskHeader({
             {task.reporter && (
               <span className="flex items-center gap-1">
                 <User className="h-4 w-4" />
-                {tCommon("by")} {task.reporter.username}
+                {tCommon("by")}{" "}
+                {task.reporter.fullName || task.reporter.username}
               </span>
             )}
           </div>
