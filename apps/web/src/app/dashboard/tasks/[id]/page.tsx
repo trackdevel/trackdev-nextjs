@@ -431,6 +431,8 @@ export default function TaskDetailPage() {
             <TaskChildren
               childTasks={deferredTask.childTasks || []}
               parentTaskId={taskId}
+              projectId={deferredTask.project?.id || 0}
+              onSubtaskCreated={refetchTask}
             />
           )}
 
