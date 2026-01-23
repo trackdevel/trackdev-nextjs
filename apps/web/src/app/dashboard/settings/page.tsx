@@ -124,7 +124,7 @@ export default function SettingsPage() {
                 <form className="space-y-4">
                   <div>
                     <label htmlFor="username" className="label">
-                      {t("profile")}
+                      {t("username")}
                     </label>
                     <div className="relative mt-1">
                       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -133,7 +133,26 @@ export default function SettingsPage() {
                       <input
                         id="username"
                         type="text"
-                        defaultValue={user?.username}
+                        value={user?.username || ""}
+                        readOnly
+                        disabled
+                        className="input pl-10 bg-gray-50 text-gray-500 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="fullName" className="label">
+                      {t("fullName")}
+                    </label>
+                    <div className="relative mt-1">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <User className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        id="fullName"
+                        type="text"
+                        defaultValue={user?.fullName || ""}
                         className="input pl-10"
                       />
                     </div>

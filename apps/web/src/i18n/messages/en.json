@@ -511,6 +511,8 @@
     "title": "Settings",
     "subtitle": "Manage your account settings and preferences",
     "profile": "Profile",
+    "username": "Username",
+    "fullName": "Full Name",
     "security": "Security",
     "preferences": "Preferences",
     "profileInfo": "Profile Information",
