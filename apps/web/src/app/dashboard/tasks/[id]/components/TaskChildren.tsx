@@ -82,7 +82,9 @@ export const TaskChildren = memo(function TaskChildren({
                                 : "bg-blue-100 text-blue-700"
                             }`}
                           >
-                            {subtask.type === "BUG" ? t("typeBug") : t("typeTask")}
+                            {subtask.type === "BUG"
+                              ? t("typeBug")
+                              : t("typeTask")}
                           </span>
                         )}
                       </div>
@@ -96,7 +98,9 @@ export const TaskChildren = memo(function TaskChildren({
                           {subtask.name}
                         </p>
                         <p className="text-sm text-gray-500">
-                          {subtask.assignee?.fullName || subtask.assignee?.username || t("unassigned")}
+                          {subtask.assignee?.fullName ||
+                            subtask.assignee?.username ||
+                            t("unassigned")}
                           {subtask.estimationPoints
                             ? ` • ${subtask.estimationPoints} ${t("points")}`
                             : ""}
