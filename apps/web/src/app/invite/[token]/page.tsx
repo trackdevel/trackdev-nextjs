@@ -51,7 +51,7 @@ export default function AcceptInvitePage() {
             : "Failed to accept invitation";
         toast.error(errorMessage);
       },
-    }
+    },
   );
 
   if (isLoading) {
@@ -93,15 +93,15 @@ export default function AcceptInvitePage() {
             {inviteInfo.status === "ACCEPTED"
               ? "Invitation Already Used"
               : inviteInfo.expired
-              ? "Invitation Expired"
-              : "Invitation Unavailable"}
+                ? "Invitation Expired"
+                : "Invitation Unavailable"}
           </h1>
           <p className="mt-2 text-gray-600">
             {inviteInfo.status === "ACCEPTED"
               ? "This invitation has already been accepted. You can log in to access the course."
               : inviteInfo.expired
-              ? "This invitation has expired. Please contact your professor for a new invitation."
-              : "This invitation is no longer available."}
+                ? "This invitation has expired. Please contact your professor for a new invitation."
+                : "This invitation is no longer available."}
           </p>
           <Link
             href="/login"
@@ -126,12 +126,24 @@ export default function AcceptInvitePage() {
             You have been enrolled in <strong>{inviteInfo.courseName}</strong> (
             {inviteInfo.startYear} - {inviteInfo.startYear + 1}).
           </p>
-          <Link
-            href="/login"
-            className="mt-6 inline-block rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
-          >
-            Log In to Continue
-          </Link>
+          <p className="mt-4 text-sm text-gray-500">
+            We recommend setting up your GitHub username in your preferences to
+            link your pull requests with your TrackDev account.
+          </p>
+          <div className="mt-6 flex flex-col gap-2">
+            <Link
+              href="/dashboard/settings?tab=preferences"
+              className="inline-block rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+            >
+              Set Up GitHub Username
+            </Link>
+            <Link
+              href="/login"
+              className="inline-block text-sm text-primary-600 hover:text-primary-700"
+            >
+              Skip for now, go to Login
+            </Link>
+          </div>
         </div>
       </div>
     );
