@@ -131,7 +131,9 @@ export const TaskSidebar = memo(function TaskSidebar({
                   {task.assignee.capitalLetters ||
                     task.assignee.username?.slice(0, 2).toUpperCase()}
                 </div>
-                <span className="text-gray-900">{task.assignee.fullName || task.assignee.username}</span>
+                <span className="text-gray-900">
+                  {task.assignee.fullName || task.assignee.username}
+                </span>
               </div>
             ) : (
               <div className="flex items-center justify-between">
@@ -178,7 +180,9 @@ export const TaskSidebar = memo(function TaskSidebar({
                   {task.reporter.capitalLetters ||
                     task.reporter.username?.slice(0, 2).toUpperCase()}
                 </div>
-                <span className="text-gray-900">{task.reporter.fullName || task.reporter.username}</span>
+                <span className="text-gray-900">
+                  {task.reporter.fullName || task.reporter.username}
+                </span>
               </div>
             ) : (
               <span className="text-gray-500">{t("unknown")}</span>
