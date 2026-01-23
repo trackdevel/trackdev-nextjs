@@ -81,7 +81,7 @@ export const TaskSidebar = memo(function TaskSidebar({
     if (!task.childTasks || task.childTasks.length === 0) return true; // No subtasks = can assign
     // Check if all subtasks have no sprint
     return task.childTasks.every(
-      (subtask) => !subtask.activeSprints || subtask.activeSprints.length === 0
+      (subtask) => !subtask.activeSprints || subtask.activeSprints.length === 0,
     );
   }, [task.type, task.childTasks]);
 
@@ -98,7 +98,8 @@ export const TaskSidebar = memo(function TaskSidebar({
     return t(statusKeyMap[status] || status);
   };
 
-  const getTypeLabel = (type: string) => {
+  const getTypeLabel = (type: string | null | undefined) => {
+    if (!type) return t("typeTask"); // Default fallback
     const typeKeyMap: Record<string, string> = {
       USER_STORY: "typeUserStory",
       TASK: "typeTask",
@@ -130,7 +131,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   {task.assignee.capitalLetters ||
                     task.assignee.username?.slice(0, 2).toUpperCase()}
                 </div>
-                <span className="text-gray-900">{task.assignee.username}</span>
+                <span className="text-gray-900">{task.assignee.fullName || task.assignee.username}</span>
               </div>
             ) : (
               <div className="flex items-center justify-between">
@@ -177,7 +178,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   {task.reporter.capitalLetters ||
                     task.reporter.username?.slice(0, 2).toUpperCase()}
                 </div>
-                <span className="text-gray-900">{task.reporter.username}</span>
+                <span className="text-gray-900">{task.reporter.fullName || task.reporter.username}</span>
               </div>
             ) : (
               <span className="text-gray-500">{t("unknown")}</span>
