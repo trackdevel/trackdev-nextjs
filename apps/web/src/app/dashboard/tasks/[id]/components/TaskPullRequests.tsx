@@ -6,7 +6,9 @@ import type { PullRequest, PullRequestChange } from "@trackdev/types";
 import {
   ChevronDown,
   ChevronRight,
+  Edit,
   ExternalLink,
+  GitCommit,
   GitMerge,
   GitPullRequest,
   GitPullRequestClosed,
@@ -19,6 +21,13 @@ import { useMemo, useState } from "react";
 interface TaskPullRequestsProps {
   pullRequests: PullRequest[];
   taskId: number;
+  projectMembers?: Array<{
+    id: string;
+    username: string;
+    fullName?: string;
+    color?: string;
+    githubInfo?: { login?: string };
+  }>;
 }
 
 /**
@@ -79,17 +88,55 @@ function getPRStateBadge(
 export function TaskPullRequests({
   pullRequests,
   taskId,
+  projectMembers,
 }: TaskPullRequestsProps) {
   const t = useTranslations("tasks");
   const { user } = useAuth();
   const timezone = user?.timezone || "UTC";
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Track which PRs have their activity timeline expanded
+  const [expandedPRs, setExpandedPRs] = useState<Set<string>>(new Set());
+
+  const togglePRExpanded = (prId: string) => {
+    setExpandedPRs((prev) => {
+      const next = new Set(prev);
+      if (next.has(prId)) {
+        next.delete(prId);
+      } else {
+        next.add(prId);
+      }
+      return next;
+    });
+  };
+
+  // Create a map of GitHub username to project member fullName
+  const githubToMemberMap = useMemo(() => {
+    const map = new Map<string, { fullName: string; username: string }>();
+    if (projectMembers) {
+      projectMembers.forEach((member) => {
+        const githubLogin = member.githubInfo?.login;
+        if (githubLogin) {
+          map.set(githubLogin.toLowerCase(), {
+            fullName: member.fullName || member.username,
+            username: member.username,
+          });
+        }
+      });
+    }
+    return map;
+  }, [projectMembers]);
+
+  // Helper function to resolve GitHub username to member fullName
+  const resolveGithubUser = (githubUsername: string | undefined): string => {
+    if (!githubUsername) return "";
+    const member = githubToMemberMap.get(githubUsername.toLowerCase());
+    return member?.fullName || githubUsername;
+  };
 
   // Fetch PR history
   const { data: prHistoryData } = useQuery(
     () => tasksApi.getPrHistory(taskId),
     [taskId],
-    { enabled: pullRequests.length > 0 && isExpanded },
+    { enabled: pullRequests.length > 0 },
   );
 
   // Sort PR history by date ascending (oldest first for timeline)
@@ -102,11 +149,15 @@ export function TaskPullRequests({
   }, [prHistoryData]);
 
   // Group history by PR ID for display
-  const prMap = useMemo(() => {
-    const map = new Map<string, PullRequest>();
-    pullRequests.forEach((pr) => map.set(pr.id, pr));
+  const historyByPR = useMemo(() => {
+    const map = new Map<string, PullRequestChange[]>();
+    sortedHistory.forEach((event) => {
+      const list = map.get(event.pullRequestId) || [];
+      list.push(event);
+      map.set(event.pullRequestId, list);
+    });
     return map;
-  }, [pullRequests]);
+  }, [sortedHistory]);
 
   if (!pullRequests || pullRequests.length === 0) {
     return (
@@ -128,116 +179,116 @@ export function TaskPullRequests({
 
   return (
     <div className="bg-white rounded-lg border p-4">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full text-left flex items-center gap-2 group"
-      >
-        {isExpanded ? (
-          <ChevronDown
-            size={20}
-            className="text-gray-400 group-hover:text-gray-600"
-          />
-        ) : (
-          <ChevronRight
-            size={20}
-            className="text-gray-400 group-hover:text-gray-600"
-          />
-        )}
+      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
         <GitPullRequest size={20} className="text-gray-500" />
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          {t("pullRequests")}
-          <span className="text-sm font-normal text-gray-500">
-            ({pullRequests.length})
-          </span>
-        </h3>
-      </button>
+        {t("pullRequests")}
+        <span className="text-sm font-normal text-gray-500">
+          ({pullRequests.length})
+        </span>
+      </h3>
 
-      {isExpanded && (
-        <>
-          {/* Current PR Status Summary */}
-          <div className="space-y-3 mt-4 mb-6">
-            {pullRequests.map((pr) => {
-              const stateColor = getPRStateColor(
-                pr.merged ? "merged" : pr.state,
-              );
-              const stateBadge = getPRStateBadge(
-                pr.merged ? "merged" : pr.state,
-                t,
-              );
+      {/* PR Cards - Always visible */}
+      <div className="space-y-4">
+        {pullRequests.map((pr) => {
+          const stateColor = getPRStateColor(pr.merged ? "merged" : pr.state);
+          const stateBadge = getPRStateBadge(
+            pr.merged ? "merged" : pr.state,
+            t,
+          );
+          const prHistory = historyByPR.get(pr.id) || [];
+          const isExpanded = expandedPRs.has(pr.id);
 
-              return (
-                <div
-                  key={pr.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <GitPullRequest size={18} className={stateColor} />
+          return (
+            <div
+              key={pr.id}
+              className="rounded-lg border bg-gray-50 overflow-hidden"
+            >
+              {/* PR Header - Always visible */}
+              <div className="flex items-start gap-3 p-3">
+                <GitPullRequest size={18} className={stateColor} />
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <a
-                        href={pr.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 truncate"
-                        title={pr.title || `PR #${pr.prNumber}`}
-                      >
-                        {pr.title || `PR #${pr.prNumber}`}
-                        <ExternalLink size={12} />
-                      </a>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <a
+                      href={pr.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 truncate"
+                      title={pr.title || `PR #${pr.prNumber}`}
+                    >
+                      {pr.title || `PR #${pr.prNumber}`}
+                      <ExternalLink size={12} />
+                    </a>
 
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${stateBadge.bg} ${stateBadge.text}`}
-                      >
-                        {stateBadge.label}
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${stateBadge.bg} ${stateBadge.text}`}
+                    >
+                      {stateBadge.label}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                    {pr.repoFullName && (
+                      <span className="font-mono">{pr.repoFullName}</span>
+                    )}
+                    {pr.prNumber && <span>#{pr.prNumber}</span>}
+                    {pr.author?.username && (
+                      <span>
+                        by{" "}
+                        {pr.author.fullName ||
+                          resolveGithubUser(pr.author.username) ||
+                          pr.author.username}
                       </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                      {pr.repoFullName && (
-                        <span className="font-mono">{pr.repoFullName}</span>
-                      )}
-                      {pr.prNumber && <span>#{pr.prNumber}</span>}
-                      {pr.author?.username && (
-                        <span>by {pr.author.username}</span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* PR History Timeline */}
-          {sortedHistory.length > 0 && (
-            <div className="border-t pt-4">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <History size={16} className="text-gray-500" />
-                {t("activityTimeline")}
-              </h4>
-
-              <div className="relative">
-                {/* Timeline line */}
-                <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-gray-200" />
-
-                <div className="space-y-3">
-                  {sortedHistory.map((event) => {
-                    const pr = prMap.get(event.pullRequestId);
-                    return (
-                      <PRHistoryEvent
-                        key={event.id}
-                        event={event}
-                        pr={pr}
-                        t={t}
-                        timezone={timezone}
-                      />
-                    );
-                  })}
-                </div>
               </div>
+
+              {/* Collapsible Activity Timeline for this PR */}
+              {prHistory.length > 0 && (
+                <div className="border-t">
+                  <button
+                    onClick={() => togglePRExpanded(pr.id)}
+                    className="w-full px-3 py-2 flex items-center gap-2 text-xs text-gray-600 hover:bg-gray-100 transition-colors"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown size={14} className="text-gray-400" />
+                    ) : (
+                      <ChevronRight size={14} className="text-gray-400" />
+                    )}
+                    <History size={14} className="text-gray-400" />
+                    <span>
+                      {t("activityTimeline")} ({prHistory.length})
+                    </span>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="px-3 pb-3">
+                      <div className="relative pl-2">
+                        {/* Timeline line */}
+                        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
+
+                        <div className="space-y-2">
+                          {prHistory.map((event) => (
+                            <PRHistoryEvent
+                              key={event.id}
+                              event={event}
+                              pr={pr}
+                              t={t}
+                              timezone={timezone}
+                              resolveGithubUser={resolveGithubUser}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
-        </>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -278,6 +329,18 @@ function getEventStyle(
         bgColor: "bg-blue-100",
         label: t("prEventReopened"),
       };
+    case "pr_synchronize":
+      return {
+        icon: <GitCommit size={14} className="text-yellow-600" />,
+        bgColor: "bg-yellow-100",
+        label: t("prEventSynchronize"),
+      };
+    case "pr_edited":
+      return {
+        icon: <Edit size={14} className="text-orange-600" />,
+        bgColor: "bg-orange-100",
+        label: t("prEventEdited"),
+      };
     default:
       return {
         icon: <History size={14} className="text-gray-500" />,
@@ -295,11 +358,13 @@ function PRHistoryEvent({
   pr,
   t,
   timezone,
+  resolveGithubUser,
 }: {
   event: PullRequestChange;
   pr?: PullRequest;
   t: (key: string) => string;
   timezone: string;
+  resolveGithubUser: (githubUsername: string | undefined) => string;
 }) {
   const style = getEventStyle(event, t);
   const prTitle =
@@ -307,6 +372,33 @@ function PRHistoryEvent({
       ? event.prTitle
       : pr?.title || `PR #${pr?.prNumber || "?"}`;
   const prNumber = event.type === "pr_opened" ? event.prNumber : pr?.prNumber;
+
+  // Action performer: who performed this action (opened, merged, closed, reopened)
+  // Priority: backend-resolved fullName > project member lookup > raw GitHub username
+  const actionPerformer =
+    event.authorFullName ||
+    resolveGithubUser(event.githubUser) ||
+    event.githubUser ||
+    t("unknownUser");
+
+  // PR author: who originally created the PR (from the PR entity)
+  const prAuthor = pr?.author
+    ? pr.author.fullName ||
+      resolveGithubUser(pr.author.githubInfo?.login) ||
+      pr.author.username
+    : null;
+
+  // For merge events, show who merged (same as action performer in most cases)
+  const mergedBy =
+    event.type === "pr_merged" && event.mergedBy
+      ? (event as { mergedByFullName?: string }).mergedByFullName ||
+        resolveGithubUser(event.mergedBy) ||
+        event.mergedBy
+      : null;
+
+  // Determine if we should show "by author" - only for non-open events where author differs from action performer
+  const showPrAuthor =
+    event.type !== "pr_opened" && prAuthor && prAuthor !== actionPerformer;
 
   return (
     <div className="relative flex items-start gap-3 pl-1">
@@ -320,7 +412,7 @@ function PRHistoryEvent({
       {/* Content */}
       <div className="flex-1 min-w-0 pb-2">
         <div className="flex items-center gap-2 flex-wrap text-sm">
-          <span className="font-medium text-gray-900">{event.githubUser}</span>
+          <span className="font-medium text-gray-900">{actionPerformer}</span>
           <span className="text-gray-500">{style.label}</span>
           {pr?.url ? (
             <a
@@ -337,6 +429,13 @@ function PRHistoryEvent({
               #{prNumber} {prTitle}
             </span>
           )}
+          {/* Show PR author if different from action performer */}
+          {showPrAuthor && (
+            <span className="text-gray-500">
+              ({t("prAuthor")}:{" "}
+              <span className="font-medium text-gray-700">{prAuthor}</span>)
+            </span>
+          )}
         </div>
 
         {/* Timestamp */}
@@ -344,12 +443,14 @@ function PRHistoryEvent({
           {formatDateTime(event.changedAt, timezone)}
         </div>
 
-        {/* Additional info for merged events */}
-        {event.type === "pr_merged" && event.mergedBy && (
-          <div className="text-xs text-purple-600 mt-0.5">
-            {t("mergedBy")} {event.mergedBy}
-          </div>
-        )}
+        {/* Additional info for merged events - show merger if different from action performer */}
+        {event.type === "pr_merged" &&
+          mergedBy &&
+          mergedBy !== actionPerformer && (
+            <div className="text-xs text-purple-600 mt-0.5">
+              {t("mergedBy")} {mergedBy}
+            </div>
+          )}
       </div>
     </div>
   );
