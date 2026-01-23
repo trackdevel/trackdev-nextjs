@@ -27,6 +27,7 @@ export interface UserPublic {
   email: string;
   color: string;
   capitalLetters: string;
+  githubInfo?: GithubInfo;
 }
 
 // Role type no longer needed - API returns roles as string array
@@ -35,7 +36,9 @@ export type RoleName = "ADMIN" | "WORKSPACE_ADMIN" | "PROFESSOR" | "STUDENT";
 export interface GithubInfo {
   id?: number;
   githubToken?: string;
-  githubUsername?: string;
+  login?: string;
+  avatar_url?: string;
+  html_url?: string;
 }
 
 export interface UserUpdateRequest {
@@ -44,7 +47,7 @@ export interface UserUpdateRequest {
   email?: string;
   color?: string;
   currentProject?: number;
-  githubInfo?: Partial<GithubInfo>;
+  githubUsername?: string;
   timezone?: string;
 }
 
