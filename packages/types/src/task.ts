@@ -82,6 +82,7 @@ export interface TaskLog {
   timestamp: string;
   userId: string;
   username: string;
+  fullName?: string;
 }
 
 export interface TaskStatusInfo {
@@ -123,6 +124,7 @@ export interface PullRequestChangeBase {
   id: number;
   pullRequestId: string;
   githubUser: string;
+  authorFullName?: string;
   changedAt: string;
   type: string;
 }
@@ -152,6 +154,7 @@ export interface PullRequestClosedChange extends PullRequestChangeBase {
 export interface PullRequestMergedChange extends PullRequestChangeBase {
   type: "pr_merged";
   mergedBy: string;
+  mergedByFullName?: string;
 }
 
 /**
@@ -162,10 +165,27 @@ export interface PullRequestReopenedChange extends PullRequestChangeBase {
 }
 
 /**
+ * PR synchronize change event (new commits pushed)
+ */
+export interface PullRequestSynchronizeChange extends PullRequestChangeBase {
+  type: "pr_synchronize";
+}
+
+/**
+ * PR edited change event (title/body changed)
+ */
+export interface PullRequestEditedChange extends PullRequestChangeBase {
+  type: "pr_edited";
+  newTitle?: string;
+}
+
+/**
  * Union type for all PR change events
  */
 export type PullRequestChange =
   | PullRequestOpenedChange
   | PullRequestClosedChange
   | PullRequestMergedChange
-  | PullRequestReopenedChange;
+  | PullRequestReopenedChange
+  | PullRequestSynchronizeChange
+  | PullRequestEditedChange;
