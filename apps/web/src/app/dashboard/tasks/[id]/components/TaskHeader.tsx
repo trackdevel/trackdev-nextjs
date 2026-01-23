@@ -177,7 +177,8 @@ export const TaskHeader = memo(function TaskHeader({
             {task.reporter && (
               <span className="flex items-center gap-1">
                 <User className="h-4 w-4" />
-                {tCommon("by")} {task.reporter.fullName || task.reporter.username}
+                {tCommon("by")}{" "}
+                {task.reporter.fullName || task.reporter.username}
               </span>
             )}
           </div>
