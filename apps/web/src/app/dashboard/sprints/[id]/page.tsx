@@ -1,6 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { CreateTaskModal } from "@/components/tasks";
 import { useToast } from "@/components/ui/Toast";
 import { useDateFormat } from "@/utils/useDateFormat";
 import {
@@ -16,8 +17,10 @@ import {
   AlertCircle,
   Calendar,
   CheckCircle2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Clock,
   FolderKanban,
   Loader2,
@@ -78,6 +81,10 @@ export default function SprintBoardPage() {
 
   // Backlog panel state
   const [isBacklogOpen, setIsBacklogOpen] = useState(true);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useState<
+    number | null
+  >(null);
   const [draggedBacklogTask, setDraggedBacklogTask] = useState<Task | null>(
     null,
   );
@@ -115,13 +122,35 @@ export default function SprintBoardPage() {
     },
   );
 
-  // Filter backlog tasks (tasks not assigned to any sprint)
+  // Filter backlog tasks: show only USER_STORYs and standalone TASK/BUG (no parent)
+  // Subtasks are shown nested under their parent USER_STORY
   const backlogTasks = useMemo(() => {
     if (!projectTasks?.tasks) return [];
-    return projectTasks.tasks.filter(
+    const allBacklogTasks = projectTasks.tasks.filter(
       (task) => !task.activeSprints || task.activeSprints.length === 0,
     );
+    // Show USER_STORYs and standalone TASK/BUG (no parent)
+    return allBacklogTasks.filter(
+      (task) => task.type === "USER_STORY" || !task.parentTaskId,
+    );
   }, [projectTasks?.tasks]);
+
+  // State for expanded USER_STORYs in backlog
+  const [expandedStories, setExpandedStories] = useState<Set<number>>(
+    new Set(),
+  );
+
+  const toggleStoryExpand = useCallback((storyId: number) => {
+    setExpandedStories((prev) => {
+      const next = new Set(prev);
+      if (next.has(storyId)) {
+        next.delete(storyId);
+      } else {
+        next.add(storyId);
+      }
+      return next;
+    });
+  }, []);
 
   // Mutation for assigning task to sprint
   const assignToSprintMutation = useMutation(
@@ -192,9 +221,9 @@ export default function SprintBoardPage() {
       }
     }
 
-    // Second pass: assign subtasks (type TASK) to their parent stories
+    // Second pass: assign subtasks (type TASK or BUG) to their parent stories
     for (const task of sprintBoard.tasks) {
-      if (task.type === "TASK" && task.parentTaskId) {
+      if ((task.type === "TASK" || task.type === "BUG") && task.parentTaskId) {
         const parentStory = storyMap.get(task.parentTaskId);
         if (parentStory) {
           parentStory.subtasks.push(task);
@@ -202,8 +231,11 @@ export default function SprintBoardPage() {
           // Parent not in this sprint, treat as orphan
           orphanTasks.push(task);
         }
-      } else if (task.type === "TASK" && !task.parentTaskId) {
-        // TASK without a parent - orphan
+      } else if (
+        (task.type === "TASK" || task.type === "BUG") &&
+        !task.parentTaskId
+      ) {
+        // TASK or BUG without a parent - orphan
         orphanTasks.push(task);
       }
     }
@@ -510,19 +542,30 @@ export default function SprintBoardPage() {
                   </span>
                 </div>
               )}
-              <button
-                onClick={() => setIsBacklogOpen(!isBacklogOpen)}
-                className="rounded p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
-                title={
-                  isBacklogOpen ? t("collapseBacklog") : t("expandBacklog")
-                }
-              >
-                {isBacklogOpen ? (
-                  <ChevronLeft className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
+              <div className="flex items-center gap-1">
+                {isBacklogOpen && (
+                  <button
+                    onClick={() => setShowCreateTaskModal(true)}
+                    className="rounded p-1 text-primary-600 hover:bg-primary-50 hover:text-primary-700"
+                    title={t("createTask")}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
                 )}
-              </button>
+                <button
+                  onClick={() => setIsBacklogOpen(!isBacklogOpen)}
+                  className="rounded p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                  title={
+                    isBacklogOpen ? t("collapseBacklog") : t("expandBacklog")
+                  }
+                >
+                  {isBacklogOpen ? (
+                    <ChevronLeft className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Backlog Tasks */}
@@ -535,12 +578,15 @@ export default function SprintBoardPage() {
                 ) : (
                   <div className="flex flex-col gap-2">
                     {backlogTasks.map((task) => (
-                      <BacklogTaskCard
+                      <BacklogStoryCard
                         key={task.id}
                         task={task}
+                        isExpanded={expandedStories.has(task.id)}
+                        onToggleExpand={() => toggleStoryExpand(task.id)}
                         onDragStart={handleBacklogDragStart}
                         onDragEnd={handleBacklogDragEnd}
                         isDragging={draggedBacklogTask?.id === task.id}
+                        draggedTaskId={draggedBacklogTask?.id}
                       />
                     ))}
                   </div>
@@ -596,14 +642,16 @@ export default function SprintBoardPage() {
                           </span>
                         )}
                       </Link>
-                      <Link
-                        href={`/dashboard/tasks/${story.id}/new-subtask?from=sprint&sprintId=${sprintId}`}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCreateSubtaskForStoryId(story.id);
+                        }}
                         className="inline-flex items-center gap-1 rounded-md bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
                       >
                         <Plus className="h-3 w-3" />
                         {t("addTask")}
-                      </Link>
+                      </button>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2">
@@ -658,6 +706,34 @@ export default function SprintBoardPage() {
           )}
         </div>
       </div>
+
+      {/* Create Task Modal (for backlog) */}
+      {sprintBoard?.project?.id && (
+        <CreateTaskModal
+          projectId={sprintBoard.project.id}
+          isOpen={showCreateTaskModal}
+          onClose={() => setShowCreateTaskModal(false)}
+          onSuccess={() => {
+            refetchBoard();
+            refetchProjectTasks();
+          }}
+        />
+      )}
+
+      {/* Create Subtask Modal (for adding subtasks to stories) */}
+      {sprintBoard?.project?.id && createSubtaskForStoryId && (
+        <CreateTaskModal
+          projectId={sprintBoard.project.id}
+          parentTaskId={createSubtaskForStoryId}
+          sprintId={sprintId}
+          isOpen={!!createSubtaskForStoryId}
+          onClose={() => setCreateSubtaskForStoryId(null)}
+          onSuccess={() => {
+            refetchBoard();
+            refetchProjectTasks();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -829,5 +905,200 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
         )}
       </div>
     </Link>
+  );
+});
+
+// Backlog Story Card Component - Shows USER_STORY with collapsible subtasks
+interface BacklogStoryCardProps {
+  task: Task;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onDragStart: (e: React.DragEvent, task: Task) => void;
+  onDragEnd: (e: React.DragEvent) => void;
+  isDragging: boolean;
+  draggedTaskId?: number;
+}
+
+const BacklogStoryCard = memo(function BacklogStoryCard({
+  task,
+  isExpanded,
+  onToggleExpand,
+  onDragStart,
+  onDragEnd,
+  isDragging,
+  draggedTaskId,
+}: BacklogStoryCardProps) {
+  const hasSubtasks = task.childTasks && task.childTasks.length > 0;
+  const isUserStory = task.type === "USER_STORY";
+
+  const getTypeIcon = () => {
+    switch (task.type) {
+      case "USER_STORY":
+        return <FolderKanban className="h-3 w-3 text-purple-500" />;
+      case "BUG":
+        return <AlertCircle className="h-3 w-3 text-red-500" />;
+      default:
+        return <CheckCircle2 className="h-3 w-3 text-blue-500" />;
+    }
+  };
+
+  const getSubtaskTypeIcon = (type: string) => {
+    switch (type) {
+      case "BUG":
+        return <AlertCircle className="h-3 w-3 text-red-500" />;
+      default:
+        return <CheckCircle2 className="h-3 w-3 text-blue-500" />;
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isDragging) {
+      e.preventDefault();
+    }
+  };
+
+  const handleExpandClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onToggleExpand();
+  };
+
+  return (
+    <div className="flex flex-col">
+      {/* Main Story/Task Card */}
+      <div className="flex items-stretch">
+        {/* Expand/Collapse Button for USER_STORYs with subtasks */}
+        {isUserStory && hasSubtasks ? (
+          <button
+            onClick={handleExpandClick}
+            className="flex items-center justify-center w-6 rounded-l-lg border border-r-0 border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
+            title={isExpanded ? "Collapse" : "Expand"}
+          >
+            {isExpanded ? (
+              <ChevronUp className="h-3 w-3 text-gray-500" />
+            ) : (
+              <ChevronDown className="h-3 w-3 text-gray-500" />
+            )}
+          </button>
+        ) : null}
+
+        {/* Task Card */}
+        <Link
+          href={`/dashboard/tasks/${task.id}?from=backlog`}
+          onClick={handleClick}
+          draggable
+          onDragStart={(e) => onDragStart(e, task)}
+          onDragEnd={onDragEnd}
+          className={`flex-1 block p-2 shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${
+            isDragging
+              ? "opacity-50 ring-2 ring-primary-400"
+              : "border-gray-200 bg-white hover:border-primary-300"
+          } ${
+            isUserStory && hasSubtasks
+              ? "rounded-r-lg border border-l-0"
+              : "rounded-lg border"
+          }`}
+        >
+          {task.taskKey && (
+            <div className="flex items-center gap-1 mb-1">
+              {getTypeIcon()}
+              <span className="text-[10px] font-mono text-gray-400">
+                {task.taskKey}
+              </span>
+              {isUserStory && hasSubtasks && (
+                <span className="ml-1 text-[10px] text-gray-400">
+                  ({task.childTasks!.length})
+                </span>
+              )}
+            </div>
+          )}
+          <p className="text-sm font-medium line-clamp-2 text-gray-900">
+            {task.name}
+          </p>
+          <div className="mt-2 flex items-center justify-between">
+            {task.assignee ? (
+              <div
+                className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium text-white"
+                style={{ backgroundColor: task.assignee.color || "#6b7280" }}
+                title={task.assignee.fullName || task.assignee.username}
+              >
+                {task.assignee.capitalLetters ||
+                  task.assignee.fullName?.slice(0, 2).toUpperCase() ||
+                  task.assignee.username?.slice(0, 2).toUpperCase()}
+              </div>
+            ) : (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200">
+                <User className="h-3 w-3 text-gray-400" />
+              </div>
+            )}
+            {task.estimationPoints !== undefined &&
+              task.estimationPoints > 0 && (
+                <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">
+                  {task.estimationPoints}
+                </span>
+              )}
+          </div>
+        </Link>
+      </div>
+
+      {/* Subtasks (expanded) */}
+      {isUserStory && hasSubtasks && isExpanded && (
+        <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-purple-200 pl-2">
+          {task.childTasks!.map((subtask) => (
+            <Link
+              key={subtask.id}
+              href={`/dashboard/tasks/${subtask.id}?from=backlog`}
+              draggable
+              onDragStart={(e) => onDragStart(e, subtask)}
+              onDragEnd={onDragEnd}
+              className={`block rounded-lg border p-2 shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${
+                draggedTaskId === subtask.id
+                  ? "opacity-50 ring-2 ring-primary-400"
+                  : "border-gray-200 bg-white hover:border-primary-300"
+              }`}
+            >
+              {subtask.taskKey && (
+                <div className="flex items-center gap-1 mb-1">
+                  {getSubtaskTypeIcon(subtask.type)}
+                  <span className="text-[10px] font-mono text-gray-400">
+                    {subtask.taskKey}
+                  </span>
+                </div>
+              )}
+              <p className="text-xs font-medium line-clamp-2 text-gray-900">
+                {subtask.name}
+              </p>
+              <div className="mt-1 flex items-center justify-between">
+                {subtask.assignee ? (
+                  <div
+                    className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-medium text-white"
+                    style={{
+                      backgroundColor: subtask.assignee.color || "#6b7280",
+                    }}
+                    title={
+                      subtask.assignee.fullName || subtask.assignee.username
+                    }
+                  >
+                    {subtask.assignee.capitalLetters ||
+                      subtask.assignee.fullName?.slice(0, 2).toUpperCase() ||
+                      subtask.assignee.username?.slice(0, 2).toUpperCase()}
+                  </div>
+                ) : (
+                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-gray-200">
+                    <User className="h-2 w-2 text-gray-400" />
+                  </div>
+                )}
+                {subtask.estimationPoints !== undefined &&
+                  subtask.estimationPoints > 0 && (
+                    <span className="rounded bg-gray-100 px-1 py-0.5 text-[10px] font-medium text-gray-600">
+                      {subtask.estimationPoints}
+                    </span>
+                  )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 });
