@@ -91,7 +91,9 @@ function HistoryEntry({ log }: HistoryEntryProps) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm">
-          <span className="font-medium text-gray-900">{log.username}</span>
+          <span className="font-medium text-gray-900">
+            {log.fullName || log.username}
+          </span>
           <span className="text-gray-600"> {changeMessage}</span>
         </div>
         <div className="mt-0.5 text-xs text-gray-500">{timestamp}</div>

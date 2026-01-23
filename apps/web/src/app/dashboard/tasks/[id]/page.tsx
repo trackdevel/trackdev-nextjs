@@ -438,6 +438,7 @@ export default function TaskDetailPage() {
           <TaskPullRequests
             pullRequests={deferredTask.pullRequests || []}
             taskId={taskId}
+            projectMembers={deferredTask.project?.members}
           />
 
           {/* Task History - Only visible to professors */}
