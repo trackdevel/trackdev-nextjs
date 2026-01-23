@@ -1,7 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-import { TaskList } from "@/components/tasks";
+import { CreateTaskModal, TaskList } from "@/components/tasks";
 import {
   EmptyState,
   LoadingContainer,
@@ -17,6 +17,7 @@ import {
   ChevronRight,
   ClipboardList,
   Filter,
+  Plus,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -50,6 +51,7 @@ export default function ProjectTasksPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const ITEMS_PER_PAGE_OPTIONS = [
     { value: "10", label: "10" },
@@ -79,6 +81,7 @@ export default function ProjectTasksPage() {
     data: tasksResponse,
     isLoading: dataLoading,
     error,
+    refetch: refetchTasks,
   } = useQuery(() => projectsApi.getTasks(projectId), [projectId], {
     enabled: isAuthenticated && !isNaN(projectId),
   });
@@ -243,18 +246,27 @@ export default function ProjectTasksPage() {
 
       <div className="flex flex-col gap-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {tTasks("title")}
-          </h1>
-          <p className="mt-1 text-gray-600">
-            {filteredTasks.length} {tTasks("title").toLowerCase()}
-            {filteredTasks.length > 0 && (
-              <span className="ml-2 text-gray-400">
-                ({tTasks("page")} {currentPage} {tTasks("of")} {totalPages})
-              </span>
-            )}
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {tTasks("title")}
+            </h1>
+            <p className="mt-1 text-gray-600">
+              {filteredTasks.length} {tTasks("title").toLowerCase()}
+              {filteredTasks.length > 0 && (
+                <span className="ml-2 text-gray-400">
+                  ({tTasks("page")} {currentPage} {tTasks("of")} {totalPages})
+                </span>
+              )}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {tTasks("createTask")}
+          </button>
         </div>
 
         {/* Filters */}
@@ -406,6 +418,14 @@ export default function ProjectTasksPage() {
           </div>
         )}
       </div>
+
+      {/* Create Task Modal */}
+      <CreateTaskModal
+        projectId={projectId}
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={refetchTasks}
+      />
     </PageContainer>
   );
 }
