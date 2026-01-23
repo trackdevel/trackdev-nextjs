@@ -1,17 +1,28 @@
 "use client";
 
+import { GitHubUsernameEditor } from "@/components/settings/GitHubUsernameEditor";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { TimezoneSelector } from "@/components/settings/TimezoneSelector";
 import { PageContainer, PageHeader } from "@/components/ui";
 import { useAuth } from "@trackdev/api-client";
 import { Globe, Key, Mail, Palette, Shield, User } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const t = useTranslations("settings");
-  const [activeTab, setActiveTab] = useState("profile");
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tabParam || "profile");
+
+  // Update active tab when URL param changes
+  useEffect(() => {
+    if (tabParam && ["profile", "preferences", "security"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   const userRoles = user?.roles || [];
 
@@ -188,6 +199,12 @@ export default function SettingsPage() {
                       {t("timezoneDescription")}
                     </p>
                     <TimezoneSelector showLabel={false} />
+                  </div>
+                  <div>
+                    <p className="mb-2 text-sm text-gray-500">
+                      {t("githubUsernameDescription")}
+                    </p>
+                    <GitHubUsernameEditor showLabel={true} />
                   </div>
                 </div>
               </div>
