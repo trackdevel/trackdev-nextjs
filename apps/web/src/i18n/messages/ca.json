@@ -511,6 +511,8 @@
     "title": "Configuració",
     "subtitle": "Gestiona la configuració del teu compte i preferències",
     "profile": "Perfil",
+    "username": "Nom d'usuari",
+    "fullName": "Nom Complet",
     "security": "Seguretat",
     "preferences": "Preferències",
     "profileInfo": "Informació del Perfil",

@@ -511,6 +511,8 @@
     "title": "Configuración",
     "subtitle": "Gestiona la configuración de tu cuenta y preferencias",
     "profile": "Perfil",
+    "username": "Nombre de usuario",
+    "fullName": "Nombre Completo",
     "security": "Seguridad",
     "preferences": "Preferencias",
     "profileInfo": "Información del Perfil",
