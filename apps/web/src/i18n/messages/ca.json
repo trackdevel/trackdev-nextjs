@@ -443,7 +443,8 @@
     "dragFromBacklog": "Arrossega tasques del backlog per afegir-les a l'sprint",
     "backlogTaskMustGoToTodo": "Les tasques del backlog només es poden afegir a la columna Per Fer",
     "cannotAddToClosedSprint": "No es poden afegir tasques a un sprint tancat o passat",
-    "addTask": "Afegir tasca"
+    "addTask": "Afegir tasca",
+    "dropHere": "Deixa la tasca aquí"
   },
   "courses": {
     "title": "Cursos",
