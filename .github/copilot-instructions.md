@@ -6,11 +6,38 @@ The web app (at `apps/web/src/app`) has the following structure:
 
 - Dashboard pages under `dashboard/`
 - Component pages under `components/`
-- Internationalization files under `i18n`
+- Internationalization files under `i18n/messages/` (en.json, ca.json, es.json)
 
 ## Component usage
 
 Try always to use already existing components from the codebase when applicable instead of creating new ones. This ensures consistency across the application and reduces redundancy. For example, use existing UI components for select, buttons, forms, and layouts.
+
+## Internationalization (i18n)
+
+When adding new user-facing text:
+
+1. Add translations to all 3 language files: `apps/web/src/i18n/messages/en.json`, `ca.json`, `es.json`
+2. Use the `useTranslations` hook with the appropriate namespace
+3. Keep translation keys consistent and descriptive
+
+## Display Names
+
+When displaying user information, prefer `fullName` over `username`:
+
+```tsx
+{
+  user.fullName || user.username;
+}
+```
+
+## Sprint Board Drag & Drop
+
+The sprint view (`dashboard/sprints/[id]/page.tsx`) uses HTML5 drag and drop:
+
+- Tasks can be dragged between columns (TODO, INPROGRESS, VERIFY, DONE)
+- Backlog tasks can be dragged to sprint columns (must go to TODO first)
+- Empty sprint states must include drop zones for backlog tasks
+- Use `storyId: -1` for drop zones not associated with a specific story
 
 ## Error Handling System
 
