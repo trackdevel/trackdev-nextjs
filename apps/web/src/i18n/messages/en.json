@@ -443,7 +443,8 @@
     "dragFromBacklog": "Drag tasks from the backlog to add them to the sprint",
     "backlogTaskMustGoToTodo": "Backlog tasks can only be added to the To Do column",
     "cannotAddToClosedSprint": "Cannot add tasks to a closed or past sprint",
-    "addTask": "Add task"
+    "addTask": "Add task",
+    "dropHere": "Drop task here"
   },
   "courses": {
     "title": "Courses",

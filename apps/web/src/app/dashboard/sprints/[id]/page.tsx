@@ -612,12 +612,39 @@ export default function SprintBoardPage() {
 
           {/* Swim Lanes */}
           {stories.length === 0 ? (
-            <div className="card px-6 py-12 text-center">
-              <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No tasks in this sprint
-              </h3>
-              <p className="mt-2 text-gray-500">{t("dragFromBacklog")}</p>
+            <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+              {/* Empty state header */}
+              <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2">
+                <p className="text-sm font-semibold text-gray-500">
+                  {t("dragFromBacklog")}
+                </p>
+              </div>
+              {/* Drop zones for empty sprint */}
+              <div className="grid grid-cols-4 gap-2 p-2">
+                {BOARD_COLUMNS.map((column) => {
+                  const isDropTarget =
+                    dragOverColumn?.storyId === -1 &&
+                    dragOverColumn?.columnId === column.id;
+                  return (
+                    <div
+                      key={column.id}
+                      className={`min-h-[120px] rounded-lg border-2 border-dashed p-4 transition-colors flex items-center justify-center ${
+                        isDropTarget
+                          ? "border-primary-400 bg-primary-50"
+                          : "border-gray-200 bg-gray-50/50"
+                      }`}
+                      onDragOver={(e) => handleDragOver(e, -1, column.id)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleCombinedDrop(e, -1, column.id)}
+                    >
+                      <div className="text-center text-gray-400">
+                        <Calendar className="mx-auto h-8 w-8 mb-2" />
+                        <p className="text-xs">{t("dropHere")}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
