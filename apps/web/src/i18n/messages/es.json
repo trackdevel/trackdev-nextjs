@@ -443,7 +443,8 @@
     "dragFromBacklog": "Arrastra tareas del backlog para añadirlas al sprint",
     "backlogTaskMustGoToTodo": "Las tareas del backlog solo pueden añadirse a la columna Por Hacer",
     "cannotAddToClosedSprint": "No se pueden añadir tareas a un sprint cerrado o pasado",
-    "addTask": "Añadir tarea"
+    "addTask": "Añadir tarea",
+    "dropHere": "Suelta la tarea aquí"
   },
   "courses": {
     "title": "Cursos",
