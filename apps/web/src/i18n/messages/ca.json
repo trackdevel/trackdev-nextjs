@@ -543,6 +543,7 @@
     "confirmNewPassword": "Confirmar Nova Contrasenya",
     "updatePassword": "Actualitzar Contrasenya",
     "saveChanges": "Desar Canvis",
+    "profileSavedSuccess": "Perfil desat correctament",
     "currentPasswordRequired": "La contrasenya actual és obligatòria",
     "passwordsDoNotMatch": "Les contrasenyes no coincideixen",
     "passwordRequirements": "La contrasenya no compleix els requisits",

@@ -5,7 +5,12 @@ import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { TimezoneSelector } from "@/components/settings/TimezoneSelector";
 import { PageContainer, PageHeader } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
-import { ApiClientError, authApi, useAuth } from "@trackdev/api-client";
+import {
+  ApiClientError,
+  authApi,
+  useAuth,
+  usersApi,
+} from "@trackdev/api-client";
 import {
   AlertCircle,
   CheckCircle,
@@ -13,6 +18,7 @@ import {
   EyeOff,
   Globe,
   Key,
+  Loader2,
   Mail,
   Palette,
   Shield,
@@ -23,11 +29,27 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const t = useTranslations("settings");
+  const toast = useToast();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
+
+  // Profile form state
+  const [fullName, setFullName] = useState(user?.fullName || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [color, setColor] = useState(user?.color || "");
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  // Update form state when user data changes
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || "");
+      setEmail(user.email || "");
+      setColor(user.color || "");
+    }
+  }, [user]);
 
   // Update active tab when URL param changes
   useEffect(() => {
@@ -35,6 +57,30 @@ export default function SettingsPage() {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
+
+  // Handle profile save
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingProfile(true);
+
+    try {
+      await usersApi.updateSelf({
+        fullName: fullName.trim() || undefined,
+        email: email.trim() || undefined,
+        color: color.trim() || undefined,
+      });
+      await refreshUser();
+      toast.success(t("profileSavedSuccess"));
+    } catch (err) {
+      const errorMessage =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : t("unexpectedError");
+      toast.error(errorMessage);
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   const userRoles = user?.roles || [];
 
@@ -121,7 +167,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Form */}
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSaveProfile}>
                   <div>
                     <label htmlFor="username" className="label">
                       {t("username")}
@@ -152,7 +198,8 @@ export default function SettingsPage() {
                       <input
                         id="fullName"
                         type="text"
-                        defaultValue={user?.fullName || ""}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
                         className="input pl-10"
                       />
                     </div>
@@ -169,7 +216,8 @@ export default function SettingsPage() {
                       <input
                         id="email"
                         type="email"
-                        defaultValue={user?.email}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="input pl-10"
                       />
                     </div>
@@ -186,7 +234,8 @@ export default function SettingsPage() {
                       <input
                         id="color"
                         type="text"
-                        defaultValue={user?.color}
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
                         className="input pl-10"
                       />
                     </div>
@@ -196,7 +245,14 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="flex justify-end pt-4">
-                    <button type="submit" className="btn-primary">
+                    <button
+                      type="submit"
+                      className="btn-primary inline-flex items-center gap-2"
+                      disabled={isSavingProfile}
+                    >
+                      {isSavingProfile && (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      )}
                       {t("saveChanges")}
                     </button>
                   </div>

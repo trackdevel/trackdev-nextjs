@@ -543,6 +543,7 @@
     "confirmNewPassword": "Confirmar Nueva Contraseña",
     "updatePassword": "Actualizar Contraseña",
     "saveChanges": "Guardar Cambios",
+    "profileSavedSuccess": "Perfil guardado correctamente",
     "currentPasswordRequired": "La contraseña actual es obligatoria",
     "passwordsDoNotMatch": "Las contraseñas no coinciden",
     "passwordRequirements": "La contraseña no cumple los requisitos",
