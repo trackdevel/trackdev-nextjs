@@ -91,7 +91,7 @@ export function TaskPullRequests({
   projectMembers,
 }: TaskPullRequestsProps) {
   const t = useTranslations("tasks");
-  const { timezone, formatDateTime } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   // Track which PRs have their activity timeline expanded
   const [expandedPRs, setExpandedPRs] = useState<Set<string>>(new Set());
 
