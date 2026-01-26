@@ -1,7 +1,7 @@
 "use client";
 
 import { useDateFormat } from "@/utils/useDateFormat";
-import { tasksApi, useAuth, useQuery } from "@trackdev/api-client";
+import { tasksApi, useQuery } from "@trackdev/api-client";
 import type { PullRequest, PullRequestChange } from "@trackdev/types";
 import {
   ChevronDown,
@@ -91,7 +91,6 @@ export function TaskPullRequests({
   projectMembers,
 }: TaskPullRequestsProps) {
   const t = useTranslations("tasks");
-  const { user } = useAuth();
   const { timezone, formatDateTime } = useDateFormat();
   // Track which PRs have their activity timeline expanded
   const [expandedPRs, setExpandedPRs] = useState<Set<string>>(new Set());
