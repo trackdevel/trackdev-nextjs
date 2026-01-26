@@ -45,6 +45,7 @@ export interface CourseDetails {
   startYear: number;
   githubOrganization?: string;
   ownerId?: string;
+  profileId?: number;
   subject?: {
     id: number;
     name: string;
