@@ -1,14 +1,17 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { Modal } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
   coursesApi,
+  profilesApi,
   useAuth,
   useMutation,
   useQuery,
 } from "@trackdev/api-client";
+import type { ProfileBasic } from "@trackdev/types";
 import {
   ArrowRight,
   BookOpen,
@@ -18,6 +21,7 @@ import {
   Layers,
   Mail,
   Send,
+  Settings2,
   Users,
   X,
 } from "lucide-react";
@@ -28,8 +32,13 @@ import { useState } from "react";
 export default function CourseDetailsPage() {
   const params = useParams();
   const courseId = Number(params.id);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const toast = useToast();
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showApplyProfileModal, setShowApplyProfileModal] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(
+    null,
+  );
 
   const {
     data: course,
@@ -44,6 +53,40 @@ export default function CourseDetailsPage() {
   const isAdmin = userRoles.includes("ADMIN");
   const isProfessor = userRoles.includes("PROFESSOR");
   const canManage = isAdmin || (isProfessor && course?.ownerId === user?.id);
+
+  // Fetch profiles for professors/admins
+  const { data: profilesList } = useQuery(() => profilesApi.getAll(), [], {
+    enabled: isAuthenticated && (isProfessor || isAdmin),
+  });
+
+  const profiles = profilesList || [];
+  const canApplyProfile =
+    canManage && !course?.profileId && profiles.length > 0;
+
+  const applyProfileMutation = useMutation(
+    (profileId: number) => coursesApi.applyProfile(courseId, profileId),
+    {
+      onSuccess: () => {
+        setShowApplyProfileModal(false);
+        setSelectedProfileId(null);
+        refetch();
+        toast.success("Profile applied successfully");
+      },
+      onError: (err) => {
+        const errorMessage =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : "Failed to apply profile";
+        toast.error(errorMessage);
+      },
+    },
+  );
+
+  const handleApplyProfile = () => {
+    if (selectedProfileId) {
+      applyProfileMutation.mutate(selectedProfileId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -106,6 +149,15 @@ export default function CourseDetailsPage() {
                 <Layers className="h-4 w-4" />
                 Sprint Patterns
               </Link>
+              {canApplyProfile && (
+                <button
+                  onClick={() => setShowApplyProfileModal(true)}
+                  className="btn-secondary flex items-center gap-2"
+                >
+                  <Settings2 className="h-4 w-4" />
+                  Apply Profile
+                </button>
+              )}
               <button
                 onClick={() => setShowInviteModal(true)}
                 className="btn-primary flex items-center gap-2"
@@ -188,6 +240,97 @@ export default function CourseDetailsPage() {
           }}
         />
       )}
+
+      {/* Apply Profile Modal */}
+      {showApplyProfileModal && (
+        <Modal
+          isOpen={showApplyProfileModal}
+          onClose={() => {
+            setShowApplyProfileModal(false);
+            setSelectedProfileId(null);
+          }}
+          title="Apply Profile"
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Select a profile to apply to this course. This will configure the
+              evaluation criteria for all projects in this course.
+            </p>
+
+            {profiles.length === 0 ? (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+                <p className="text-sm text-gray-500">
+                  No profiles available. Create a profile first.
+                </p>
+                <Link
+                  href="/dashboard/profiles/new"
+                  className="mt-2 inline-block text-sm text-primary-600 hover:text-primary-700"
+                >
+                  Create Profile
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {profiles.map((profile: ProfileBasic) => (
+                  <label
+                    key={profile.id}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
+                      selectedProfileId === profile.id
+                        ? "border-primary-500 bg-primary-50"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="profile"
+                      value={profile.id}
+                      checked={selectedProfileId === profile.id}
+                      onChange={() => setSelectedProfileId(profile.id)}
+                      className="h-4 w-4 text-primary-600"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">
+                        {profile.name}
+                      </p>
+                      {profile.description && (
+                        <p className="text-sm text-gray-500">
+                          {profile.description}
+                        </p>
+                      )}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowApplyProfileModal(false);
+                  setSelectedProfileId(null);
+                }}
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleApplyProfile}
+                disabled={!selectedProfileId || applyProfileMutation.isLoading}
+                className="btn-primary flex items-center gap-2 disabled:opacity-50"
+              >
+                {applyProfileMutation.isLoading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <Settings2 className="h-4 w-4" />
+                )}
+                Apply Profile
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -220,7 +363,7 @@ function InviteStudentsModal({
             : "Failed to send invitations";
         toast.error(errorMessage);
       },
-    }
+    },
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -266,7 +409,7 @@ function InviteStudentsModal({
       setValidationError(
         `Invalid entries (check email format or use \"Full Name\", email format):\n${invalidEntries
           .slice(0, 3)
-          .join("\n")}${invalidEntries.length > 3 ? "\n..." : ""}`
+          .join("\n")}${invalidEntries.length > 3 ? "\n..." : ""}`,
       );
       return;
     }

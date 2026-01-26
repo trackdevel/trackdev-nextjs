@@ -111,6 +111,12 @@ export const coursesApi = {
    */
   getReports: (courseId: number) =>
     api.get<{ reports: import("@trackdev/types").Report[]; courseId: number }>(
-      `/courses/${courseId}/reports`
+      `/courses/${courseId}/reports`,
     ),
+
+  /**
+   * Apply a profile to a course (Professor/Admin only)
+   */
+  applyProfile: (courseId: number, profileId: number) =>
+    api.post<Course>(`/courses/${courseId}/apply-profile/${profileId}`, {}),
 };

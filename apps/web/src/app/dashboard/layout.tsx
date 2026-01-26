@@ -10,6 +10,7 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  FileSliders,
   FolderKanban,
   Layers,
   LayoutDashboard,
@@ -82,6 +83,12 @@ const navItemsConfig: NavItem[] = [
     href: "/dashboard/reports",
     labelKey: "reports",
     icon: <Layers className="h-5 w-5" />,
+    roles: ["PROFESSOR"],
+  },
+  {
+    href: "/dashboard/profiles",
+    labelKey: "profiles",
+    icon: <FileSliders className="h-5 w-5" />,
     roles: ["PROFESSOR"],
   },
   {
