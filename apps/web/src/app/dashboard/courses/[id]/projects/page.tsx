@@ -39,6 +39,7 @@ export default function CourseProjectsPage() {
   const courseId = Number(params.id);
   const { user } = useAuth();
   const t = useTranslations("common");
+  const tProjects = useTranslations("projects");
   const toast = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -188,7 +189,9 @@ export default function CourseProjectsPage() {
                     iconBgColor="bg-blue-100"
                     iconColor="text-blue-600"
                     title={project.name}
-                    subtitle={`${project.members?.length || 0} member${project.members?.length !== 1 ? "s" : ""}`}
+                    subtitle={tProjects("memberCount", {
+                      count: project.members?.length || 0,
+                    })}
                     rightContent={
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1 text-sm text-gray-500">
