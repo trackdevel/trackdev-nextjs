@@ -2,6 +2,7 @@
 
 import { BackButton } from "@/components/BackButton";
 import { EmptyState, LoadingContainer, PageContainer } from "@/components/ui";
+import { useLanguage } from "@/i18n";
 import { formatDateOnly } from "@/utils/dateFormat";
 import { useDateFormat } from "@/utils/useDateFormat";
 import { activitiesApi, useAuth, useQuery } from "@trackdev/api-client";
@@ -23,10 +24,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const PAGE_SIZE = 20;
 
+// Translation function type for relative time
+type TranslateFunc = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
+
 // Helper to format relative time
 function formatRelativeTime(
   dateString: string,
   timezone: string = "UTC",
+  locale: string = "en",
+  t?: TranslateFunc,
 ): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -36,11 +45,14 @@ function formatRelativeTime(
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffSeconds < 60) return "just now";
-  if (diffMinutes < 60) return `${diffMinutes}m`;
-  if (diffHours < 24) return `${diffHours}h`;
-  if (diffDays < 7) return `${diffDays}d`;
-  return formatDateOnly(dateString, timezone);
+  if (diffSeconds < 60) return t ? t("justNow") : "just now";
+  if (diffMinutes < 60)
+    return t ? t("timeAgo", { time: `${diffMinutes}m` }) : `${diffMinutes}m`;
+  if (diffHours < 24)
+    return t ? t("timeAgo", { time: `${diffHours}h` }) : `${diffHours}h`;
+  if (diffDays < 7)
+    return t ? t("timeAgo", { time: `${diffDays}d` }) : `${diffDays}d`;
+  return formatDateOnly(dateString, timezone, locale);
 }
 
 // Get icon for activity type
@@ -98,6 +110,7 @@ interface ActivityItemProps {
 function ActivityItem({ activity, t }: ActivityItemProps) {
   const translationKey = getActivityTranslationKey(activity.type);
   const { timezone } = useDateFormat();
+  const { locale } = useLanguage();
 
   return (
     <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
@@ -124,7 +137,7 @@ function ActivityItem({ activity, t }: ActivityItemProps) {
             {activity.projectName && `${activity.projectName}`}
           </span>
           <span className="text-xs text-gray-400">
-            {formatRelativeTime(activity.createdAt, timezone)}
+            {formatRelativeTime(activity.createdAt, timezone, locale, t)}
           </span>
         </div>
       </div>
