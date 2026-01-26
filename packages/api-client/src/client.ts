@@ -9,6 +9,7 @@ export interface ApiClientConfig {
   apiPrefix?: string;
   getToken?: () => string | null | Promise<string | null>;
   setToken?: (token: string) => void | Promise<void>;
+  getLocale?: () => string;
   onUnauthorized?: () => void;
   onError?: (error: ApiError) => void;
 }
@@ -37,7 +38,7 @@ export class ApiClientError extends Error {
     public status: number,
     public statusText: string,
     public body: ApiError | null,
-    options?: { isNetworkError?: boolean; isTimeout?: boolean }
+    options?: { isNetworkError?: boolean; isTimeout?: boolean },
   ) {
     super(body?.message || statusText);
     this.name = "ApiClientError";
@@ -128,7 +129,7 @@ const AUTH_SESSION_ERROR_PATTERNS = [
  */
 function checkAuthSessionError(
   status: number,
-  message: string | undefined
+  message: string | undefined,
 ): boolean {
   // 401 Unauthorized always requires re-authentication
   if (status === 401) {
@@ -158,9 +159,12 @@ async function getAuthHeader(): Promise<Record<string, string>> {
 
 export async function fetchApi<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const authHeader = await getAuthHeader();
+  const localeHeader: Record<string, string> = config.getLocale
+    ? { "Accept-Language": config.getLocale() }
+    : {};
 
   let response: Response;
   try {
@@ -170,6 +174,7 @@ export async function fetchApi<T>(
       headers: {
         "Content-Type": "application/json",
         ...authHeader,
+        ...localeHeader,
         ...options.headers,
       },
       credentials: "include", // For cookie-based auth support
@@ -184,7 +189,7 @@ export async function fetchApi<T>(
       0,
       isTimeout ? "Request timed out" : "Network error",
       null,
-      { isNetworkError: true, isTimeout }
+      { isNetworkError: true, isTimeout },
     );
   }
 
@@ -216,7 +221,7 @@ export async function fetchApi<T>(
     // Check if this is an authentication/session error that requires logout
     const isAuthSessionError = checkAuthSessionError(
       response.status,
-      errorBody?.message
+      errorBody?.message,
     );
     if (isAuthSessionError && config.onUnauthorized) {
       config.onUnauthorized();
