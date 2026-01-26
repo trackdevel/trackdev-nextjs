@@ -39,6 +39,16 @@ The sprint view (`dashboard/sprints/[id]/page.tsx`) uses HTML5 drag and drop:
 - Empty sprint states must include drop zones for backlog tasks
 - Use `storyId: -1` for drop zones not associated with a specific story
 
+### Moving tasks back to backlog
+
+Tasks can be dragged from the sprint board back to the backlog panel with these constraints:
+
+- **USER_STORY**: Can only be moved back if ALL its subtasks are in TODO state
+- **TASK or BUG (with no parent)**: Can only be moved back if status is TODO
+- **Subtask (TASK or BUG with parent)**: Can only be moved back if status is TODO
+- If validation fails, show appropriate error toast (e.g., "A task that has begun cannot go back to the backlog")
+- When a USER_STORY is moved to backlog, all its child tasks are also moved to backlog
+
 ## Error Handling System
 
 The application uses a standardized error handling system with two distinct patterns:
