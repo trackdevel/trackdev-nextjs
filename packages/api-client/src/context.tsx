@@ -37,6 +37,7 @@ export interface AuthProviderProps {
   onAuthExpired?: () => void;
   getStoredToken?: () => Promise<string | null>;
   setStoredToken?: (token: string | null) => Promise<void>;
+  getLocale?: () => string;
 }
 
 export function AuthProvider({
@@ -46,6 +47,7 @@ export function AuthProvider({
   onAuthExpired,
   getStoredToken,
   setStoredToken,
+  getLocale,
 }: AuthProviderProps) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -67,12 +69,16 @@ export function AuthProvider({
   const onAuthExpiredRef = useRef(onAuthExpired);
   onAuthExpiredRef.current = onAuthExpired;
 
+  const getLocaleRef = useRef(getLocale);
+  getLocaleRef.current = getLocale;
+
   // Configure API client once on mount (baseUrl changes are rare)
   useEffect(() => {
     configureApiClient({
       baseUrl: baseUrl || "http://localhost:8080",
       apiPrefix: "/api",
       getToken: () => tokenRef.current,
+      getLocale: () => getLocaleRef.current?.() || "en",
       setToken: async (newToken: string) => {
         // Update state with refreshed token (sliding session)
         setState((prev) => ({ ...prev, token: newToken }));
@@ -154,7 +160,7 @@ export function AuthProvider({
         throw error;
       }
     },
-    [setStoredToken, onTokenChange]
+    [setStoredToken, onTokenChange],
   );
 
   const logout = useCallback(async () => {
