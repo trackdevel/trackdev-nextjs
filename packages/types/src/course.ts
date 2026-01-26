@@ -16,6 +16,7 @@ export interface Course {
   projectCount?: number;
   studentCount?: number;
   enrolledProjects?: Project[]; // For student view only
+  profileId?: number;
 }
 
 export interface CourseCreateRequest {
