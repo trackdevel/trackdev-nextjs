@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDateTime } from "@/utils/dateFormat";
+import { useDateFormat } from "@/utils/useDateFormat";
 import { tasksApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { PullRequest, PullRequestChange } from "@trackdev/types";
 import {
@@ -92,7 +92,7 @@ export function TaskPullRequests({
 }: TaskPullRequestsProps) {
   const t = useTranslations("tasks");
   const { user } = useAuth();
-  const timezone = user?.timezone || "UTC";
+  const { timezone, formatDateTime } = useDateFormat();
   // Track which PRs have their activity timeline expanded
   const [expandedPRs, setExpandedPRs] = useState<Set<string>>(new Set());
 
@@ -275,7 +275,7 @@ export function TaskPullRequests({
                               event={event}
                               pr={pr}
                               t={t}
-                              timezone={timezone}
+                              formatDateTime={formatDateTime}
                               resolveGithubUser={resolveGithubUser}
                             />
                           ))}
@@ -357,13 +357,13 @@ function PRHistoryEvent({
   event,
   pr,
   t,
-  timezone,
+  formatDateTime,
   resolveGithubUser,
 }: {
   event: PullRequestChange;
   pr?: PullRequest;
   t: (key: string) => string;
-  timezone: string;
+  formatDateTime: (dateInput: string | Date | undefined | null) => string;
   resolveGithubUser: (githubUsername: string | undefined) => string;
 }) {
   const style = getEventStyle(event, t);
@@ -440,7 +440,7 @@ function PRHistoryEvent({
 
         {/* Timestamp */}
         <div className="text-xs text-gray-400 mt-0.5">
-          {formatDateTime(event.changedAt, timezone)}
+          {formatDateTime(event.changedAt)}
         </div>
 
         {/* Additional info for merged events - show merger if different from action performer */}

@@ -2,11 +2,12 @@
  * React hook for timezone-aware date formatting
  *
  * This hook provides date formatting functions that automatically use
- * the current user's timezone preference.
+ * the current user's timezone preference and locale.
  */
 
 "use client";
 
+import { useLanguage } from "@/i18n";
 import { useAuth } from "@trackdev/api-client";
 import { useCallback, useMemo } from "react";
 import {
@@ -69,6 +70,7 @@ export interface UseDateFormatReturn {
  */
 export function useDateFormat(): UseDateFormatReturn {
   const { user } = useAuth();
+  const { locale } = useLanguage();
 
   // Get user's timezone, defaulting to UTC
   const timezone = useMemo(() => {
@@ -87,23 +89,23 @@ export function useDateFormat(): UseDateFormatReturn {
       dateInput: string | Date | undefined | null,
       options?: FormatDateOptions,
     ) => {
-      return formatDate(dateInput, timezone, options);
+      return formatDate(dateInput, timezone, { ...options, locale });
     },
-    [timezone],
+    [timezone, locale],
   );
 
   const formatDateTimeCallback = useCallback(
     (dateInput: string | Date | undefined | null) => {
-      return formatDateTime(dateInput, timezone);
+      return formatDateTime(dateInput, timezone, locale);
     },
-    [timezone],
+    [timezone, locale],
   );
 
   const formatDateOnlyCallback = useCallback(
     (dateInput: string | Date | undefined | null) => {
-      return formatDateOnly(dateInput, timezone);
+      return formatDateOnly(dateInput, timezone, locale);
     },
-    [timezone],
+    [timezone, locale],
   );
 
   const formatDateRangeCallback = useCallback(
@@ -111,9 +113,9 @@ export function useDateFormat(): UseDateFormatReturn {
       startDate: string | Date | undefined | null,
       endDate: string | Date | undefined | null,
     ) => {
-      return formatDateRange(startDate, endDate, timezone);
+      return formatDateRange(startDate, endDate, timezone, locale);
     },
-    [timezone],
+    [timezone, locale],
   );
 
   const formatDateTimeRangeCallback = useCallback(
@@ -121,9 +123,9 @@ export function useDateFormat(): UseDateFormatReturn {
       startDate: string | Date | undefined | null,
       endDate: string | Date | undefined | null,
     ) => {
-      return formatDateTimeRange(startDate, endDate, timezone);
+      return formatDateTimeRange(startDate, endDate, timezone, locale);
     },
-    [timezone],
+    [timezone, locale],
   );
 
   const toUTC = useCallback(

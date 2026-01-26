@@ -167,6 +167,8 @@ export interface FormatDateOptions {
   shortDate?: boolean;
   /** Include seconds in time */
   includeSeconds?: boolean;
+  /** Locale for formatting (e.g., "en", "es", "ca") */
+  locale?: string;
 }
 
 /**
@@ -191,6 +193,7 @@ export function formatDate(
     includeTimezone = true,
     shortDate = false,
     includeSeconds = false,
+    locale = "en",
   } = options;
 
   try {
@@ -225,7 +228,18 @@ export function formatDate(
       dateFormatOptions.hour12 = false;
     }
 
-    const formatter = new Intl.DateTimeFormat("en-US", dateFormatOptions);
+    // Map locale codes to proper BCP 47 tags
+    const localeMap: Record<string, string> = {
+      en: "en-US",
+      es: "es-ES",
+      ca: "ca-ES",
+    };
+    const formatterLocale = localeMap[locale] || locale;
+
+    const formatter = new Intl.DateTimeFormat(
+      formatterLocale,
+      dateFormatOptions,
+    );
     let formatted = formatter.format(date);
 
     // Add timezone acronym if requested
@@ -246,11 +260,13 @@ export function formatDate(
 export function formatDateTime(
   dateInput: string | Date | undefined | null,
   timezone: string = "UTC",
+  locale: string = "en",
 ): string {
   return formatDate(dateInput, timezone, {
     includeTime: true,
     includeTimezone: true,
     shortDate: true,
+    locale,
   });
 }
 
@@ -260,11 +276,13 @@ export function formatDateTime(
 export function formatDateOnly(
   dateInput: string | Date | undefined | null,
   timezone: string = "UTC",
+  locale: string = "en",
 ): string {
   return formatDate(dateInput, timezone, {
     includeTime: false,
     includeTimezone: false,
     shortDate: true,
+    locale,
   });
 }
 
@@ -275,9 +293,10 @@ export function formatDateRange(
   startDate: string | Date | undefined | null,
   endDate: string | Date | undefined | null,
   timezone: string = "UTC",
+  locale: string = "en",
 ): string {
-  const formattedStart = formatDateOnly(startDate, timezone);
-  const formattedEnd = formatDateOnly(endDate, timezone);
+  const formattedStart = formatDateOnly(startDate, timezone, locale);
+  const formattedEnd = formatDateOnly(endDate, timezone, locale);
 
   if (!formattedStart && !formattedEnd) {
     return "";
@@ -302,13 +321,15 @@ export function formatDateTimeRange(
   startDate: string | Date | undefined | null,
   endDate: string | Date | undefined | null,
   timezone: string = "UTC",
+  locale: string = "en",
 ): string {
   const formattedStart = formatDate(startDate, timezone, {
     includeTime: true,
     includeTimezone: false,
     shortDate: true,
+    locale,
   });
-  const formattedEnd = formatDateTime(endDate, timezone);
+  const formattedEnd = formatDateTime(endDate, timezone, locale);
 
   if (!formattedStart && !formattedEnd) {
     return "";
