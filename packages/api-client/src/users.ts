@@ -64,6 +64,12 @@ export const usersApi = {
     api.patch<User>(`/users/workspace/${id}`, data),
 
   /**
+   * Update a student (Professor can update students in their courses)
+   */
+  updateStudent: (id: string, data: UserAdminUpdateRequest) =>
+    api.patch<User>(`/users/student/${id}`, data),
+
+  /**
    * Check if current user is admin
    */
   checkAdmin: () => api.get<AdminCheckResponse>("/users/checker/admin"),
