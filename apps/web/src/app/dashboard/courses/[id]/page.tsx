@@ -122,10 +122,10 @@ export default function CourseDetailsPage() {
               <BookOpen className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {course.subject?.name || "Course"}
               </h1>
-              <div className="mt-1 flex items-center gap-4 text-gray-600">
+              <div className="mt-1 flex items-center gap-4 text-gray-600 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
                   {course.startYear} - {(course.startYear || 0) + 1}
@@ -174,17 +174,17 @@ export default function CourseDetailsPage() {
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Link
           href={`/dashboard/courses/${courseId}/projects`}
-          className="card flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+          className="card flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-              <FolderKanban className="h-6 w-6 text-blue-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+              <FolderKanban className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {course.projects?.length || 0}
               </p>
-              <p className="text-sm text-gray-500">Projects</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Projects</p>
             </div>
           </div>
           <ArrowRight className="h-5 w-5 text-gray-400" />
@@ -192,17 +192,17 @@ export default function CourseDetailsPage() {
 
         <Link
           href={`/dashboard/courses/${courseId}/students`}
-          className="card flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+          className="card flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-              <Users className="h-6 w-6 text-green-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+              <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {course.students?.length || 0}
               </p>
-              <p className="text-sm text-gray-500">Enrolled Students</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Enrolled Students</p>
             </div>
           </div>
           <ArrowRight className="h-5 w-5 text-gray-400" />
@@ -211,17 +211,17 @@ export default function CourseDetailsPage() {
         {canManage && (
           <Link
             href={`/dashboard/courses/${courseId}/invites`}
-            className="card flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+            className="card flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100">
-                <Mail className="h-6 w-6 text-yellow-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
+                <Mail className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {course.pendingInvites?.length || 0}
                 </p>
-                <p className="text-sm text-gray-500">Pending Invites</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Pending Invites</p>
               </div>
             </div>
             <ArrowRight className="h-5 w-5 text-gray-400" />
@@ -252,14 +252,14 @@ export default function CourseDetailsPage() {
           title="Apply Profile"
         >
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Select a profile to apply to this course. This will configure the
               evaluation criteria for all projects in this course.
             </p>
 
             {profiles.length === 0 ? (
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
-                <p className="text-sm text-gray-500">
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4 text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   No profiles available. Create a profile first.
                 </p>
                 <Link
@@ -276,8 +276,8 @@ export default function CourseDetailsPage() {
                     key={profile.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
                       selectedProfileId === profile.id
-                        ? "border-primary-500 bg-primary-50"
-                        : "border-gray-200 hover:bg-gray-50"
+                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/30"
+                        : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                     }`}
                   >
                     <input
@@ -289,11 +289,11 @@ export default function CourseDetailsPage() {
                       className="h-4 w-4 text-primary-600"
                     />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {profile.name}
                       </p>
                       {profile.description && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {profile.description}
                         </p>
                       )}
@@ -310,7 +310,7 @@ export default function CourseDetailsPage() {
                   setShowApplyProfileModal(false);
                   setSelectedProfileId(null);
                 }}
-                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
               >
                 Cancel
               </button>
@@ -419,14 +419,14 @@ function InviteStudentsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b p-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+      <div className="w-full max-w-lg rounded-lg bg-white dark:bg-gray-800 shadow-xl">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 p-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Invite Students
           </h2>
           <button
             onClick={onClose}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
           >
             <X className="h-5 w-5" />
           </button>
@@ -434,23 +434,23 @@ function InviteStudentsModal({
 
         <form onSubmit={handleSubmit} className="p-4">
           <div className="mb-4">
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Student Invitations
             </label>
             <textarea
               value={entries}
               onChange={(e) => setEntries(e.target.value)}
-              className="h-32 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="h-32 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
               placeholder='Enter one per line. Formats:&#10;&#10;"John Doe", john.doe@example.com&#10;"Jane Smith", jane@example.com&#10;&#10;Or just emails:&#10;student@example.com'
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Use \"Full Name\", email format (full name in quotes) or just
               email addresses, one per line
             </p>
           </div>
 
           {validationError && (
-            <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700 whitespace-pre-line">
+            <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-400 whitespace-pre-line">
               {validationError}
             </div>
           )}
@@ -459,7 +459,7 @@ function InviteStudentsModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
             >
               Cancel
             </button>
@@ -478,11 +478,11 @@ function InviteStudentsModal({
           </div>
         </form>
 
-        <div className="border-t bg-gray-50 p-4">
-          <h3 className="mb-2 text-sm font-medium text-gray-700">
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-4">
+          <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
             How it works:
           </h3>
-          <ul className="space-y-1 text-xs text-gray-500">
+          <ul className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
             <li>
               • Use \"Full Name\", email format to include student names in
               invitations

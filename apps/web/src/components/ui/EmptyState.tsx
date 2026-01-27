@@ -29,7 +29,7 @@ function isLucideIcon(icon: LucideIcon | ReactNode): icon is LucideIcon {
 }
 
 function isActionObject(
-  action: { label: string; onClick: () => void } | ReactNode
+  action: { label: string; onClick: () => void } | ReactNode,
 ): action is { label: string; onClick: () => void } {
   // Check it's an action object and NOT a React element
   return (
@@ -58,9 +58,11 @@ export function EmptyState({
       ) : (
         <div className="mx-auto text-gray-400">{icon}</div>
       )}
-      <p className="mt-2 text-gray-500">{title}</p>
+      <p className="mt-2 text-gray-500 dark:text-gray-400">{title}</p>
       {description && (
-        <p className="mt-1 text-sm text-gray-400">{description}</p>
+        <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
+          {description}
+        </p>
       )}
       {action &&
         (isActionObject(action) ? (

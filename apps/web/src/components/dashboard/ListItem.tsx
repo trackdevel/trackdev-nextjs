@@ -30,7 +30,7 @@ export function ListItem({
     <li>
       <Link
         href={href}
-        className="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+        className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700"
       >
         <div className="flex items-center gap-3">
           <div
@@ -39,8 +39,14 @@ export function ListItem({
             <Icon className={`h-5 w-5 ${iconColor}`} />
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">{title}</h3>
-            {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              {title}
+            </h3>
+            {subtitle && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {subtitle}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -72,7 +78,7 @@ export function MemberAvatars({ members, max = 3 }: MemberAvatarsProps) {
       {members.slice(0, max).map((member) => (
         <div
           key={member.id}
-          className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-xs font-medium text-white"
+          className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-xs font-medium text-white dark:border-gray-800"
           style={{ backgroundColor: member.color || "#3b82f6" }}
           title={member.fullName || member.username}
         >

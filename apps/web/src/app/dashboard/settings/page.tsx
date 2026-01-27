@@ -2,6 +2,7 @@
 
 import { GitHubUsernameEditor } from "@/components/settings/GitHubUsernameEditor";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { ThemeSelector } from "@/components/settings/ThemeSelector";
 import { TimezoneSelector } from "@/components/settings/TimezoneSelector";
 import { PageContainer, PageHeader } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
@@ -129,8 +130,8 @@ export default function SettingsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? "bg-primary-50 text-primary-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
+                      : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -145,11 +146,11 @@ export default function SettingsPage() {
         <div className="lg:col-span-3">
           {activeTab === "profile" && (
             <div className="card">
-              <div className="border-b px-6 py-4">
-                <h2 className="font-semibold text-gray-900">
+              <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                <h2 className="font-semibold text-gray-900 dark:text-white">
                   {t("profileInfo")}
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {t("profileInfoDescription")}
                 </p>
               </div>
@@ -165,20 +166,22 @@ export default function SettingsPage() {
                       user?.username?.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {user?.email}
+                    </p>
                     <div className="mt-2 flex gap-2">
                       {userRoles.map((role) => (
                         <span
                           key={role}
                           className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
                             role === "ADMIN"
-                              ? "bg-red-100 text-red-700"
+                              ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                               : role === "PROFESSOR"
-                                ? "bg-purple-100 text-purple-700"
-                                : "bg-blue-100 text-blue-700"
+                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                                : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                           }`}
                         >
                           <Shield className="h-3 w-3" />
@@ -205,7 +208,7 @@ export default function SettingsPage() {
                         value={user?.username || ""}
                         readOnly
                         disabled
-                        className="input pl-10 bg-gray-50 text-gray-500 cursor-not-allowed"
+                        className="input pl-10 bg-gray-50 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
                       />
                     </div>
                   </div>
@@ -247,7 +250,9 @@ export default function SettingsPage() {
                       />
                     </div>
                     {emailError && (
-                      <p className="mt-1 text-sm text-red-600">{emailError}</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {emailError}
+                      </p>
                     )}
                   </div>
 
@@ -260,7 +265,7 @@ export default function SettingsPage() {
                         type="color"
                         value={color || "#3b82f6"}
                         onChange={(e) => setColor(e.target.value)}
-                        className="h-10 w-14 cursor-pointer rounded border border-gray-300 p-1"
+                        className="h-10 w-14 cursor-pointer rounded border border-gray-300 p-1 dark:border-gray-600"
                       />
                       <div className="relative flex-1">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -284,7 +289,7 @@ export default function SettingsPage() {
                           user?.username?.slice(0, 2).toUpperCase()}
                       </div>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       {t("avatarColorHint")}
                     </p>
                   </div>
@@ -308,32 +313,39 @@ export default function SettingsPage() {
 
           {activeTab === "preferences" && (
             <div className="card">
-              <div className="border-b px-6 py-4">
-                <h2 className="font-semibold text-gray-900">
+              <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                <h2 className="font-semibold text-gray-900 dark:text-white">
                   {t("preferencesSettings")}
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {t("preferencesSettingsDescription")}
                 </p>
               </div>
               <div className="p-6">
                 <div className="space-y-6">
                   <div>
+                    <label className="label">{t("theme")}</label>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      {t("themeDescription")}
+                    </p>
+                    <ThemeSelector showLabel={false} />
+                  </div>
+                  <div>
                     <label className="label">{t("language")}</label>
-                    <p className="mb-2 text-sm text-gray-500">
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                       {t("languageDescription")}
                     </p>
                     <LanguageSelector showLabel={false} />
                   </div>
                   <div>
                     <label className="label">{t("timezone")}</label>
-                    <p className="mb-2 text-sm text-gray-500">
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                       {t("timezoneDescription")}
                     </p>
                     <TimezoneSelector showLabel={false} />
                   </div>
                   <div>
-                    <p className="mb-2 text-sm text-gray-500">
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                       {t("githubUsernameDescription")}
                     </p>
                     <GitHubUsernameEditor showLabel={true} />
@@ -438,23 +450,25 @@ function SecuritySettings() {
 
   return (
     <div className="card">
-      <div className="border-b px-6 py-4">
-        <h2 className="font-semibold text-gray-900">{t("securitySettings")}</h2>
-        <p className="text-sm text-gray-500">
+      <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+        <h2 className="font-semibold text-gray-900 dark:text-white">
+          {t("securitySettings")}
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {t("securitySettingsDescription")}
         </p>
       </div>
       <div className="p-6">
         <form className="space-y-4" action={formAction}>
           {state.error && (
-            <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700">
+            <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
               <span>{state.error}</span>
             </div>
           )}
 
           {state.success && (
-            <div className="flex items-center gap-2 rounded-md bg-green-50 p-4 text-sm text-green-700">
+            <div className="flex items-center gap-2 rounded-md bg-green-50 p-4 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
               <CheckCircle className="h-5 w-5 flex-shrink-0" />
               <span>{t("passwordChangedSuccess")}</span>
             </div>
@@ -546,13 +560,13 @@ function SecuritySettings() {
 
           {/* Password requirements */}
           {newPassword.length > 0 && (
-            <div className="rounded-md bg-gray-50 p-4">
-              <p className="text-sm font-medium text-gray-700 mb-2">
+            <div className="rounded-md bg-gray-50 p-4 dark:bg-gray-800">
+              <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
                 {t("passwordMustContain")}
               </p>
               <ul className="space-y-1 text-sm">
                 <li
-                  className={`flex items-center gap-2 ${hasMinLength ? "text-green-600" : "text-gray-500"}`}
+                  className={`flex items-center gap-2 ${hasMinLength ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
                 >
                   {hasMinLength ? (
                     <CheckCircle className="h-4 w-4" />
@@ -562,7 +576,7 @@ function SecuritySettings() {
                   {t("atLeast8Characters")}
                 </li>
                 <li
-                  className={`flex items-center gap-2 ${hasLowercase ? "text-green-600" : "text-gray-500"}`}
+                  className={`flex items-center gap-2 ${hasLowercase ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
                 >
                   {hasLowercase ? (
                     <CheckCircle className="h-4 w-4" />
@@ -572,7 +586,7 @@ function SecuritySettings() {
                   {t("oneLowercaseLetter")}
                 </li>
                 <li
-                  className={`flex items-center gap-2 ${hasUppercase ? "text-green-600" : "text-gray-500"}`}
+                  className={`flex items-center gap-2 ${hasUppercase ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
                 >
                   {hasUppercase ? (
                     <CheckCircle className="h-4 w-4" />
@@ -582,7 +596,7 @@ function SecuritySettings() {
                   {t("oneUppercaseLetter")}
                 </li>
                 <li
-                  className={`flex items-center gap-2 ${hasNumber ? "text-green-600" : "text-gray-500"}`}
+                  className={`flex items-center gap-2 ${hasNumber ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
                 >
                   {hasNumber ? (
                     <CheckCircle className="h-4 w-4" />
@@ -592,7 +606,7 @@ function SecuritySettings() {
                   {t("oneNumber")}
                 </li>
                 <li
-                  className={`flex items-center gap-2 ${passwordsMatch ? "text-green-600" : "text-gray-500"}`}
+                  className={`flex items-center gap-2 ${passwordsMatch ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
                 >
                   {passwordsMatch ? (
                     <CheckCircle className="h-4 w-4" />

@@ -33,15 +33,17 @@ export function SectionHeader({
   return (
     <div
       className={`flex items-center justify-between px-6 py-4 ${
-        bordered ? "border-b" : ""
+        bordered ? "border-b border-gray-200 dark:border-gray-700" : ""
       } ${className}`}
     >
       <div className="flex items-center gap-2">
-        {Icon && <Icon className="h-5 w-5 text-gray-700" />}
-        <h2 className="font-semibold text-gray-900">
+        {Icon && <Icon className="h-5 w-5 text-gray-700 dark:text-gray-300" />}
+        <h2 className="font-semibold text-gray-900 dark:text-white">
           {title}
           {count !== undefined && (
-            <span className="ml-1 font-normal text-gray-500">({count})</span>
+            <span className="ml-1 font-normal text-gray-500 dark:text-gray-400">
+              ({count})
+            </span>
           )}
         </h2>
       </div>
@@ -87,7 +89,7 @@ export function CardSection({
     <div className={`card ${className}`}>
       <SectionHeader title={title} icon={icon} count={count} action={action} />
       {isEmpty && emptyMessage ? (
-        <div className="px-6 py-8 text-center text-gray-500">
+        <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
           {emptyMessage}
         </div>
       ) : (

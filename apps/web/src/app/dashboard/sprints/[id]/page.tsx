@@ -49,26 +49,26 @@ const BOARD_COLUMNS = [
   {
     id: "TODO",
     label: "To Do",
-    color: "bg-gray-100",
-    textColor: "text-gray-700",
+    color: "bg-gray-100 dark:bg-gray-700",
+    textColor: "text-gray-700 dark:text-gray-300",
   },
   {
     id: "INPROGRESS",
     label: "In Progress",
-    color: "bg-blue-100",
-    textColor: "text-blue-700",
+    color: "bg-blue-100 dark:bg-blue-900/30",
+    textColor: "text-blue-700 dark:text-blue-400",
   },
   {
     id: "VERIFY",
     label: "Verify",
-    color: "bg-yellow-100",
-    textColor: "text-yellow-700",
+    color: "bg-yellow-100 dark:bg-yellow-900/30",
+    textColor: "text-yellow-700 dark:text-yellow-400",
   },
   {
     id: "DONE",
     label: "Done",
-    color: "bg-green-100",
-    textColor: "text-green-700",
+    color: "bg-green-100 dark:bg-green-900/30",
+    textColor: "text-green-700 dark:text-green-400",
   },
 ] as const;
 
@@ -761,10 +761,10 @@ export default function SprintBoardPage() {
       <div className="p-8">
         <div className="card px-6 py-12 text-center">
           <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             Sprint not found
           </h3>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
             The sprint you&apos;re looking for doesn&apos;t exist or you
             don&apos;t have access.
           </p>
@@ -786,13 +786,13 @@ export default function SprintBoardPage() {
   return (
     <div className="flex h-[calc(100vh-120px)] flex-col">
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallbackHref="/dashboard/projects" />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {sprintMeta.name}
                 </h1>
                 <SprintStatusBadge
@@ -803,7 +803,7 @@ export default function SprintBoardPage() {
                   <Loader2 className="h-4 w-4 animate-spin text-primary-600" />
                 )}
               </div>
-              <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
+              <div className="mt-1 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                 {sprintMeta.project && (
                   <Link
                     href={`/dashboard/projects/${sprintMeta.project.id}`}
@@ -850,21 +850,21 @@ export default function SprintBoardPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Backlog Panel */}
         <div
-          className={`flex-shrink-0 border-r border-gray-200 bg-gray-50 transition-all duration-300 ${
+          className={`flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-all duration-300 ${
             isBacklogOpen ? "w-80" : "w-12"
           }`}
         >
           <div className="flex h-full flex-col">
             {/* Backlog Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3">
               {isBacklogOpen && (
                 <>
-                  <h2 className="font-semibold text-gray-900">
+                  <h2 className="font-semibold text-gray-900 dark:text-white">
                     {t("backlog")}
                   </h2>
                   <button
                     onClick={() => setShowCreateTaskModal(true)}
-                    className="mr-2 rounded p-1 text-primary-600 hover:bg-primary-50"
+                    className="mr-2 rounded p-1 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30"
                     title={t("addTask")}
                   >
                     <Plus className="h-5 w-5" />
@@ -873,7 +873,7 @@ export default function SprintBoardPage() {
               )}
               <button
                 onClick={() => setIsBacklogOpen(!isBacklogOpen)}
-                className="rounded p-1 hover:bg-gray-200"
+                className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {isBacklogOpen ? (
                   <ChevronLeft className="h-5 w-5" />
@@ -888,9 +888,9 @@ export default function SprintBoardPage() {
               <div
                 className={`flex-1 overflow-y-auto p-4 ${
                   isDragging && isDraggingFromSprint && dragOverBacklog
-                    ? "bg-primary-50 ring-2 ring-inset ring-primary-300"
+                    ? "bg-primary-50 dark:bg-primary-900/30 ring-2 ring-inset ring-primary-300"
                     : isDragging && isDraggingFromSprint
-                      ? "bg-primary-25"
+                      ? "bg-primary-25 dark:bg-primary-900/20"
                       : ""
                 }`}
                 onDragOver={handleDragOverBacklog}
@@ -898,8 +898,8 @@ export default function SprintBoardPage() {
                 onDrop={handleDropOnBacklog}
               >
                 {backlogTasks.length === 0 ? (
-                  <div className="py-8 text-center text-sm text-gray-500">
-                    <FolderKanban className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+                  <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                    <FolderKanban className="mx-auto mb-2 h-8 w-8 text-gray-300 dark:text-gray-600" />
                     {t("noBacklogTasks")}
                     {isDragging && isDraggingFromSprint && (
                       <p className="mt-2 text-primary-600">
@@ -910,7 +910,7 @@ export default function SprintBoardPage() {
                 ) : (
                   <div className="space-y-2">
                     {isDragging && isDraggingFromSprint && (
-                      <div className="mb-4 rounded-lg border-2 border-dashed border-primary-300 bg-primary-50 p-4 text-center text-sm text-primary-600">
+                      <div className="mb-4 rounded-lg border-2 border-dashed border-primary-300 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/30 p-4 text-center text-sm text-primary-600 dark:text-primary-400">
                         {t("dropToBacklog")}
                       </div>
                     )}
@@ -1029,13 +1029,13 @@ const SprintStatusBadge = memo(function SprintStatusBadge({
   const getStatusStyle = () => {
     switch (status) {
       case "ACTIVE":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
       case "FUTURE":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
       case "CLOSED":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
       default:
-        return "bg-gray-100 text-gray-600";
+        return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400";
     }
   };
 
@@ -1128,9 +1128,9 @@ const StoryRow = memo(function StoryRow({
   if (story.id === -1) {
     // Orphan tasks (no parent story)
     return (
-      <div className="rounded-lg border border-gray-200 bg-white">
-        <div className="border-b border-gray-100 px-4 py-2">
-          <span className="text-sm font-medium text-gray-500">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="border-b border-gray-100 dark:border-gray-700 px-4 py-2">
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
             {t("unassignedTasks")}
           </span>
         </div>
@@ -1161,10 +1161,10 @@ const StoryRow = memo(function StoryRow({
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       {/* Story Header */}
       <div
-        className="flex cursor-pointer items-center justify-between border-b border-gray-100 px-4 py-2 hover:bg-gray-50"
+        className="flex cursor-pointer items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
         onClick={() => {
           // Only toggle if not dragging
           if (!isDraggingThis) {
@@ -1201,17 +1201,17 @@ const StoryRow = memo(function StoryRow({
           <Link
             href={`/dashboard/tasks/${story.id}`}
             onClick={(e) => e.stopPropagation()}
-            className="font-medium text-gray-900 hover:text-primary-600 hover:underline"
+            className="font-medium text-gray-900 dark:text-white hover:text-primary-600 hover:underline"
           >
             {story.name}
           </Link>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             ({story.subtasks.length} {t("tasks")})
           </span>
         </div>
         <div className="flex items-center gap-4">
           {totalPoints > 0 && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               {totalPoints} {t("points")}
             </span>
           )}
@@ -1220,7 +1220,7 @@ const StoryRow = memo(function StoryRow({
               e.stopPropagation();
               onCreateSubtask(story.id);
             }}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
             title={t("addSubtask")}
           >
             <Plus className="h-4 w-4" />
@@ -1296,10 +1296,10 @@ const BoardColumn = memo(function BoardColumn({
     <div
       className={`min-h-[100px] rounded-lg border-2 border-dashed p-2 transition-colors ${
         isDropTarget
-          ? "border-primary-400 bg-primary-50"
+          ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
           : isDragging && !isDraggingFromSprint
-            ? "border-primary-200 bg-primary-25"
-            : "border-transparent bg-gray-50"
+            ? "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
+            : "border-transparent bg-gray-50 dark:bg-gray-700/50"
       }`}
       onDragOver={(e) => onDragOver(e, storyId, columnId)}
       onDragLeave={onDragLeave}
@@ -1347,21 +1347,21 @@ const TaskCard = memo(function TaskCard({
       draggable
       onDragStart={(e) => onDragStart(e, task, "sprint")}
       onDragEnd={onDragEnd}
-      className="block cursor-grab rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
+      className="block cursor-grab rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-3 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
     >
       <div className="flex items-start gap-2">
         <div
           className={`mt-1 h-2 w-2 flex-shrink-0 rounded-full ${getTypeColor()}`}
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-gray-900">
+          <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
             {task.name}
           </p>
-          <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+          <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             {task.taskKey && <span>{task.taskKey}</span>}
             {task.estimationPoints !== undefined &&
               task.estimationPoints > 0 && (
-                <span className="rounded bg-gray-100 px-1.5 py-0.5">
+                <span className="rounded bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5">
                   {task.estimationPoints}p
                 </span>
               )}
@@ -1430,7 +1430,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm">
       <div
         draggable
         onDragStart={(e) => onDragStart(e, task, "backlog")}
@@ -1444,7 +1444,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
                 e.stopPropagation();
                 setExpanded(!expanded);
               }}
-              className="mt-0.5 rounded p-0.5 hover:bg-gray-100"
+              className="mt-0.5 rounded p-0.5 hover:bg-gray-100 dark:hover:bg-gray-600"
             >
               {expanded ? (
                 <ChevronUp className="h-3 w-3 text-gray-400" />
@@ -1458,18 +1458,20 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
             <Link
               href={`/dashboard/tasks/${task.id}`}
               onClick={(e) => e.stopPropagation()}
-              className="truncate text-sm font-medium text-gray-900 hover:text-primary-600 hover:underline"
+              className="truncate text-sm font-medium text-gray-900 dark:text-white hover:text-primary-600 hover:underline"
             >
               {task.name}
             </Link>
-            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               {task.taskKey && <span>{task.taskKey}</span>}
               {hasSubtasks && (
-                <span className="text-gray-400">({subtasks.length})</span>
+                <span className="text-gray-400 dark:text-gray-500">
+                  ({subtasks.length})
+                </span>
               )}
               {task.estimationPoints !== undefined &&
                 task.estimationPoints > 0 && (
-                  <span className="rounded bg-gray-100 px-1.5 py-0.5">
+                  <span className="rounded bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5">
                     {task.estimationPoints}p
                   </span>
                 )}
@@ -1492,21 +1494,21 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
 
       {/* Subtasks (expanded) */}
       {hasSubtasks && expanded && (
-        <div className="border-t border-gray-100 bg-gray-50 px-3 py-2">
+        <div className="border-t border-gray-100 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2">
           <div className="space-y-1.5 pl-4">
             {subtasks.map((subtask) => (
               <Link
                 key={subtask.id}
                 href={`/dashboard/tasks/${subtask.id}`}
-                className="flex items-center gap-2 rounded p-1.5 text-xs hover:bg-gray-100"
+                className="flex items-center gap-2 rounded p-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 {getSubtaskTypeIcon(subtask.type)}
-                <span className="min-w-0 flex-1 truncate text-gray-700">
+                <span className="min-w-0 flex-1 truncate text-gray-700 dark:text-gray-300">
                   {subtask.name}
                 </span>
                 {subtask.estimationPoints !== undefined &&
                   subtask.estimationPoints > 0 && (
-                    <span className="rounded bg-gray-200 px-1 py-0.5 text-gray-600">
+                    <span className="rounded bg-gray-200 dark:bg-gray-600 px-1 py-0.5 text-gray-600 dark:text-gray-300">
                       {subtask.estimationPoints}p
                     </span>
                   )}
@@ -1550,7 +1552,7 @@ const EmptySprintState = memo(function EmptySprintState({
   const showDropZone = isDragging && !isDraggingFromSprint;
 
   return (
-    <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 p-8">
+    <div className="rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-8">
       {showDropZone ? (
         <div className="grid grid-cols-4 gap-4">
           {BOARD_COLUMNS.map((col) => (
@@ -1561,9 +1563,9 @@ const EmptySprintState = memo(function EmptySprintState({
                   ? dragOverTarget?.type === "column" &&
                     dragOverTarget.storyId === -1 &&
                     dragOverTarget.columnId === "TODO"
-                    ? "border-primary-400 bg-primary-50"
-                    : "border-primary-200 bg-primary-25"
-                  : "border-gray-200 bg-gray-100 opacity-50"
+                    ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
+                    : "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
+                  : "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50"
               }`}
               onDragOver={(e) => {
                 if (col.id === "TODO") {
@@ -1577,7 +1579,7 @@ const EmptySprintState = memo(function EmptySprintState({
                 }
               }}
             >
-              <div className="flex h-full items-center justify-center text-center text-sm text-gray-500">
+              <div className="flex h-full items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
                 {col.id === "TODO" ? t("dropHereToAdd") : col.label}
               </div>
             </div>
@@ -1585,11 +1587,11 @@ const EmptySprintState = memo(function EmptySprintState({
         </div>
       ) : (
         <div className="text-center">
-          <FolderKanban className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <FolderKanban className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             {t("noTasksInSprint")}
           </h3>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {t("dragTasksFromBacklog")}
           </p>
         </div>

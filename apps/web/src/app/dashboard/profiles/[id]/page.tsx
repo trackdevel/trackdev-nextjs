@@ -435,7 +435,7 @@ export default function ProfileDetailPage({
           <div className="mb-6">
             <Link
               href="/dashboard/profiles"
-              className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700"
+              className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             >
               <ArrowLeft className="h-4 w-4" />
               {t("backToProfiles")}
@@ -443,13 +443,13 @@ export default function ProfileDetailPage({
 
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100">
-                  <FileSliders className="h-6 w-6 text-indigo-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
+                  <FileSliders className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 {isEditingProfile ? (
                   <div className="space-y-2">
                     {profileValidationError && (
-                      <div className="rounded-md bg-red-50 p-2 text-sm text-red-700">
+                      <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-2 text-sm text-red-700 dark:text-red-400">
                         {profileValidationError}
                       </div>
                     )}
@@ -457,23 +457,23 @@ export default function ProfileDetailPage({
                       type="text"
                       value={profileName}
                       onChange={(e) => setProfileName(e.target.value)}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-lg font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-lg font-semibold text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     />
                     <textarea
                       value={profileDescription}
                       onChange={(e) => setProfileDescription(e.target.value)}
                       rows={2}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       placeholder={t("form.descriptionPlaceholder")}
                     />
                   </div>
                 ) : (
                   <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">
+                    <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
                       {profile.name}
                     </h1>
                     {profile.description && (
-                      <p className="mt-1 text-gray-500">
+                      <p className="mt-1 text-gray-500 dark:text-gray-400">
                         {profile.description}
                       </p>
                     )}
@@ -485,7 +485,7 @@ export default function ProfileDetailPage({
                   <>
                     <button
                       onClick={() => setIsEditingProfile(false)}
-                      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
                     >
                       {tCommon("cancel")}
                     </button>
@@ -502,7 +502,7 @@ export default function ProfileDetailPage({
                 ) : (
                   <button
                     onClick={handleStartEditProfile}
-                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
                   >
                     <Pencil className="mr-1 inline h-4 w-4" />
                     {tCommon("edit")}
@@ -515,7 +515,7 @@ export default function ProfileDetailPage({
           {/* Enums Section */}
           <div className="mb-8">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900">
+              <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 dark:text-white">
                 <List className="h-5 w-5 text-gray-400" />
                 {t("enums.title")}
               </h2>
@@ -533,17 +533,17 @@ export default function ProfileDetailPage({
                 {profile.enums.map((profileEnum, index) => (
                   <div
                     key={profileEnum.id || index}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
                   >
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
                         {profileEnum.name}
                       </h3>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {profileEnum.values.map((value, valueIndex) => (
                           <span
                             key={valueIndex}
-                            className="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                            className="inline-flex rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-300"
                           >
                             {value}
                           </span>
@@ -553,14 +553,14 @@ export default function ProfileDetailPage({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleOpenEnumModal(index)}
-                        className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="rounded-md p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200"
                         title={tCommon("edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteEnumClick(index)}
-                        className="rounded-md p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                        className="rounded-md p-2 text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                         title={tCommon("delete")}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -570,9 +570,9 @@ export default function ProfileDetailPage({
                 ))}
               </div>
             ) : (
-              <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+              <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-6 text-center">
                 <List className="mx-auto h-8 w-8 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-500">{t("enums.empty")}</p>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t("enums.empty")}</p>
               </div>
             )}
           </div>
@@ -580,7 +580,7 @@ export default function ProfileDetailPage({
           {/* Attributes Section */}
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900">
+              <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 dark:text-white">
                 <Tag className="h-5 w-5 text-gray-400" />
                 {t("attributes.title")}
               </h2>
@@ -598,19 +598,19 @@ export default function ProfileDetailPage({
                 {profile.attributes.map((attribute, index) => (
                   <div
                     key={attribute.id || index}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
                   >
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
                         {attribute.name}
                       </h3>
                       <div className="mt-1 flex gap-2">
-                        <span className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
+                        <span className="inline-flex rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-400">
                           {getTypeLabel(attribute.type)}
                           {attribute.enumRefName &&
                             `: ${attribute.enumRefName}`}
                         </span>
-                        <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                        <span className="inline-flex rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs text-green-700 dark:text-green-400">
                           {getTargetLabel(attribute.target)}
                         </span>
                       </div>
@@ -618,14 +618,14 @@ export default function ProfileDetailPage({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleOpenAttributeModal(index)}
-                        className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="rounded-md p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200"
                         title={tCommon("edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteAttributeClick(index)}
-                        className="rounded-md p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                        className="rounded-md p-2 text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                         title={tCommon("delete")}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -635,9 +635,9 @@ export default function ProfileDetailPage({
                 ))}
               </div>
             ) : (
-              <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+              <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-6 text-center">
                 <Tag className="mx-auto h-8 w-8 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   {t("attributes.empty")}
                 </p>
               </div>
@@ -657,14 +657,14 @@ export default function ProfileDetailPage({
       >
         <form onSubmit={handleSaveEnum} className="space-y-4">
           {enumValidationError && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-400">
               {enumValidationError}
             </div>
           )}
           <div>
             <label
               htmlFor="enumName"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("form.enumName")} *
             </label>
@@ -673,14 +673,14 @@ export default function ProfileDetailPage({
               id="enumName"
               value={enumName}
               onChange={(e) => setEnumName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.enumNamePlaceholder")}
             />
           </div>
           <div>
             <label
               htmlFor="enumValues"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("form.enumValues")} *
             </label>
@@ -689,10 +689,10 @@ export default function ProfileDetailPage({
               id="enumValues"
               value={enumValues}
               onChange={(e) => setEnumValues(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.enumValuesPlaceholder")}
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               {t("form.enumValuesHelp")}
             </p>
           </div>
@@ -703,7 +703,7 @@ export default function ProfileDetailPage({
                 setShowEnumModal(false);
                 resetEnumForm();
               }}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
             >
               {tCommon("cancel")}
             </button>
@@ -737,14 +737,14 @@ export default function ProfileDetailPage({
       >
         <form onSubmit={handleSaveAttribute} className="space-y-4">
           {attributeValidationError && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-400">
               {attributeValidationError}
             </div>
           )}
           <div>
             <label
               htmlFor="attributeName"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("form.attributeName")} *
             </label>
@@ -753,14 +753,14 @@ export default function ProfileDetailPage({
               id="attributeName"
               value={attributeName}
               onChange={(e) => setAttributeName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.attributeNamePlaceholder")}
             />
           </div>
           <div>
             <label
               htmlFor="attributeType"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("form.attributeType")} *
             </label>
@@ -781,7 +781,7 @@ export default function ProfileDetailPage({
             <div>
               <label
                 htmlFor="attributeEnumRef"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 {t("form.enumRef")} *
               </label>
@@ -804,7 +804,7 @@ export default function ProfileDetailPage({
           <div>
             <label
               htmlFor="attributeTarget"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("form.attributeTarget")} *
             </label>
@@ -827,7 +827,7 @@ export default function ProfileDetailPage({
                 setShowAttributeModal(false);
                 resetAttributeForm();
               }}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
             >
               {tCommon("cancel")}
             </button>

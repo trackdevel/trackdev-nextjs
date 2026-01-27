@@ -73,8 +73,8 @@ export const TaskHeader = memo(function TaskHeader({
     <div className="mb-8">
       {/* Frozen Warning Banner */}
       {task.frozen && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center justify-center gap-2 text-blue-800">
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/30 dark:border-blue-800">
+          <div className="flex items-center justify-center gap-2 text-blue-800 dark:text-blue-300">
             <Snowflake className="h-5 w-5" />
             <span className="font-semibold text-lg">{t("taskIsFrozen")}</span>
           </div>
@@ -101,12 +101,12 @@ export const TaskHeader = memo(function TaskHeader({
             </span>
             {task.estimationPoints !== undefined &&
               task.estimationPoints > 0 && (
-                <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                   {task.estimationPoints} {t("points")}
                 </span>
               )}
             {task.frozen && (
-              <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 flex items-center gap-1">
+              <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 flex items-center gap-1 dark:bg-blue-900/30 dark:text-blue-400">
                 <Snowflake className="h-3 w-3" />
                 {t("frozen")}
               </span>
@@ -120,7 +120,7 @@ export const TaskHeader = memo(function TaskHeader({
                 type="text"
                 value={editState.name}
                 onChange={(e) => onNameChange(e.target.value)}
-                className="flex-1 text-2xl font-bold text-gray-900 border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="flex-1 text-2xl font-bold text-gray-900 border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-white dark:border-gray-600 dark:bg-gray-800"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") onSave();
@@ -142,7 +142,7 @@ export const TaskHeader = memo(function TaskHeader({
               <button
                 onClick={onCancel}
                 disabled={editState.isSaving}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50"
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700"
                 title={tCommon("cancel")}
               >
                 <X className="h-5 w-5" />
@@ -151,11 +151,13 @@ export const TaskHeader = memo(function TaskHeader({
           ) : (
             <div className="group flex items-center gap-2">
               {task.taskKey && (
-                <span className="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                <span className="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded dark:bg-gray-700 dark:text-gray-400">
                   {task.taskKey}
                 </span>
               )}
-              <h1 className="text-2xl font-bold text-gray-900">{task.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {task.name}
+              </h1>
               {canEdit && (
                 <button
                   onClick={() => onStartEdit("name")}
@@ -168,7 +170,7 @@ export const TaskHeader = memo(function TaskHeader({
             </div>
           )}
 
-          <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
+          <div className="mt-2 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               {t("createdAt")}{" "}
@@ -191,7 +193,7 @@ export const TaskHeader = memo(function TaskHeader({
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               task.frozen
                 ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
             }`}
             title={task.frozen ? t("unfreezeTask") : t("freezeTask")}
           >

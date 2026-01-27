@@ -30,14 +30,14 @@ export default function ProjectReportsPage() {
   const { isLoading: projectLoading } = useQuery(
     () => projectsApi.getById(projectId),
     [projectId],
-    { enabled: !!projectId }
+    { enabled: !!projectId },
   );
 
   // Fetch available reports for this project (from its course)
   const { data: reports, isLoading: reportsLoading } = useQuery(
     () => projectReportsApi.getAll(projectId),
     [projectId],
-    { enabled: !!projectId }
+    { enabled: !!projectId },
   );
 
   const isLoading = projectLoading || reportsLoading;
@@ -88,25 +88,29 @@ export default function ProjectReportsPage() {
           isEmpty={availableReports.length === 0}
           emptyMessage={t("noAvailableReportsDescription")}
         >
-          <div className="divide-y">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {availableReports.map((report: Report) => (
               <div
                 key={report.id}
                 className="flex items-center justify-between px-4 py-3"
               >
                 <div>
-                  <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <p className="text-sm text-gray-500">
+                  <h4 className="font-medium text-gray-900 dark:text-white">
+                    {report.name}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {report.rowType && report.columnType && (
                       <span>
                         {t(
-                          report.rowType.toLowerCase() as "students" | "sprints"
+                          report.rowType.toLowerCase() as
+                            | "students"
+                            | "sprints",
                         )}{" "}
                         ×{" "}
                         {t(
                           report.columnType.toLowerCase() as
                             | "students"
-                            | "sprints"
+                            | "sprints",
                         )}
                       </span>
                     )}

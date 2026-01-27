@@ -307,7 +307,7 @@ export default function SubjectsPage() {
       {isLoading ? (
         <LoadingContainer />
       ) : error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600">
+        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-6 py-12 text-center text-red-600 dark:text-red-400">
           {t("failedToLoadSubjects")}
         </div>
       ) : subjects.length > 0 ? (

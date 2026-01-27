@@ -4,11 +4,11 @@
 
 /* ============================================
    TrackDev Global Styles
-   Forces light mode only with consistent colors
+   Light and Dark mode support
    ============================================ */
 
 :root {
-  /* Force light color scheme */
+  /* Light mode colors (default) */
   color-scheme: light;
 
   /* Base colors */
@@ -17,17 +17,46 @@
   --muted: #f3f4f6;
   --muted-foreground: #6b7280;
   --border: #e5e7eb;
+
+  /* Card colors */
+  --card: #ffffff;
+  --card-foreground: #111827;
+
+  /* Input colors */
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-text: #111827;
+  --input-placeholder: #9ca3af;
 }
 
-/* Remove dark mode media query - force light mode only */
-html {
-  color-scheme: light;
+/* Dark mode colors */
+.dark {
+  color-scheme: dark;
+
+  --foreground: #f9fafb;
+  --background: #111827;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --border: #374151;
+
+  /* Card colors */
+  --card: #1f2937;
+  --card-foreground: #f9fafb;
+
+  /* Input colors */
+  --input-bg: #1f2937;
+  --input-border: #4b5563;
+  --input-text: #f9fafb;
+  --input-placeholder: #6b7280;
 }
 
 body {
   color: var(--foreground);
   background-color: var(--background);
   min-height: 100vh;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* ============================================
@@ -36,38 +65,37 @@ body {
 @layer base {
   /* Default border color */
   * {
-    @apply border-gray-200;
+    @apply border-gray-200 dark:border-gray-700;
   }
 
   /* Ensure all text is visible by default */
   html {
-    @apply text-gray-900;
+    @apply text-gray-900 dark:text-gray-100;
   }
 
-  /* Form elements - always readable */
+  /* Form elements */
   input,
   select,
   textarea {
-    color: #111827;
-    background-color: #ffffff;
-    color-scheme: light;
+    color: var(--input-text);
+    background-color: var(--input-bg);
     font-family: inherit;
   }
 
   input::placeholder,
   textarea::placeholder {
-    color: #9ca3af;
+    color: var(--input-placeholder);
   }
 
-  /* Labels always visible */
+  /* Labels */
   label {
-    color: #111827;
+    color: var(--foreground);
   }
 
   /* Select options */
   option {
-    color: #111827;
-    background-color: #ffffff;
+    color: var(--input-text);
+    background-color: var(--input-bg);
     font-family: inherit;
   }
 }
@@ -78,7 +106,7 @@ body {
 @layer components {
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-offset-gray-900;
   }
 
   .btn-primary {
@@ -86,51 +114,47 @@ body {
   }
 
   .btn-secondary {
-    @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-500;
+    @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
   }
 
   .btn-outline {
-    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-500;
+    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700;
   }
 
   .btn-destructive {
     @apply btn bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600;
   }
 
-  /* Form Inputs - guaranteed visible */
+  /* Form Inputs */
   .input {
-    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
-    color: #111827;
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-primary-400 dark:focus:ring-primary-400;
     font-family: inherit;
   }
 
   .input::placeholder {
-    color: #9ca3af;
+    @apply text-gray-400 dark:text-gray-500;
   }
 
-  /* Select dropdowns - guaranteed visible */
+  /* Select dropdowns */
   .select {
-    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer;
-    color: #111827;
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100;
     font-family: inherit;
   }
 
-  /* Labels - guaranteed visible */
+  /* Labels */
   .label {
-    @apply block text-sm font-medium mb-1;
-    color: #374151;
+    @apply block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300;
   }
 
   /* Textarea */
   .textarea {
-    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none;
-    color: #111827;
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100;
     font-family: inherit;
   }
 
   /* Cards */
   .card {
-    @apply rounded-lg border border-gray-200 bg-white shadow-sm;
+    @apply rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800;
   }
 
   /* Form group helper */
@@ -139,33 +163,29 @@ body {
   }
 
   .form-group label {
-    @apply block text-sm font-medium;
-    color: #374151;
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
   }
 
   .form-group input,
   .form-group select,
   .form-group textarea {
-    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm;
-    color: #111827;
+    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100;
     font-family: inherit;
   }
 
   .form-group input:focus,
   .form-group select:focus,
   .form-group textarea:focus {
-    @apply border-primary-500 outline-none ring-1 ring-primary-500;
+    @apply border-primary-500 outline-none ring-1 ring-primary-500 dark:border-primary-400 dark:ring-primary-400;
   }
 
   /* Hint text below form fields */
   .form-hint {
-    @apply text-xs mt-1;
-    color: #6b7280;
+    @apply text-xs mt-1 text-gray-500 dark:text-gray-400;
   }
 
   /* Error text */
   .form-error {
-    @apply text-xs mt-1;
-    color: #dc2626;
+    @apply text-xs mt-1 text-red-600 dark:text-red-400;
   }
 }

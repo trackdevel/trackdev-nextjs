@@ -48,29 +48,29 @@ export default function ProjectsPage() {
         </div>
       ) : projects && projects.length > 0 ? (
         <div className="card">
-          <div className="border-b px-6 py-4">
+          <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">
+              <h2 className="font-semibold text-gray-900 dark:text-white">
                 {t("allProjects")} ({projects.length})
               </h2>
             </div>
           </div>
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {projects.map((project) => (
               <li key={project.id}>
                 <Link
                   href={`/dashboard/projects/${project.id}`}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+                  className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                      <FolderKanban className="h-6 w-6 text-green-600" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+                      <FolderKanban className="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
                         {project.name}
                       </h3>
-                      <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
+                      <div className="mt-1 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3.5 w-3.5" />
                           {project.course
@@ -106,12 +106,12 @@ export default function ProjectsPage() {
                           </div>
                         ))}
                         {(project.members?.length || 0) > 4 && (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-200 text-xs font-medium text-gray-600">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-200 text-xs font-medium text-gray-600 dark:border-gray-800 dark:bg-gray-600 dark:text-gray-300">
                             +{project.members!.length - 4}
                           </div>
                         )}
                       </div>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {t("memberCount", {
                           count: project.members?.length || 0,
                         })}

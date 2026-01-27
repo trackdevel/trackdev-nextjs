@@ -220,10 +220,10 @@ export default function SprintPatternsPage() {
       <div className="p-8">
         <div className="card px-6 py-12 text-center">
           <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             Failed to load sprint patterns
           </h3>
-          <p className="mt-2 text-gray-500">Please try again later.</p>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">Please try again later.</p>
         </div>
       </div>
     );
@@ -245,10 +245,10 @@ export default function SprintPatternsPage() {
               <Layers className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Sprint Patterns
               </h1>
-              <p className="mt-1 text-gray-600">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Create reusable sprint templates for your projects
               </p>
             </div>
@@ -269,11 +269,11 @@ export default function SprintPatternsPage() {
       {/* Patterns List */}
       {patterns.length === 0 ? (
         <div className="card px-6 py-12 text-center">
-          <Layers className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <Layers className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             No sprint patterns yet
           </h3>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
             Create a sprint pattern to define reusable sprint templates.
           </p>
           {canManage && (
@@ -290,26 +290,26 @@ export default function SprintPatternsPage() {
           {patterns.map((pattern) => (
             <div key={pattern.id} className="card p-4">
               <div className="mb-3 flex items-start justify-between">
-                <h3 className="font-semibold text-gray-900">{pattern.name}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">{pattern.name}</h3>
                 {canManage && (
                   <div className="flex gap-1">
                     <button
                       onClick={() => openEditModal(pattern)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
                       title="Edit"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => openDuplicateModal(pattern)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
                       title="Duplicate"
                     >
                       <Copy className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(pattern.id)}
-                      className="rounded p-1 text-gray-400 hover:bg-red-100 hover:text-red-600"
+                      className="rounded p-1 text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                       title="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -331,16 +331,16 @@ export default function SprintPatternsPage() {
                   .map((item, idx) => (
                     <div
                       key={item.id || idx}
-                      className="flex items-center gap-2 rounded bg-gray-50 px-3 py-2 text-sm"
+                      className="flex items-center gap-2 rounded bg-gray-50 dark:bg-gray-700 px-3 py-2 text-sm"
                     >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-xs font-medium text-indigo-700 dark:text-indigo-400">
                         {idx + 1}
                       </span>
-                      <span className="flex-1 font-medium text-gray-700">
+                      <span className="flex-1 font-medium text-gray-700 dark:text-gray-200">
                         {item.name}
                       </span>
                       {item.startDate && item.endDate && (
-                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                        <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                           <Calendar className="h-3 w-3" />
                           {formatDateTimeRange(item.startDate, item.endDate)}
                         </span>
@@ -349,7 +349,7 @@ export default function SprintPatternsPage() {
                   ))}
               </div>
 
-              <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
+              <div className="mt-3 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <Clock className="h-4 w-4" />
                 {pattern.items.length} sprint
                 {pattern.items.length !== 1 ? "s" : ""}
@@ -362,16 +362,16 @@ export default function SprintPatternsPage() {
       {/* Create/Edit Modal */}
       {(showCreateModal || editingPattern) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-lg bg-white dark:bg-gray-800 p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 {editingPattern
                   ? "Edit Sprint Pattern"
                   : "Create Sprint Pattern"}
               </h2>
               <button
                 onClick={closeModal}
-                className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -380,7 +380,7 @@ export default function SprintPatternsPage() {
             <div className="space-y-4">
               {/* Pattern Name */}
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Pattern Name
                 </label>
                 <input
@@ -390,14 +390,14 @@ export default function SprintPatternsPage() {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                   placeholder="e.g., Standard 2-Week Sprints"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 />
               </div>
 
               {/* Sprint Items */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Sprints
                   </label>
                   <button
@@ -413,16 +413,16 @@ export default function SprintPatternsPage() {
                   {formData.items.map((item, idx) => (
                     <div
                       key={idx}
-                      className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3"
                     >
                       <div className="mb-2 flex items-center justify-between">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-sm font-medium text-indigo-700">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-sm font-medium text-indigo-700 dark:text-indigo-400">
                           {idx + 1}
                         </span>
                         {formData.items.length > 1 && (
                           <button
                             onClick={() => removeItem(idx)}
-                            className="rounded p-1 text-gray-400 hover:bg-red-100 hover:text-red-600"
+                            className="rounded p-1 text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -431,7 +431,7 @@ export default function SprintPatternsPage() {
 
                       <div className="grid gap-3 sm:grid-cols-3">
                         <div>
-                          <label className="mb-1 block text-xs text-gray-500">
+                          <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">
                             Sprint Name
                           </label>
                           <input
@@ -441,11 +441,11 @@ export default function SprintPatternsPage() {
                               updateItem(idx, "name", e.target.value)
                             }
                             placeholder="Sprint 1"
-                            className="w-full rounded border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                           />
                         </div>
                         <div>
-                          <label className="mb-1 block text-xs text-gray-500">
+                          <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">
                             Start Date & Time
                           </label>
                           <input
@@ -454,11 +454,11 @@ export default function SprintPatternsPage() {
                             onChange={(e) =>
                               updateItem(idx, "startDate", e.target.value)
                             }
-                            className="w-full rounded border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                           />
                         </div>
                         <div>
-                          <label className="mb-1 block text-xs text-gray-500">
+                          <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">
                             End Date & Time
                           </label>
                           <input
@@ -467,7 +467,7 @@ export default function SprintPatternsPage() {
                             onChange={(e) =>
                               updateItem(idx, "endDate", e.target.value)
                             }
-                            className="w-full rounded border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                           />
                         </div>
                       </div>

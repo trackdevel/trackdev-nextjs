@@ -77,7 +77,9 @@ export function MemberItem({
   return (
     <Component
       className={`flex w-full items-center gap-3 px-6 py-3 ${
-        onClick ? "cursor-pointer text-left hover:bg-gray-50" : ""
+        onClick
+          ? "cursor-pointer text-left hover:bg-gray-50 dark:hover:bg-gray-700"
+          : ""
       } ${className}`}
       onClick={onClick}
       type={onClick ? "button" : undefined}
@@ -88,8 +90,10 @@ export function MemberItem({
         color={color}
       />
       <div className="flex-1">
-        <p className="font-medium text-gray-900">{name}</p>
-        {email && <p className="text-sm text-gray-500">{email}</p>}
+        <p className="font-medium text-gray-900 dark:text-white">{name}</p>
+        {email && (
+          <p className="text-sm text-gray-500 dark:text-gray-400">{email}</p>
+        )}
       </div>
       {rightContent}
     </Component>

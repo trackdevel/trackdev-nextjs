@@ -32,26 +32,28 @@ export function TaskHistory({ taskId }: TaskHistoryProps) {
 
   return (
     <div className="card">
-      <div className="flex items-center gap-2 border-b border-gray-200 px-6 py-4">
+      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <Clock className="h-5 w-5 text-gray-400" />
-        <h2 className="text-lg font-medium text-gray-900">{t("history")}</h2>
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white">
+          {t("history")}
+        </h2>
       </div>
 
       <div className="px-6 py-4">
         {isLoading && (
-          <div className="flex items-center justify-center py-8 text-sm text-gray-500">
+          <div className="flex items-center justify-center py-8 text-sm text-gray-500 dark:text-gray-400">
             {t("loadingHistory")}
           </div>
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
             {error.message || t("errorLoadingHistory")}
           </div>
         )}
 
         {!isLoading && !error && history && history.length === 0 && (
-          <div className="py-8 text-center text-sm text-gray-500">
+          <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
             {t("noHistoryYet")}
           </div>
         )}
@@ -83,20 +85,25 @@ function HistoryEntry({ log }: HistoryEntryProps) {
   const timestamp = formatDateTime(log.timestamp);
 
   return (
-    <div className="flex gap-3 border-l-2 border-gray-200 pl-4">
+    <div className="flex gap-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
       <div className="flex-shrink-0 mt-1">
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100">
-          <User className="h-3.5 w-3.5 text-gray-600" />
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+          <User className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
         </div>
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm">
-          <span className="font-medium text-gray-900">
+          <span className="font-medium text-gray-900 dark:text-white">
             {log.fullName || log.username}
           </span>
-          <span className="text-gray-600"> {changeMessage}</span>
+          <span className="text-gray-600 dark:text-gray-400">
+            {" "}
+            {changeMessage}
+          </span>
         </div>
-        <div className="mt-0.5 text-xs text-gray-500">{timestamp}</div>
+        <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+          {timestamp}
+        </div>
       </div>
     </div>
   );

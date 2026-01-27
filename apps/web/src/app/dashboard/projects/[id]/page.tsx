@@ -304,10 +304,10 @@ export default function ProjectDetailPage() {
       <div className="p-8">
         <div className="card px-6 py-12 text-center">
           <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             {t("projectNotFound")}
           </h3>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
             {t("projectNotFoundDescription")}
           </p>
           <Link
@@ -333,12 +333,14 @@ export default function ProjectDetailPage() {
       {/* Project Header */}
       <div className="mb-8 flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-100">
-            <FolderKanban className="h-7 w-7 text-green-600" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/30">
+            <FolderKanban className="h-7 w-7 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-            <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {project.name}
+            </h1>
+            <div className="mt-1 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
               <span className="flex items-center gap-1">
                 <BookOpen className="h-4 w-4" />
                 {project.course?.subject?.name}
@@ -417,7 +419,7 @@ export default function ProjectDetailPage() {
           isEmpty={githubRepos.length === 0}
           emptyMessage={`${t("noGithubRepos")}. ${t("addRepoToEnable")}`}
         >
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {githubRepos.map((repo: GitHubRepoSummary) => (
               <ItemCard
                 key={repo.id}
@@ -456,17 +458,17 @@ export default function ProjectDetailPage() {
           isEmpty={reports.length === 0}
           emptyMessage={tReports("noReportsAvailable")}
         >
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {reports.map((report: Report) => (
               <li key={report.id}>
                 <Link
                   href={`/dashboard/projects/${projectId}/reports/${report.id}`}
-                  className="block transition-colors hover:bg-gray-50"
+                  className="block transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <ItemCard
                     icon={FileBarChart}
-                    iconBgColor="bg-blue-100"
-                    iconColor="text-blue-600"
+                    iconBgColor="bg-blue-100 dark:bg-blue-900/30"
+                    iconColor="text-blue-600 dark:text-blue-400"
                     title={report.name}
                     subtitle={`${tReports("rows")}: ${
                       report.rowType || "-"
@@ -499,7 +501,7 @@ export default function ProjectDetailPage() {
           emptyMessage={t("noTeamMembers")}
           className="lg:col-span-1"
         >
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {project.members?.map((member) => (
               <MemberItem
                 key={member.id}
@@ -532,12 +534,12 @@ export default function ProjectDetailPage() {
           }
           className="lg:col-span-2"
         >
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {sprints?.map((sprint) => (
               <li key={sprint.id}>
                 <Link
                   href={`/dashboard/sprints/${sprint.id}`}
-                  className="block transition-colors hover:bg-gray-50"
+                  className="block transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <ItemCard
                     icon={Calendar}

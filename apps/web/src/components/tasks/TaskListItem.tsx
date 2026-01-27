@@ -15,15 +15,15 @@ export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
     <li>
       <Link
         href={`/dashboard/tasks/${task.id}`}
-        className="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+        className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-            <ClipboardList className="h-5 w-5 text-blue-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <ClipboardList className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">
-              <span className="mr-2 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              <span className="mr-2 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs dark:bg-gray-700 dark:text-gray-300">
                 {task.taskKey || `#${task.id}`}
               </span>
               {task.name}
@@ -32,7 +32,7 @@ export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
               <TaskTypeBadge type={task.type} />
               <TaskStatusBadge status={task.status} />
               {showAssignee && task.assignee && (
-                <span className="text-gray-500">
+                <span className="text-gray-500 dark:text-gray-400">
                   •{" "}
                   <span className="font-medium">
                     {task.assignee.fullName || task.assignee.username}
@@ -56,9 +56,10 @@ export function TaskTypeBadge({ type }: TaskTypeBadgeProps) {
   const t = useTranslations("tasks");
 
   const styles = {
-    USER_STORY: "bg-purple-100 text-purple-700",
-    BUG: "bg-red-100 text-red-700",
-    TASK: "bg-blue-100 text-blue-700",
+    USER_STORY:
+      "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+    BUG: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    TASK: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
   };
 
   const labelKeys: Record<string, string> = {
@@ -95,7 +96,9 @@ export function TaskStatusBadge({ status }: TaskStatusBadgeProps) {
   };
 
   return (
-    <span className="text-gray-500">{t(statusKeys[status] || status)}</span>
+    <span className="text-gray-500 dark:text-gray-400">
+      {t(statusKeys[status] || status)}
+    </span>
   );
 }
 
@@ -106,7 +109,7 @@ interface TaskListProps {
 
 export function TaskList({ tasks, showAssignee = true }: TaskListProps) {
   return (
-    <ul className="divide-y">
+    <ul className="divide-y divide-gray-200 dark:divide-gray-700">
       {tasks.map((task) => (
         <TaskListItem key={task.id} task={task} showAssignee={showAssignee} />
       ))}

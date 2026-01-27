@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeProvider } from "@/components/theme";
 import { ToastProvider } from "@/components/ui";
 import { LanguageProvider, useLanguage } from "@/i18n";
 import { AuthProvider } from "@trackdev/api-client";
@@ -50,8 +51,10 @@ function AuthProviderWithLocale({ children }: { children: ReactNode }) {
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <LanguageProvider>
-      <AuthProviderWithLocale>{children}</AuthProviderWithLocale>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProviderWithLocale>{children}</AuthProviderWithLocale>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

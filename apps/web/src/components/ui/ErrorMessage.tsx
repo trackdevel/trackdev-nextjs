@@ -121,14 +121,14 @@ export function ErrorMessage({
   if (variant === "inline") {
     return (
       <div
-        className={`flex items-center gap-2 text-sm text-red-600 ${className}`}
+        className={`flex items-center gap-2 text-sm text-red-600 dark:text-red-400 ${className}`}
       >
         <AlertTriangle className="h-4 w-4 flex-shrink-0" />
         <span>{message}</span>
         {onRetry && (
           <button
             onClick={onRetry}
-            className="ml-2 text-red-700 hover:text-red-800 underline"
+            className="ml-2 text-red-700 hover:text-red-800 underline dark:text-red-400 dark:hover:text-red-300"
           >
             Retry
           </button>
@@ -140,23 +140,27 @@ export function ErrorMessage({
   // Banner variant - full width, for page-level errors
   if (variant === "banner") {
     const bgColor = error.isNetworkError
-      ? "bg-orange-50 border-orange-200"
+      ? "bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800"
       : error.isAuthError
-      ? "bg-yellow-50 border-yellow-200"
-      : "bg-red-50 border-red-200";
+        ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800"
+        : "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800";
 
     return (
       <div className={`border-l-4 p-4 ${bgColor} ${className}`}>
         <div className="flex items-start gap-3">
           {icon}
           <div className="flex-1">
-            <h3 className="text-sm font-medium text-gray-900">{title}</h3>
-            <p className="mt-1 text-sm text-gray-700">{message}</p>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+              {title}
+            </h3>
+            <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+              {message}
+            </p>
           </div>
           {onRetry && (
             <button
               onClick={onRetry}
-              className="flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              className="flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
             >
               <RefreshCw className="h-4 w-4" />
               Retry
@@ -169,24 +173,26 @@ export function ErrorMessage({
 
   // Card variant (default) - centered, for empty states
   const bgColor = error.isNetworkError
-    ? "bg-orange-50 border-orange-200"
+    ? "bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800"
     : error.isAuthError
-    ? "bg-yellow-50 border-yellow-200"
-    : "bg-red-50 border-red-200";
+      ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800"
+      : "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800";
 
   return (
     <div
       className={`rounded-lg border p-6 text-center ${bgColor} ${className}`}
     >
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm dark:bg-gray-700">
         {icon}
       </div>
-      <h3 className="text-lg font-medium text-gray-900">{title}</h3>
-      <p className="mt-2 text-sm text-gray-600">{message}</p>
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+        {title}
+      </h3>
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{message}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-4 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          className="mt-4 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
         >
           <RefreshCw className="h-4 w-4" />
           Try Again

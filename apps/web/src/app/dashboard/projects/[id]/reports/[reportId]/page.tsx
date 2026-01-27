@@ -132,7 +132,7 @@ export default function ReportViewPage() {
       {/* Status Filter - only show if element is TASK */}
       {reportResult.element === "TASK" && (
         <div className="mb-6">
-          <h3 className="mb-2 text-sm font-medium text-gray-700">
+          <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
             {t("filterByStatus")}
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -141,7 +141,7 @@ export default function ReportViewPage() {
               className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                 selectedStatuses.length === ALL_TASK_STATUSES.length
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
               }`}
             >
               {t("allStatuses")}
@@ -153,7 +153,7 @@ export default function ReportViewPage() {
                 className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                   selectedStatuses.includes(status)
                     ? getStatusColor(status)
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
                 }`}
               >
                 {tTasks(getStatusTranslationKey(status))}
@@ -211,30 +211,30 @@ interface ReportTableProps {
 function ReportTable({ result, t }: ReportTableProps) {
   if (result.rowHeaders.length === 0 || result.columnHeaders.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white py-12 text-center text-gray-500">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-12 text-center text-gray-500 dark:text-gray-400">
         {t("noDataAvailable")}
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th className="border-b border-r border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-medium text-gray-700">
+            <th className="border-b border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               {t(result.rowType.toLowerCase() as "students" | "sprints")} /{" "}
               {t(result.columnType.toLowerCase() as "students" | "sprints")}
             </th>
             {result.columnHeaders.map((col) => (
               <th
                 key={col.id}
-                className="border-b border-r border-gray-200 bg-gray-50 px-4 py-3 text-center text-sm font-medium text-gray-700"
+                className="border-b border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 {col.name}
               </th>
             ))}
-            <th className="border-b border-gray-200 bg-gray-100 px-4 py-3 text-center text-sm font-semibold text-gray-800">
+            <th className="border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 px-4 py-3 text-center text-sm font-semibold text-gray-800 dark:text-gray-200">
               {t("total")}
             </th>
           </tr>
@@ -242,7 +242,7 @@ function ReportTable({ result, t }: ReportTableProps) {
         <tbody>
           {result.rowHeaders.map((row) => (
             <tr key={row.id}>
-              <td className="border-b border-r border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700">
+              <td className="border-b border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                 {row.name}
               </td>
               {result.columnHeaders.map((col) => {
@@ -251,33 +251,33 @@ function ReportTable({ result, t }: ReportTableProps) {
                 return (
                   <td
                     key={col.id}
-                    className={`border-b border-r border-gray-200 px-4 py-3 text-center text-sm ${
-                      value > 0 ? "font-medium text-gray-900" : "text-gray-400"
+                    className={`border-b border-r border-gray-200 dark:border-gray-700 px-4 py-3 text-center text-sm ${
+                      value > 0 ? "font-medium text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-500"
                     }`}
                   >
                     {value}
                   </td>
                 );
               })}
-              <td className="border-b border-gray-200 bg-gray-100 px-4 py-3 text-center text-sm font-semibold text-gray-800">
+              <td className="border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 px-4 py-3 text-center text-sm font-semibold text-gray-800 dark:text-gray-200">
                 {result.rowTotals[row.id] || 0}
               </td>
             </tr>
           ))}
           {/* Totals row */}
           <tr>
-            <td className="border-r border-gray-200 bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-800">
+            <td className="border-r border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200">
               {t("total")}
             </td>
             {result.columnHeaders.map((col) => (
               <td
                 key={col.id}
-                className="border-r border-gray-200 bg-gray-100 px-4 py-3 text-center text-sm font-semibold text-gray-800"
+                className="border-r border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 px-4 py-3 text-center text-sm font-semibold text-gray-800 dark:text-gray-200"
               >
                 {result.columnTotals[col.id] || 0}
               </td>
             ))}
-            <td className="bg-gray-200 px-4 py-3 text-center text-sm font-bold text-gray-900">
+            <td className="bg-gray-200 dark:bg-gray-600 px-4 py-3 text-center text-sm font-bold text-gray-900 dark:text-white">
               {result.grandTotal}
             </td>
           </tr>

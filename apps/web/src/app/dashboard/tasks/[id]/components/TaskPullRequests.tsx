@@ -160,16 +160,21 @@ export function TaskPullRequests({
 
   if (!pullRequests || pullRequests.length === 0) {
     return (
-      <div className="bg-white rounded-lg border p-4">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <GitPullRequest size={20} className="text-gray-500" />
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+          <GitPullRequest
+            size={20}
+            className="text-gray-500 dark:text-gray-400"
+          />
           {t("pullRequests")}
-          <span className="ml-1 text-sm font-normal text-gray-500">(0)</span>
+          <span className="ml-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+            (0)
+          </span>
         </h3>
-        <p className="text-sm text-gray-500 italic mt-3">
+        <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-3">
           {t("noPullRequestsLinked")}
         </p>
-        <p className="text-xs text-gray-400 mt-2">
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
           {t("mentionTaskKey", { taskKey: "task-key" })}
         </p>
       </div>
@@ -177,11 +182,14 @@ export function TaskPullRequests({
   }
 
   return (
-    <div className="bg-white rounded-lg border p-4">
-      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-        <GitPullRequest size={20} className="text-gray-500" />
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
+        <GitPullRequest
+          size={20}
+          className="text-gray-500 dark:text-gray-400"
+        />
         {t("pullRequests")}
-        <span className="text-sm font-normal text-gray-500">
+        <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
           ({pullRequests.length})
         </span>
       </h3>
@@ -200,7 +208,7 @@ export function TaskPullRequests({
           return (
             <div
               key={pr.id}
-              className="rounded-lg border bg-gray-50 overflow-hidden"
+              className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 overflow-hidden"
             >
               {/* PR Header - Always visible */}
               <div className="flex items-start gap-3 p-3">
@@ -226,7 +234,7 @@ export function TaskPullRequests({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
                     {pr.repoFullName && (
                       <span className="font-mono">{pr.repoFullName}</span>
                     )}
@@ -245,10 +253,10 @@ export function TaskPullRequests({
 
               {/* Collapsible Activity Timeline for this PR */}
               {prHistory.length > 0 && (
-                <div className="border-t">
+                <div className="border-t border-gray-200 dark:border-gray-600">
                   <button
                     onClick={() => togglePRExpanded(pr.id)}
-                    className="w-full px-3 py-2 flex items-center gap-2 text-xs text-gray-600 hover:bg-gray-100 transition-colors"
+                    className="w-full px-3 py-2 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                   >
                     {isExpanded ? (
                       <ChevronDown size={14} className="text-gray-400" />
@@ -265,7 +273,7 @@ export function TaskPullRequests({
                     <div className="px-3 pb-3">
                       <div className="relative pl-2">
                         {/* Timeline line */}
-                        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
+                        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-600" />
 
                         <div className="space-y-2">
                           {prHistory.map((event) => (
@@ -306,44 +314,70 @@ function getEventStyle(
   switch (event.type) {
     case "pr_opened":
       return {
-        icon: <GitPullRequest size={14} className="text-green-600" />,
-        bgColor: "bg-green-100",
+        icon: (
+          <GitPullRequest
+            size={14}
+            className="text-green-600 dark:text-green-400"
+          />
+        ),
+        bgColor: "bg-green-100 dark:bg-green-900/30",
         label: t("prEventOpened"),
       };
     case "pr_merged":
       return {
-        icon: <GitMerge size={14} className="text-purple-600" />,
-        bgColor: "bg-purple-100",
+        icon: (
+          <GitMerge
+            size={14}
+            className="text-purple-600 dark:text-purple-400"
+          />
+        ),
+        bgColor: "bg-purple-100 dark:bg-purple-900/30",
         label: t("prEventMerged"),
       };
     case "pr_closed":
       return {
-        icon: <GitPullRequestClosed size={14} className="text-red-600" />,
-        bgColor: "bg-red-100",
+        icon: (
+          <GitPullRequestClosed
+            size={14}
+            className="text-red-600 dark:text-red-400"
+          />
+        ),
+        bgColor: "bg-red-100 dark:bg-red-900/30",
         label: t("prEventClosed"),
       };
     case "pr_reopened":
       return {
-        icon: <RefreshCw size={14} className="text-blue-600" />,
-        bgColor: "bg-blue-100",
+        icon: (
+          <RefreshCw size={14} className="text-blue-600 dark:text-blue-400" />
+        ),
+        bgColor: "bg-blue-100 dark:bg-blue-900/30",
         label: t("prEventReopened"),
       };
     case "pr_synchronize":
       return {
-        icon: <GitCommit size={14} className="text-yellow-600" />,
-        bgColor: "bg-yellow-100",
+        icon: (
+          <GitCommit
+            size={14}
+            className="text-yellow-600 dark:text-yellow-400"
+          />
+        ),
+        bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
         label: t("prEventSynchronize"),
       };
     case "pr_edited":
       return {
-        icon: <Edit size={14} className="text-orange-600" />,
-        bgColor: "bg-orange-100",
+        icon: (
+          <Edit size={14} className="text-orange-600 dark:text-orange-400" />
+        ),
+        bgColor: "bg-orange-100 dark:bg-orange-900/30",
         label: t("prEventEdited"),
       };
     default:
       return {
-        icon: <History size={14} className="text-gray-500" />,
-        bgColor: "bg-gray-100",
+        icon: (
+          <History size={14} className="text-gray-500 dark:text-gray-400" />
+        ),
+        bgColor: "bg-gray-100 dark:bg-gray-700",
         label: t("prEventUpdated"),
       };
   }
@@ -411,8 +445,12 @@ function PRHistoryEvent({
       {/* Content */}
       <div className="flex-1 min-w-0 pb-2">
         <div className="flex items-center gap-2 flex-wrap text-sm">
-          <span className="font-medium text-gray-900">{actionPerformer}</span>
-          <span className="text-gray-500">{style.label}</span>
+          <span className="font-medium text-gray-900 dark:text-white">
+            {actionPerformer}
+          </span>
+          <span className="text-gray-500 dark:text-gray-400">
+            {style.label}
+          </span>
           {pr?.url ? (
             <a
               href={pr.url}
@@ -424,15 +462,18 @@ function PRHistoryEvent({
               #{prNumber} {prTitle}
             </a>
           ) : (
-            <span className="text-gray-700 truncate max-w-[200px]">
+            <span className="text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
               #{prNumber} {prTitle}
             </span>
           )}
           {/* Show PR author if different from action performer */}
           {showPrAuthor && (
-            <span className="text-gray-500">
+            <span className="text-gray-500 dark:text-gray-400">
               ({t("prAuthor")}:{" "}
-              <span className="font-medium text-gray-700">{prAuthor}</span>)
+              <span className="font-medium text-gray-700 dark:text-gray-300">
+                {prAuthor}
+              </span>
+              )
             </span>
           )}
         </div>
