@@ -45,7 +45,7 @@ Tasks can be dragged from the sprint board back to the backlog panel with these 
 
 - **USER_STORY**: Can only be moved back if ALL its subtasks are in TODO state
 - **TASK or BUG (with no parent)**: Can only be moved back if status is TODO
-- **Subtask (TASK or BUG with parent)**: Can only be moved back if status is TODO
+- **Subtask (TASK or BUG with parent)**: Cannot be moved to backlog individually - must move the parent USER_STORY instead
 - If validation fails, show appropriate error toast (e.g., "A task that has begun cannot go back to the backlog")
 - When a USER_STORY is moved to backlog, all its child tasks are also moved to backlog
 
@@ -132,3 +132,33 @@ const handleSubmit = (e: React.FormEvent) => {
 - Toast Component: `apps/web/src/components/ui/Toast.tsx`
 - Toast Provider: Wraps the app in the root layout
 - ApiClientError: Exported from `@trackdev/api-client`
+
+
+### React 19
+
+For React 19, the most “modern” patterns revolve around: server‑first architecture (RSC), actions+forms APIs, leaning on the compiler (less manual memoization), and carefully scoped state with custom hooks and minimal global stores.
+
+1. Server‑first architecture
+Prefer Server Components by default for data‑fetching and static/content‑heavy UI, and limit Client Components to interactive “islands” (forms, modals, complex widgets).
+
+Combine RSC with streaming and Suspense to progressively render and hydrate, reducing JS shipped to the client and improving TTFB/LCP in professional apps.
+
+2. Actions, forms, and optimistic UIs
+Use the React 19 actions + useActionState / useFormStatus / useOptimistic hooks to model mutations declaratively instead of manual isLoading / error juggling in local state.
+
+Adopt patterns where forms submit directly to async actions (often on the server), with optimistic updates making UIs feel instant while keeping error handling and rollback logic centralized.
+
+3. Let the compiler work (component and render patterns)
+Keep components small and focused, avoid excessive React.memo / useMemo / useCallback, and write straightforward render logic so the React 19 compiler can auto‑optimize re‑renders.
+
+Favor pure components (no side effects in render), clear props, and composition over inheritance/HOCs; reserve HOCs and render props for rare cross‑cutting concerns not solvable with hooks.
+
+4. Modern state management
+Classify state into local, shared, server, and URL state; keep most state local, lift only when necessary, and use context sparingly for truly shared, relatively stable data.
+
+For business‑heavy apps, prefer a thin global store (Zustand, Redux Toolkit, Jotai, etc.) only where you really need cross‑tree coordination; encapsulate domain logic in custom hooks and services rather than spreading it across components.
+
+5. TypeScript, structure, and DX
+Treat TypeScript as first‑class: strongly typed props, hooks, actions, and domain models, with interfaces/types co‑located near usage but reusable types extracted into domain modules.
+
+Organize by feature/slice (feature‑first structure) instead of global “components/hooks/utils” buckets, and back this with linting, codemods, and React 19 upgrade tooling to keep a large professional codebase consistent over time.

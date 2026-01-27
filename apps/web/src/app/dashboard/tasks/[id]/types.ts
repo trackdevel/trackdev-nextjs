@@ -17,7 +17,7 @@ export interface EditState {
   field: EditField;
   name: string;
   description: string;
-  estimation: number;
+  estimation: string;
   status: TaskStatus;
   taskType: TaskType;
   sprintId: number | null;
@@ -31,7 +31,7 @@ export type EditAction =
   | { type: "START_EDIT"; field: EditField; task: TaskWithProject }
   | { type: "SET_NAME"; value: string }
   | { type: "SET_DESCRIPTION"; value: string }
-  | { type: "SET_ESTIMATION"; value: number }
+  | { type: "SET_ESTIMATION"; value: string }
   | { type: "SET_STATUS"; value: TaskStatus }
   | { type: "SET_TASK_TYPE"; value: TaskType }
   | { type: "SET_SPRINT"; value: number | null }

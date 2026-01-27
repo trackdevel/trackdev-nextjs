@@ -9,17 +9,17 @@ import {
   useAuth,
   useQuery,
 } from "@trackdev/api-client";
-import type { TaskStatus, TaskType } from "@trackdev/types";
+import type { TaskDetail, TaskStatus, TaskType } from "@trackdev/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import {
   useCallback,
-  useDeferredValue,
-  useEffect,
   useMemo,
-  useReducer,
+  useOptimistic,
+  useState,
+  useTransition,
 } from "react";
 import {
   TaskChildren,
@@ -30,18 +30,43 @@ import {
   TaskPullRequests,
   TaskSidebar,
 } from "./components";
-import type {
-  EditAction,
-  EditField,
-  EditState,
-  TaskWithProject,
-} from "./types";
+import type { EditField, EditState, TaskWithProject } from "./types";
+
+// =============================================================================
+// OPTIMISTIC UPDATE TYPES
+// =============================================================================
+
+type TaskOptimisticAction =
+  | { type: "updateField"; field: string; value: unknown }
+  | { type: "updateTask"; task: Partial<TaskDetail> };
+
+// =============================================================================
+// OPTIMISTIC REDUCER
+// =============================================================================
+
+function taskOptimisticReducer(
+  task: TaskDetail,
+  action: TaskOptimisticAction,
+): TaskDetail {
+  switch (action.type) {
+    case "updateField":
+      return { ...task, [action.field]: action.value };
+    case "updateTask":
+      return { ...task, ...action.task };
+    default:
+      return task;
+  }
+}
+
+// =============================================================================
+// INITIAL EDIT STATE
+// =============================================================================
 
 const initialEditState: EditState = {
   field: null,
   name: "",
   description: "",
-  estimation: 0,
+  estimation: "",
   status: "BACKLOG",
   taskType: "TASK",
   sprintId: null,
@@ -50,50 +75,9 @@ const initialEditState: EditState = {
   taskOverride: null,
 };
 
-function editReducer(state: EditState, action: EditAction): EditState {
-  switch (action.type) {
-    case "START_EDIT":
-      return {
-        ...state,
-        field: action.field,
-        name: action.task.name || "",
-        description: action.task.description || "",
-        estimation: action.task.estimationPoints ?? 0,
-        status: action.task.status,
-        taskType: action.task.type,
-        sprintId: action.task.activeSprints?.[0]?.id ?? null,
-        error: null,
-      };
-    case "SET_NAME":
-      return { ...state, name: action.value };
-    case "SET_DESCRIPTION":
-      return { ...state, description: action.value };
-    case "SET_ESTIMATION":
-      return { ...state, estimation: action.value };
-    case "SET_STATUS":
-      return { ...state, status: action.value };
-    case "SET_TASK_TYPE":
-      return { ...state, taskType: action.value };
-    case "SET_SPRINT":
-      return { ...state, sprintId: action.value };
-    case "SAVE_START":
-      return { ...state, isSaving: true, error: null };
-    case "SAVE_SUCCESS":
-      return {
-        ...state,
-        isSaving: false,
-        field: null,
-        error: null,
-        taskOverride: { ...state.taskOverride, ...action.result },
-      };
-    case "SAVE_ERROR":
-      return { ...state, isSaving: false, error: action.error };
-    case "CANCEL":
-      return { ...state, field: null, error: null };
-    default:
-      return state;
-  }
-}
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -104,9 +88,15 @@ export default function TaskDetailPage() {
   const tCommon = useTranslations("common");
   const toast = useToast();
 
-  // Get navigation source from query params (e.g., ?from=sprint&sprintId=123)
+  // React 19: useTransition for non-blocking async updates
+  const [, startTransition] = useTransition();
+
+  // Get navigation source from query params
   const fromSource = searchParams.get("from");
-  const sprintId = searchParams.get("sprintId");
+  const sprintIdParam = searchParams.get("sprintId");
+
+  // Core state: base task data from server
+  const [baseTask, setBaseTask] = useState<TaskDetail | null>(null);
 
   // Fetch task data
   const {
@@ -116,21 +106,31 @@ export default function TaskDetailPage() {
     refetch: refetchTask,
   } = useQuery(() => tasksApi.getById(taskId), [taskId], {
     enabled: isAuthenticated && !isNaN(taskId),
+    onSuccess: (data) => setBaseTask(data),
   });
 
-  // Fetch project sprints for sprint selection (only for TASK/BUG types)
+  // React 19: useOptimistic for instant UI updates
+  const [optimisticTask, addOptimisticUpdate] = useOptimistic(
+    baseTask ?? fetchedTask,
+    taskOptimisticReducer,
+  );
+
+  // Edit state (for inline editing UI)
+  const [editState, setEditState] = useState<EditState>(initialEditState);
+
+  // Fetch project sprints for sprint selection
   const { data: projectSprints } = useQuery(
     () =>
-      fetchedTask?.project?.id
-        ? projectsApi.getSprints(fetchedTask.project.id)
+      optimisticTask?.project?.id
+        ? projectsApi.getSprints(optimisticTask.project.id)
         : Promise.resolve({ sprints: [], projectId: 0 }),
-    [fetchedTask?.project?.id],
+    [optimisticTask?.project?.id],
     {
-      enabled: isAuthenticated && !!fetchedTask?.project?.id,
+      enabled: isAuthenticated && !!optimisticTask?.project?.id,
     },
   );
 
-  // Filter sprints to only show ACTIVE or DRAFT (future) sprints, sorted by start date
+  // Filter sprints to only show ACTIVE or DRAFT (future) sprints
   const availableSprints = useMemo(() => {
     if (!projectSprints?.sprints) return [];
     return projectSprints.sprints
@@ -146,218 +146,277 @@ export default function TaskDetailPage() {
       });
   }, [projectSprints?.sprints]);
 
-  // Edit state managed by reducer
-  const [editState, dispatch] = useReducer(editReducer, initialEditState);
-
-  // Show error toast when an error occurs
-  useEffect(() => {
-    if (editState.error) {
-      toast.error(editState.error);
-      // Clear the error from state after showing toast
-      dispatch({ type: "CANCEL" });
-    }
-  }, [editState.error, toast]);
-
-  // Merge fetched data with local overrides - this is the single source of truth for display
-  const task = useMemo<TaskWithProject | null>(() => {
-    if (!fetchedTask) return null;
-    return {
-      ...fetchedTask,
-      ...editState.taskOverride,
-    };
-  }, [fetchedTask, editState.taskOverride]);
-
-  // Deferred value for smooth UI during saves
-  const deferredTask = useDeferredValue(task);
-
-  // Check if user is a professor
+  // Check user roles
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
   const isStudent = user?.roles?.includes("STUDENT") ?? false;
 
   // Derived values
   const isLoading = authLoading || dataLoading;
-  const isFrozen = fetchedTask?.frozen ?? false;
-  // Professors can edit frozen tasks, students cannot
-  const canEdit = (fetchedTask?.canEdit ?? false) && (!isFrozen || isProfessor);
-  // Can self-assign if: is a student, task is unassigned, and task is not frozen
+  const isFrozen = optimisticTask?.frozen ?? false;
+  const canEdit =
+    (optimisticTask?.canEdit ?? false) && (!isFrozen || isProfessor);
   const canSelfAssign =
-    isStudent && !fetchedTask?.assignee && !isFrozen && !!fetchedTask;
+    isStudent && !optimisticTask?.assignee && !isFrozen && !!optimisticTask;
+  const canUnassign =
+    !!optimisticTask?.assignee &&
+    !isFrozen &&
+    (optimisticTask.assignee.id === user?.id || isProfessor);
+
   const availableStatuses: TaskStatus[] =
-    task?.type === "USER_STORY"
+    optimisticTask?.type === "USER_STORY"
       ? ["BACKLOG", "DEFINED", "DONE"]
       : ["BACKLOG", "TODO", "INPROGRESS", "VERIFY", "DONE"];
 
-  // Compute back navigation based on source (must be before early returns to maintain hook order)
+  // Compute back navigation
   const backNavigation = useMemo(() => {
-    if (fromSource === "sprint" && sprintId) {
+    if (fromSource === "sprint" && sprintIdParam) {
       return {
-        href: `/dashboard/sprints/${sprintId}`,
+        href: `/dashboard/sprints/${sprintIdParam}`,
         label: t("backToSprint"),
       };
     }
-    if (deferredTask?.project?.id) {
+    if (optimisticTask?.project?.id) {
       return {
-        href: `/dashboard/projects/${deferredTask.project.id}`,
-        label: deferredTask.project.name,
+        href: `/dashboard/projects/${optimisticTask.project.id}`,
+        label: optimisticTask.project.name,
       };
     }
     return {
       href: "/dashboard/projects",
       label: t("backToProjects"),
     };
-  }, [
-    fromSource,
-    sprintId,
-    t,
-    deferredTask?.project?.id,
-    deferredTask?.project?.name,
-  ]);
+  }, [fromSource, sprintIdParam, t, optimisticTask?.project]);
 
-  // Memoized event handlers
+  // =============================================================================
+  // EDIT HANDLERS
+  // =============================================================================
+
   const handleStartEdit = useCallback(
     (field: EditField) => {
-      if (task && field) {
-        dispatch({ type: "START_EDIT", field, task });
+      if (optimisticTask && field) {
+        setEditState({
+          field,
+          name: optimisticTask.name || "",
+          description: optimisticTask.description || "",
+          estimation:
+            optimisticTask.estimationPoints != null
+              ? String(optimisticTask.estimationPoints)
+              : "",
+          status: optimisticTask.status,
+          taskType: optimisticTask.type,
+          sprintId: optimisticTask.activeSprints?.[0]?.id ?? null,
+          isSaving: false,
+          error: null,
+          taskOverride: null,
+        });
       }
     },
-    [task],
+    [optimisticTask],
   );
 
   const handleCancel = useCallback(() => {
-    dispatch({ type: "CANCEL" });
+    setEditState(initialEditState);
   }, []);
 
   const handleNameChange = useCallback((value: string) => {
-    dispatch({ type: "SET_NAME", value });
+    setEditState((prev) => ({ ...prev, name: value }));
   }, []);
 
   const handleDescriptionChange = useCallback((value: string) => {
-    dispatch({ type: "SET_DESCRIPTION", value });
+    setEditState((prev) => ({ ...prev, description: value }));
   }, []);
 
-  const handleEstimationChange = useCallback((value: number) => {
-    dispatch({ type: "SET_ESTIMATION", value });
+  const handleEstimationChange = useCallback((value: string) => {
+    setEditState((prev) => ({ ...prev, estimation: value }));
   }, []);
 
   const handleStatusChange = useCallback((value: TaskStatus) => {
-    dispatch({ type: "SET_STATUS", value });
+    setEditState((prev) => ({ ...prev, status: value }));
   }, []);
 
   const handleTypeChange = useCallback((value: TaskType) => {
-    dispatch({ type: "SET_TASK_TYPE", value });
+    setEditState((prev) => ({ ...prev, taskType: value }));
   }, []);
 
   const handleSprintChange = useCallback((value: number | null) => {
-    dispatch({ type: "SET_SPRINT", value });
+    setEditState((prev) => ({ ...prev, sprintId: value }));
   }, []);
+
+  // =============================================================================
+  // SAVE HANDLER (with optimistic updates)
+  // =============================================================================
 
   const handleSave = useCallback(async () => {
     if (!taskId || isNaN(taskId) || !editState.field) return;
 
     // Validation
     if (editState.field === "name" && editState.name.trim() === "") {
-      dispatch({ type: "SAVE_ERROR", error: t("taskNameCannotBeEmpty") });
+      toast.error(t("taskNameCannotBeEmpty"));
       return;
     }
 
-    dispatch({ type: "SAVE_START" });
+    // Build update data and optimistic update
+    let updateData: Record<string, unknown> = {};
+    let optimisticData: Partial<TaskDetail> = {};
 
-    try {
-      let updateData: Record<string, unknown> = {};
-      switch (editState.field) {
-        case "name":
-          updateData = { name: editState.name.trim() };
-          break;
-        case "description":
-          updateData = { description: editState.description };
-          break;
-        case "estimation":
-          updateData = { estimationPoints: editState.estimation };
-          break;
-        case "status":
-          updateData = { status: editState.status };
-          break;
-        case "type":
-          updateData = { type: editState.taskType };
-          break;
-        case "sprint":
-          updateData = { sprintId: editState.sprintId };
-          break;
+    switch (editState.field) {
+      case "name":
+        updateData = { name: editState.name.trim() };
+        optimisticData = { name: editState.name.trim() };
+        break;
+      case "description":
+        updateData = { description: editState.description };
+        optimisticData = { description: editState.description };
+        break;
+      case "estimation": {
+        const points =
+          editState.estimation.trim() === ""
+            ? 0
+            : parseInt(editState.estimation, 10);
+        updateData = { estimationPoints: points };
+        optimisticData = { estimationPoints: points };
+        break;
       }
-
-      const result = await tasksApi.update(taskId, updateData);
-      dispatch({ type: "SAVE_SUCCESS", result });
-    } catch (err) {
-      // Log error in development only
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Failed to update task:", err);
-      }
-      // Extract error message from API response or use fallback
-      const errorMessage =
-        err instanceof ApiClientError && err.body?.message
-          ? err.body.message
-          : t("failedToUpdate");
-      dispatch({
-        type: "SAVE_ERROR",
-        error: errorMessage,
-      });
+      case "status":
+        updateData = { status: editState.status };
+        optimisticData = { status: editState.status };
+        break;
+      case "type":
+        updateData = { type: editState.taskType };
+        optimisticData = { type: editState.taskType };
+        break;
+      case "sprint":
+        updateData = { sprintId: editState.sprintId };
+        // Sprint update affects activeSprints array
+        const sprint = availableSprints.find(
+          (s) => s.id === editState.sprintId,
+        );
+        optimisticData = {
+          activeSprints: sprint ? [{ id: sprint.id, name: sprint.name }] : [],
+        };
+        break;
     }
-  }, [
-    taskId,
-    editState.field,
-    editState.name,
-    editState.description,
-    editState.estimation,
-    editState.status,
-    editState.taskType,
-    editState.sprintId,
-    t,
-  ]);
+
+    // Clear edit state immediately for responsive UI
+    setEditState(initialEditState);
+
+    startTransition(async () => {
+      // Apply optimistic update
+      addOptimisticUpdate({ type: "updateTask", task: optimisticData });
+
+      try {
+        const result = await tasksApi.update(taskId, updateData);
+        // Update base state with server response
+        setBaseTask(result);
+      } catch (err) {
+        // On error, base state unchanged = optimistic update auto-reverts
+        const errorMessage =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("failedToUpdate");
+        toast.error(errorMessage);
+      }
+    });
+  }, [taskId, editState, availableSprints, addOptimisticUpdate, t, toast]);
+
+  // =============================================================================
+  // ACTION HANDLERS (with optimistic updates)
+  // =============================================================================
 
   const handleFreeze = useCallback(async () => {
     if (!taskId || isNaN(taskId)) return;
 
-    try {
-      const result = await tasksApi.freeze(taskId);
-      dispatch({ type: "SAVE_SUCCESS", result });
-    } catch (err) {
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Failed to freeze task:", err);
+    startTransition(async () => {
+      addOptimisticUpdate({
+        type: "updateField",
+        field: "frozen",
+        value: true,
+      });
+
+      try {
+        const result = await tasksApi.freeze(taskId);
+        setBaseTask(result);
+      } catch (err) {
+        toast.error(t("failedToUpdate"));
       }
-    }
-  }, [taskId]);
+    });
+  }, [taskId, addOptimisticUpdate, t, toast]);
 
   const handleUnfreeze = useCallback(async () => {
     if (!taskId || isNaN(taskId)) return;
 
-    try {
-      const result = await tasksApi.unfreeze(taskId);
-      dispatch({ type: "SAVE_SUCCESS", result });
-    } catch (err) {
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Failed to unfreeze task:", err);
+    startTransition(async () => {
+      addOptimisticUpdate({
+        type: "updateField",
+        field: "frozen",
+        value: false,
+      });
+
+      try {
+        const result = await tasksApi.unfreeze(taskId);
+        setBaseTask(result);
+      } catch (err) {
+        toast.error(t("failedToUpdate"));
       }
-    }
-  }, [taskId]);
+    });
+  }, [taskId, addOptimisticUpdate, t, toast]);
 
   const handleSelfAssign = useCallback(async () => {
+    if (!taskId || isNaN(taskId) || !user) return;
+
+    startTransition(async () => {
+      addOptimisticUpdate({
+        type: "updateField",
+        field: "assignee",
+        value: {
+          id: user.id,
+          username: user.username,
+          fullName: user.fullName,
+        },
+      });
+
+      try {
+        const result = await tasksApi.selfAssign(taskId);
+        setBaseTask(result);
+      } catch (err) {
+        toast.error(t("failedToAssign"));
+      }
+    });
+  }, [taskId, user, addOptimisticUpdate, t, toast]);
+
+  const handleUnassign = useCallback(async () => {
     if (!taskId || isNaN(taskId)) return;
 
-    try {
-      const result = await tasksApi.selfAssign(taskId);
-      dispatch({ type: "SAVE_SUCCESS", result });
-    } catch (err) {
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Failed to self-assign task:", err);
-      }
-      dispatch({
-        type: "SAVE_ERROR",
-        error: t("failedToAssign"),
+    startTransition(async () => {
+      addOptimisticUpdate({
+        type: "updateField",
+        field: "assignee",
+        value: null,
       });
-    }
-  }, [taskId, t]);
 
-  // Render loading state
+      try {
+        const result = await tasksApi.unassign(taskId);
+        setBaseTask(result);
+      } catch (err) {
+        toast.error(t("failedToUnassign"));
+      }
+    });
+  }, [taskId, addOptimisticUpdate, t, toast]);
+
+  const handleSubtaskCreated = useCallback(() => {
+    // Refetch to get updated childTasks
+    refetchTask();
+  }, [refetchTask]);
+
+  const handleCommentAdded = useCallback(() => {
+    // Refetch to get updated discussion
+    refetchTask();
+  }, [refetchTask]);
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   if (isLoading) {
     return (
       <div className="flex h-[calc(100vh-200px)] items-center justify-center">
@@ -366,8 +425,7 @@ export default function TaskDetailPage() {
     );
   }
 
-  // Render error state
-  if (fetchError || !deferredTask) {
+  if (fetchError || !optimisticTask) {
     return (
       <div className="p-8">
         <div className="card px-6 py-12 text-center">
@@ -387,7 +445,6 @@ export default function TaskDetailPage() {
     );
   }
 
-  // Main render
   return (
     <div className="p-8">
       {/* Back Navigation */}
@@ -399,7 +456,7 @@ export default function TaskDetailPage() {
 
       {/* Task Header */}
       <TaskHeader
-        task={deferredTask}
+        task={optimisticTask as TaskWithProject}
         editState={editState}
         canEdit={canEdit}
         isProfessor={isProfessor}
@@ -417,7 +474,7 @@ export default function TaskDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Description */}
           <TaskDescription
-            description={deferredTask.description}
+            description={optimisticTask.description}
             editState={editState}
             canEdit={canEdit}
             onStartEdit={() => handleStartEdit("description")}
@@ -427,20 +484,20 @@ export default function TaskDetailPage() {
           />
 
           {/* Child Tasks (for User Stories) */}
-          {deferredTask.type === "USER_STORY" && (
+          {optimisticTask.type === "USER_STORY" && (
             <TaskChildren
-              childTasks={deferredTask.childTasks || []}
+              childTasks={optimisticTask.childTasks || []}
               parentTaskId={taskId}
-              projectId={deferredTask.project?.id || 0}
-              onSubtaskCreated={refetchTask}
+              projectId={optimisticTask.project?.id || 0}
+              onSubtaskCreated={handleSubtaskCreated}
             />
           )}
 
           {/* Pull Requests */}
           <TaskPullRequests
-            pullRequests={deferredTask.pullRequests || []}
+            pullRequests={optimisticTask.pullRequests || []}
             taskId={taskId}
-            projectMembers={deferredTask.project?.members}
+            projectMembers={optimisticTask.project?.members}
           />
 
           {/* Task History - Only visible to professors */}
@@ -448,9 +505,9 @@ export default function TaskDetailPage() {
 
           {/* Discussion/Comments */}
           <TaskDiscussion
-            comments={deferredTask.discussion || []}
+            comments={optimisticTask.discussion || []}
             taskId={taskId}
-            onCommentAdded={refetchTask}
+            onCommentAdded={handleCommentAdded}
             isFrozen={isFrozen}
             isProfessor={isProfessor}
           />
@@ -458,12 +515,13 @@ export default function TaskDetailPage() {
 
         {/* Right Column - Sidebar */}
         <TaskSidebar
-          task={deferredTask}
+          task={optimisticTask as TaskWithProject}
           editState={editState}
           canEdit={canEdit}
           availableStatuses={availableStatuses}
           availableSprints={availableSprints}
           canSelfAssign={canSelfAssign}
+          canUnassign={canUnassign}
           onStartEdit={handleStartEdit}
           onSave={handleSave}
           onCancel={handleCancel}
@@ -472,6 +530,7 @@ export default function TaskDetailPage() {
           onTypeChange={handleTypeChange}
           onSprintChange={handleSprintChange}
           onSelfAssign={handleSelfAssign}
+          onUnassign={handleUnassign}
         />
       </div>
     </div>

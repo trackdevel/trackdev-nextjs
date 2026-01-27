@@ -181,7 +181,9 @@
     "assignedToMe": "Assignat a mi",
     "unassigned": "Sense assignar",
     "assignToMe": "Assignar-me",
-    "failedToAssign": "Error en assignar tasca",
+    "unassignFromMe": "Desassignar",
+    "failedToAssign": "Error en assignar la tasca",
+    "failedToUnassign": "Error en desassignar la tasca",
     "sortNewestFirst": "Més recents primer",
     "sortOldestFirst": "Més antics primer",
     "newest": "Recents",
@@ -556,7 +558,15 @@
     "backlogTaskMustGoToTodo": "Les tasques del backlog només es poden afegir a la columna Per Fer",
     "cannotAddToClosedSprint": "No es poden afegir tasques a un sprint tancat o passat",
     "addTask": "Afegir tasca",
-    "dropHere": "Deixa la tasca aquí"
+    "dropHere": "Deixa la tasca aquí",
+    "dropToBacklog": "Deixa aquí per moure al backlog",
+    "failedToMoveToBacklog": "Error en moure la tasca al backlog",
+    "tasks": "tasques",
+    "points": "pts",
+    "addSubtask": "Afegir subtasca",
+    "userStoryChildrenMustBeTodo": "Totes les subtasques han d'estar en estat Per Fer per moure la història al backlog",
+    "taskBegunCannotGoBacklog": "Una tasca que ha començat no pot tornar al backlog",
+    "subtaskCannotMoveToBacklog": "Una subtasca no es pot moure al backlog individualment. Mou la història principal en el seu lloc."
   },
   "courses": {
     "title": "Cursos",

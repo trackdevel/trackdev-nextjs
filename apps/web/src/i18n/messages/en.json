@@ -181,7 +181,9 @@
     "assignedToMe": "Assigned to me",
     "unassigned": "Unassigned",
     "assignToMe": "Assign to me",
+    "unassignFromMe": "Unassign",
     "failedToAssign": "Failed to assign task",
+    "failedToUnassign": "Failed to unassign task",
     "sortNewestFirst": "Newest first",
     "sortOldestFirst": "Oldest first",
     "newest": "Newest",
@@ -556,7 +558,15 @@
     "backlogTaskMustGoToTodo": "Backlog tasks can only be added to the To Do column",
     "cannotAddToClosedSprint": "Cannot add tasks to a closed or past sprint",
     "addTask": "Add task",
-    "dropHere": "Drop task here"
+    "dropHere": "Drop task here",
+    "dropToBacklog": "Drop here to move to backlog",
+    "failedToMoveToBacklog": "Failed to move task to backlog",
+    "tasks": "tasks",
+    "points": "pts",
+    "addSubtask": "Add subtask",
+    "userStoryChildrenMustBeTodo": "All subtasks must be in To Do state to move the story back to backlog",
+    "taskBegunCannotGoBacklog": "A task that has begun cannot go back to the backlog",
+    "subtaskCannotMoveToBacklog": "A subtask cannot be moved to the backlog individually. Move the parent story instead."
   },
   "courses": {
     "title": "Courses",
