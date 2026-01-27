@@ -801,5 +801,14 @@
     "projectActivity": "Projecte: {projectName}",
     "timeAgo": "fa {time}",
     "justNow": "Ara mateix"
+  },
+  "students": {
+    "editStudent": "Editar Estudiant",
+    "fullName": "Nom complet",
+    "githubUsername": "Nom d'usuari de GitHub",
+    "githubUsernameHint": "Introdueix el nom d'usuari de GitHub de l'estudiant per a la integració de repositoris",
+    "studentUpdated": "Estudiant actualitzat correctament",
+    "failedToUpdate": "Error en actualitzar l'estudiant",
+    "fullNameRequired": "El nom complet és obligatori"
   }
 }

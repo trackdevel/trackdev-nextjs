@@ -1,6 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { EditStudentModal } from "@/components/students";
 import { SimplePagination } from "@/components/ui";
 import {
   coursesApi,
@@ -9,7 +10,7 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type { UserPublic } from "@trackdev/types";
-import { Plus, Trash2, Users } from "lucide-react";
+import { Pencil, Plus, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -21,6 +22,7 @@ export default function CourseStudentsPage() {
   const courseId = Number(params.id);
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingStudent, setEditingStudent] = useState<UserPublic | null>(null);
 
   const {
     data: course,
@@ -177,6 +179,13 @@ export default function CourseStudentsPage() {
                       <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                         <div className="flex justify-end gap-2">
                           <button
+                            onClick={() => setEditingStudent(student)}
+                            className="text-gray-600 hover:text-gray-800"
+                            title="Edit student"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
                             onClick={() => handleRemoveStudent(student)}
                             className="text-red-600 hover:text-red-800"
                             title="Remove from course"
@@ -203,6 +212,19 @@ export default function CourseStudentsPage() {
             />
           )}
         </>
+      )}
+
+      {/* Edit Student Modal */}
+      {editingStudent && (
+        <EditStudentModal
+          isOpen={!!editingStudent}
+          onClose={() => setEditingStudent(null)}
+          student={editingStudent}
+          onSuccess={() => {
+            setEditingStudent(null);
+            refetch();
+          }}
+        />
       )}
     </div>
   );

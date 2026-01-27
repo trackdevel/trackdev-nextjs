@@ -1,0 +1,1 @@
+export { EditStudentModal } from "./EditStudentModal";
