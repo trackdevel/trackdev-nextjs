@@ -112,8 +112,8 @@ export function CreateTaskModal({
       onSuccess: () => {
         toast.success(t("taskCreated"));
         resetForm();
-        onClose();
         onSuccess?.();
+        onClose();
       },
       onError: (error) => {
         const errorMessage =
@@ -142,8 +142,8 @@ export function CreateTaskModal({
       onSuccess: () => {
         toast.success(t("subtaskCreated"));
         resetForm();
-        onClose();
         onSuccess?.();
+        onClose();
       },
       onError: (error) => {
         const errorMessage =
