@@ -529,6 +529,7 @@ export default function TaskDetailPage() {
             onCommentAdded={handleCommentAdded}
             isFrozen={isFrozen}
             isProfessor={isProfessor}
+            currentUserId={user?.id}
           />
         </div>
 
