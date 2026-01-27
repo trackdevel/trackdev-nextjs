@@ -668,6 +668,7 @@
     "updatePassword": "Actualitzar Contrasenya",
     "saveChanges": "Desar Canvis",
     "profileSavedSuccess": "Perfil desat correctament",
+    "invalidEmail": "Si us plau, introdueix una adreça de correu electrònic vàlida",
     "currentPasswordRequired": "La contrasenya actual és obligatòria",
     "passwordsDoNotMatch": "Les contrasenyes no coincideixen",
     "passwordRequirements": "La contrasenya no compleix els requisits",

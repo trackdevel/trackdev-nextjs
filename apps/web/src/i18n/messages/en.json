@@ -668,6 +668,7 @@
     "updatePassword": "Update Password",
     "saveChanges": "Save Changes",
     "profileSavedSuccess": "Profile saved successfully",
+    "invalidEmail": "Please enter a valid email address",
     "currentPasswordRequired": "Current password is required",
     "passwordsDoNotMatch": "Passwords do not match",
     "passwordRequirements": "Password does not meet requirements",
