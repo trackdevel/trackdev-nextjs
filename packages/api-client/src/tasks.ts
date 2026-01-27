@@ -134,6 +134,24 @@ export const tasksApi = {
     api.post<Comment>(`/tasks/${taskId}/comments`, data),
 
   /**
+   * Update a comment
+   * Students can only edit their own comments.
+   * Professors owning the project can edit any comment.
+   */
+  updateComment: (
+    taskId: number,
+    commentId: number,
+    data: CommentCreateRequest,
+  ) => api.patch<Comment>(`/tasks/${taskId}/comments/${commentId}`, data),
+
+  /**
+   * Delete a comment
+   * Only professors owning the project can delete comments.
+   */
+  deleteComment: (taskId: number, commentId: number) =>
+    api.delete<void>(`/tasks/${taskId}/comments/${commentId}`),
+
+  /**
    * Get task history/logs
    */
   getHistory: async (taskId: number) => {
