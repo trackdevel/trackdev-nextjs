@@ -800,7 +800,13 @@
     "eventTaskRemovedFromSprint": "{actor} removed {taskKey} from sprint {oldValue}",
     "projectActivity": "Project: {projectName}",
     "timeAgo": "{time} ago",
-    "justNow": "Just now"
+    "justNow": "Just now",
+    "filterProject": "Project",
+    "filterSprint": "Sprint",
+    "filterUser": "User",
+    "allProjects": "All projects",
+    "allSprints": "All sprints",
+    "allUsers": "All users"
   },
   "students": {
     "editStudent": "Edit Student",
