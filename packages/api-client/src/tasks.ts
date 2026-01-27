@@ -97,12 +97,11 @@ export const tasksApi = {
   createSubtask: (
     parentId: number,
     data: TaskCreateRequest,
-    sprintId?: number
+    sprintId?: number,
   ) => api.post<IdObject>(`/tasks/${parentId}/subtasks`, { ...data, sprintId }),
 
   /**
    * Update a task
-   * Note: sprintId is converted to activeSprints array for backend compatibility
    */
   update: (id: number, data: TaskUpdateRequest) => {
     // Transform sprintId to activeSprints for backend
@@ -139,7 +138,7 @@ export const tasksApi = {
    */
   getHistory: async (taskId: number) => {
     const response = await api.get<{ history: TaskLog[]; entityId: number }>(
-      `/tasks/${taskId}/history`
+      `/tasks/${taskId}/history`,
     );
     return response.history;
   },

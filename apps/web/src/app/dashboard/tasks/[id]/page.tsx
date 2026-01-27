@@ -110,8 +110,10 @@ export default function TaskDetailPage() {
   });
 
   // React 19: useOptimistic for instant UI updates
+  // Only create optimistic state when we have task data
+  const taskForOptimistic = baseTask ?? fetchedTask;
   const [optimisticTask, addOptimisticUpdate] = useOptimistic(
-    baseTask ?? fetchedTask,
+    taskForOptimistic!,
     taskOptimisticReducer,
   );
 
@@ -285,16 +287,25 @@ export default function TaskDetailPage() {
         updateData = { type: editState.taskType };
         optimisticData = { type: editState.taskType };
         break;
-      case "sprint":
+      case "sprint": {
         updateData = { sprintId: editState.sprintId };
         // Sprint update affects activeSprints array
         const sprint = availableSprints.find(
           (s) => s.id === editState.sprintId,
         );
         optimisticData = {
-          activeSprints: sprint ? [{ id: sprint.id, name: sprint.name }] : [],
+          activeSprints: sprint
+            ? [
+                {
+                  id: sprint.id,
+                  name: sprint.label,
+                  status: sprint.status as "DRAFT" | "ACTIVE" | "CLOSED",
+                },
+              ]
+            : [],
         };
         break;
+      }
     }
 
     // Clear edit state immediately for responsive UI
@@ -305,9 +316,9 @@ export default function TaskDetailPage() {
       addOptimisticUpdate({ type: "updateTask", task: optimisticData });
 
       try {
-        const result = await tasksApi.update(taskId, updateData);
-        // Update base state with server response
-        setBaseTask(result);
+        await tasksApi.update(taskId, updateData);
+        // Refetch to get server-computed fields (canEdit, pointsReview, etc.)
+        await refetchTask();
       } catch (err) {
         // On error, base state unchanged = optimistic update auto-reverts
         const errorMessage =
@@ -317,7 +328,15 @@ export default function TaskDetailPage() {
         toast.error(errorMessage);
       }
     });
-  }, [taskId, editState, availableSprints, addOptimisticUpdate, t, toast]);
+  }, [
+    taskId,
+    editState,
+    availableSprints,
+    addOptimisticUpdate,
+    refetchTask,
+    t,
+    toast,
+  ]);
 
   // =============================================================================
   // ACTION HANDLERS (with optimistic updates)
@@ -334,13 +353,13 @@ export default function TaskDetailPage() {
       });
 
       try {
-        const result = await tasksApi.freeze(taskId);
-        setBaseTask(result);
+        await tasksApi.freeze(taskId);
+        await refetchTask();
       } catch (err) {
         toast.error(t("failedToUpdate"));
       }
     });
-  }, [taskId, addOptimisticUpdate, t, toast]);
+  }, [taskId, addOptimisticUpdate, refetchTask, t, toast]);
 
   const handleUnfreeze = useCallback(async () => {
     if (!taskId || isNaN(taskId)) return;
@@ -353,13 +372,13 @@ export default function TaskDetailPage() {
       });
 
       try {
-        const result = await tasksApi.unfreeze(taskId);
-        setBaseTask(result);
+        await tasksApi.unfreeze(taskId);
+        await refetchTask();
       } catch (err) {
         toast.error(t("failedToUpdate"));
       }
     });
-  }, [taskId, addOptimisticUpdate, t, toast]);
+  }, [taskId, addOptimisticUpdate, refetchTask, t, toast]);
 
   const handleSelfAssign = useCallback(async () => {
     if (!taskId || isNaN(taskId) || !user) return;
@@ -376,13 +395,13 @@ export default function TaskDetailPage() {
       });
 
       try {
-        const result = await tasksApi.selfAssign(taskId);
-        setBaseTask(result);
+        await tasksApi.selfAssign(taskId);
+        await refetchTask();
       } catch (err) {
         toast.error(t("failedToAssign"));
       }
     });
-  }, [taskId, user, addOptimisticUpdate, t, toast]);
+  }, [taskId, user, addOptimisticUpdate, refetchTask, t, toast]);
 
   const handleUnassign = useCallback(async () => {
     if (!taskId || isNaN(taskId)) return;
@@ -395,13 +414,13 @@ export default function TaskDetailPage() {
       });
 
       try {
-        const result = await tasksApi.unassign(taskId);
-        setBaseTask(result);
+        await tasksApi.unassign(taskId);
+        await refetchTask();
       } catch (err) {
         toast.error(t("failedToUnassign"));
       }
     });
-  }, [taskId, addOptimisticUpdate, t, toast]);
+  }, [taskId, addOptimisticUpdate, refetchTask, t, toast]);
 
   const handleSubtaskCreated = useCallback(() => {
     // Refetch to get updated childTasks
