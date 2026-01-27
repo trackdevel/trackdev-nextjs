@@ -668,6 +668,7 @@
     "updatePassword": "Actualizar Contraseña",
     "saveChanges": "Guardar Cambios",
     "profileSavedSuccess": "Perfil guardado correctamente",
+    "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida",
     "currentPasswordRequired": "La contraseña actual es obligatoria",
     "passwordsDoNotMatch": "Las contraseñas no coinciden",
     "passwordRequirements": "La contraseña no cumple los requisitos",
