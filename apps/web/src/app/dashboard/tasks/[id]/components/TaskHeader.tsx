@@ -159,7 +159,7 @@ export const TaskHeader = memo(function TaskHeader({
               {canEdit && (
                 <button
                   onClick={() => onStartEdit("name")}
-                  className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
                   title={tCommon("edit")}
                 >
                   <Pencil className="h-4 w-4" />
