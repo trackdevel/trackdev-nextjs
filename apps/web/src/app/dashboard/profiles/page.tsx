@@ -186,7 +186,7 @@ export default function ProfilesPage() {
       {isLoading ? (
         <LoadingContainer />
       ) : error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600">
+        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-6 py-12 text-center text-red-600 dark:text-red-400">
           {t("loadError")}
         </div>
       ) : paginatedProfiles.length > 0 ? (
@@ -194,16 +194,18 @@ export default function ProfilesPage() {
           {paginatedProfiles.map((profile: ProfileBasic) => (
             <div
               key={profile.id}
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+              className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-                  <FileSliders className="h-5 w-5 text-indigo-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
+                  <FileSliders className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">{profile.name}</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white">
+                    {profile.name}
+                  </h3>
                   {profile.description && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {profile.description}
                     </p>
                   )}
@@ -212,14 +214,14 @@ export default function ProfilesPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleEdit(profile)}
-                  className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-md p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200"
                   title={tCommon("edit")}
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => handleDeleteClick(profile)}
-                  className="rounded-md p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                  className="rounded-md p-2 text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                   title={tCommon("delete")}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -234,11 +236,11 @@ export default function ProfilesPage() {
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="rounded-md px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                className="rounded-md px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
               >
                 {tCommon("previous")}
               </button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {currentPage} / {totalPages}
               </span>
               <button
@@ -246,7 +248,7 @@ export default function ProfilesPage() {
                   setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                 }
                 disabled={currentPage >= totalPages}
-                className="rounded-md px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                className="rounded-md px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
               >
                 {tCommon("next")}
               </button>
@@ -281,14 +283,14 @@ export default function ProfilesPage() {
       >
         <form onSubmit={handleCreate} className="space-y-4">
           {validationError && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-400">
               {validationError}
             </div>
           )}
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("form.name")} *
             </label>
@@ -297,14 +299,14 @@ export default function ProfilesPage() {
               id="name"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.namePlaceholder")}
             />
           </div>
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("form.description")}
             </label>
@@ -313,7 +315,7 @@ export default function ProfilesPage() {
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.descriptionPlaceholder")}
             />
           </div>
@@ -321,7 +323,7 @@ export default function ProfilesPage() {
             <button
               type="button"
               onClick={() => setShowCreateModal(false)}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
             >
               {tCommon("cancel")}
             </button>

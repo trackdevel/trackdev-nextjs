@@ -113,13 +113,19 @@ export function Select({
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 ${
+        className={`flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 ${
           disabled
             ? "cursor-not-allowed opacity-50"
-            : "cursor-pointer hover:bg-gray-50"
+            : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
         }`}
       >
-        <span className={selectedOption ? "text-gray-900" : "text-gray-500"}>
+        <span
+          className={
+            selectedOption
+              ? "text-gray-900 dark:text-white"
+              : "text-gray-500 dark:text-gray-400"
+          }
+        >
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
@@ -133,7 +139,7 @@ export function Select({
       {isOpen && (
         <ul
           role="listbox"
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg focus:outline-none"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg focus:outline-none dark:border-gray-600 dark:bg-gray-800"
         >
           {options.map((option) => (
             <li
@@ -151,8 +157,8 @@ export function Select({
                 option.disabled
                   ? "cursor-not-allowed text-gray-400"
                   : option.value === value
-                  ? "bg-primary-50 text-primary-700"
-                  : "text-gray-900 hover:bg-gray-100"
+                    ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
+                    : "text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               }`}
             >
               {option.label}

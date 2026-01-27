@@ -116,13 +116,15 @@ export const TaskSidebar = memo(function TaskSidebar({
   return (
     <div className="space-y-6">
       <div className="card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold text-gray-900">{t("details")}</h2>
+        <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <h2 className="font-semibold text-gray-900 dark:text-white">
+            {t("details")}
+          </h2>
         </div>
-        <div className="divide-y">
+        <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {/* Assignee */}
           <div className="px-6 py-3">
-            <p className="text-sm font-medium text-gray-500 mb-1">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
               {t("assignee")}
             </p>
             {task.assignee ? (
@@ -137,7 +139,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                     {task.assignee.capitalLetters ||
                       task.assignee.username?.slice(0, 2).toUpperCase()}
                   </div>
-                  <span className="text-gray-900">
+                  <span className="text-gray-900 dark:text-white">
                     {task.assignee.fullName || task.assignee.username}
                   </span>
                 </div>
@@ -152,7 +154,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                       }
                     }}
                     disabled={isUnassigning}
-                    className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                     title={t("unassignFromMe")}
                   >
                     {isUnassigning ? (
@@ -166,7 +168,9 @@ export const TaskSidebar = memo(function TaskSidebar({
               </div>
             ) : (
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">{t("unassigned")}</span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  {t("unassigned")}
+                </span>
                 {canSelfAssign && (
                   <button
                     onClick={async () => {
@@ -178,7 +182,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                       }
                     }}
                     disabled={isAssigning}
-                    className="inline-flex items-center gap-1 rounded-md bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-md bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100 disabled:opacity-50 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50"
                     title={t("assignToMe")}
                   >
                     {isAssigning ? (
@@ -195,7 +199,7 @@ export const TaskSidebar = memo(function TaskSidebar({
 
           {/* Reporter */}
           <div className="px-6 py-3">
-            <p className="text-sm font-medium text-gray-500 mb-1">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
               {t("reporter")}
             </p>
             {task.reporter ? (
@@ -209,25 +213,27 @@ export const TaskSidebar = memo(function TaskSidebar({
                   {task.reporter.capitalLetters ||
                     task.reporter.username?.slice(0, 2).toUpperCase()}
                 </div>
-                <span className="text-gray-900">
+                <span className="text-gray-900 dark:text-white">
                   {task.reporter.fullName || task.reporter.username}
                 </span>
               </div>
             ) : (
-              <span className="text-gray-500">{t("unknown")}</span>
+              <span className="text-gray-500 dark:text-gray-400">
+                {t("unknown")}
+              </span>
             )}
           </div>
 
           {/* Estimation Points */}
           <div className="px-6 py-3">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-sm font-medium text-gray-500">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                 {t("estimation")}
               </p>
               {canEdit && editState.field !== "estimation" && (
                 <button
                   onClick={() => onStartEdit("estimation")}
-                  className="p-1 text-gray-400 hover:text-gray-600"
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   title={t("estimation")}
                 >
                   <Pencil className="h-3 w-3" />
@@ -241,18 +247,20 @@ export const TaskSidebar = memo(function TaskSidebar({
                   min="0"
                   value={editState.estimation}
                   onChange={(e) => onEstimationChange(e.target.value)}
-                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === "Enter") onSave();
                     if (e.key === "Escape") onCancel();
                   }}
                 />
-                <span className="text-sm text-gray-500">{t("points")}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {t("points")}
+                </span>
                 <button
                   onClick={onSave}
                   disabled={editState.isSaving}
-                  className="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50"
+                  className="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50 dark:text-green-500 dark:hover:bg-green-900/30"
                   title={tCommon("save")}
                 >
                   {editState.isSaving ? (
@@ -264,14 +272,14 @@ export const TaskSidebar = memo(function TaskSidebar({
                 <button
                   onClick={onCancel}
                   disabled={editState.isSaving}
-                  className="p-1 text-gray-600 hover:bg-gray-100 rounded disabled:opacity-50"
+                  className="p-1 text-gray-600 hover:bg-gray-100 rounded disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700"
                   title={tCommon("cancel")}
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
             ) : (
-              <span className="text-gray-900">
+              <span className="text-gray-900 dark:text-white">
                 {task.estimationPoints != null
                   ? `${task.estimationPoints} ${t("points")}`
                   : t("notEstimated")}
@@ -282,11 +290,13 @@ export const TaskSidebar = memo(function TaskSidebar({
           {/* Type */}
           <div className="px-6 py-3">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-sm font-medium text-gray-500">{t("type")}</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                {t("type")}
+              </p>
               {canEditType && editState.field !== "type" && (
                 <button
                   onClick={() => onStartEdit("type")}
-                  className="p-1 text-gray-400 hover:text-gray-600"
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   title={t("type")}
                 >
                   <Pencil className="h-3 w-3" />
@@ -338,11 +348,13 @@ export const TaskSidebar = memo(function TaskSidebar({
           {/* Status */}
           <div className="px-6 py-3">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-sm font-medium text-gray-500">{t("status")}</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                {t("status")}
+              </p>
               {canEdit && editState.field !== "status" && (
                 <button
                   onClick={() => onStartEdit("status")}
-                  className="p-1 text-gray-400 hover:text-gray-600"
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   title={t("status")}
                 >
                   <Pencil className="h-3 w-3" />
@@ -363,7 +375,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   <button
                     onClick={onSave}
                     disabled={editState.isSaving}
-                    className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                    className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-green-500 dark:hover:bg-green-900/30 dark:border-green-800"
                   >
                     {editState.isSaving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -375,7 +387,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   <button
                     onClick={onCancel}
                     disabled={editState.isSaving}
-                    className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                    className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:border-gray-600"
                   >
                     <X className="h-4 w-4" />
                     {tCommon("cancel")}
@@ -394,7 +406,7 @@ export const TaskSidebar = memo(function TaskSidebar({
           {/* Project */}
           {task.project && (
             <div className="px-6 py-3">
-              <p className="text-sm font-medium text-gray-500 mb-1">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                 {t("project")}
               </p>
               <Link
@@ -409,7 +421,7 @@ export const TaskSidebar = memo(function TaskSidebar({
           {/* Parent Task (for subtasks) */}
           {task.parentTaskId && (
             <div className="px-6 py-3">
-              <p className="text-sm font-medium text-gray-500 mb-1">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                 {t("parentTask")}
               </p>
               <Link
@@ -425,7 +437,7 @@ export const TaskSidebar = memo(function TaskSidebar({
           {(task.type !== "USER_STORY" || userStoryCanEditSprint) && (
             <div className="px-6 py-3">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   {t("sprint")}
                 </p>
                 {canEdit &&
@@ -433,7 +445,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   editState.field !== "sprint" && (
                     <button
                       onClick={() => onStartEdit("sprint")}
-                      className="p-1 text-gray-400 hover:text-gray-600"
+                      className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                       title={t("sprint")}
                     >
                       <Pencil className="h-3 w-3" />
@@ -459,7 +471,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                     <button
                       onClick={onSave}
                       disabled={editState.isSaving}
-                      className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                      className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-green-500 dark:hover:bg-green-900/30 dark:border-green-800"
                     >
                       {editState.isSaving ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -471,7 +483,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                     <button
                       onClick={onCancel}
                       disabled={editState.isSaving}
-                      className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                      className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:border-gray-600"
                     >
                       <X className="h-4 w-4" />
                       {tCommon("cancel")}
@@ -491,7 +503,9 @@ export const TaskSidebar = memo(function TaskSidebar({
                   ))}
                 </div>
               ) : (
-                <span className="text-gray-500">{t("noSprint")}</span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  {t("noSprint")}
+                </span>
               )}
             </div>
           )}
@@ -502,7 +516,7 @@ export const TaskSidebar = memo(function TaskSidebar({
             task.activeSprints &&
             task.activeSprints.length > 0 && (
               <div className="px-6 py-3">
-                <p className="text-sm font-medium text-gray-500 mb-1">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                   {t("sprint")}
                 </p>
                 <div className="space-y-1">

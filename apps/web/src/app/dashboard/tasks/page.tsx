@@ -142,15 +142,19 @@ export default function TasksListPage() {
           label={t("backToDashboard")}
           className="mb-4"
         />
-        <h1 className="text-2xl font-bold text-gray-900">{t("allTasks")}</h1>
-        <p className="mt-1 text-gray-600">{t("allTasksFromProjects")}</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {t("allTasks")}
+        </h1>
+        <p className="mt-1 text-gray-600 dark:text-gray-400">
+          {t("allTasksFromProjects")}
+        </p>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex flex-wrap items-center gap-4">
           {/* Filter icon and label */}
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
             <Filter className="h-4 w-4" />
             <span className="text-sm font-medium">{t("filters")}:</span>
           </div>
@@ -197,7 +201,7 @@ export default function TasksListPage() {
           {/* Sort order toggle */}
           <button
             onClick={toggleSortOrder}
-            className="flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             title={
               filters.sortOrder === "desc"
                 ? t("sortNewestFirst")
@@ -221,7 +225,7 @@ export default function TasksListPage() {
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700"
+              className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
               <X className="h-4 w-4" />
               {t("clearFilters")}

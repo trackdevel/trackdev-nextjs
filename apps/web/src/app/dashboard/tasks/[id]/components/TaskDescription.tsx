@@ -29,15 +29,15 @@ export const TaskDescription = memo(function TaskDescription({
 
   return (
     <div className="card">
-      <div className="border-b px-6 py-4 flex items-center justify-between">
-        <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+      <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+        <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <FileText className="h-5 w-5" />
           {t("description")}
         </h2>
         {canEdit && editState.field !== "description" && (
           <button
             onClick={onStartEdit}
-            className="p-1 text-gray-400 hover:text-gray-600"
+            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             title={tCommon("edit")}
           >
             <Pencil className="h-4 w-4" />
@@ -50,7 +50,7 @@ export const TaskDescription = memo(function TaskDescription({
             <textarea
               value={editState.description}
               onChange={(e) => onDescriptionChange(e.target.value)}
-              className="w-full min-h-[150px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-y"
+              className="w-full min-h-[150px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-y dark:text-white dark:border-gray-600 dark:bg-gray-800"
               autoFocus
               placeholder={t("addDescription")}
             />
@@ -80,9 +80,13 @@ export const TaskDescription = memo(function TaskDescription({
             </div>
           </div>
         ) : description ? (
-          <p className="text-gray-700 whitespace-pre-wrap">{description}</p>
+          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            {description}
+          </p>
         ) : (
-          <p className="text-gray-500 italic">{t("noDescriptionProvided")}</p>
+          <p className="text-gray-500 dark:text-gray-400 italic">
+            {t("noDescriptionProvided")}
+          </p>
         )}
       </div>
     </div>

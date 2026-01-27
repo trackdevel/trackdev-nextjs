@@ -211,18 +211,26 @@ export default function DashboardLayout({
 
   const getRoleBadge = () => {
     if (isAdmin)
-      return { label: tUserTypes("admin"), color: "bg-red-100 text-red-700" };
+      return {
+        label: tUserTypes("admin"),
+        color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+      };
     if (isProfessor)
       return {
         label: tUserTypes("professor"),
-        color: "bg-purple-100 text-purple-700",
+        color:
+          "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
       };
     if (isStudent)
       return {
         label: tUserTypes("student"),
-        color: "bg-blue-100 text-blue-700",
+        color:
+          "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
       };
-    return { label: tUserTypes("user"), color: "bg-gray-100 text-gray-700" };
+    return {
+      label: tUserTypes("user"),
+      color: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+    };
   };
 
   const roleBadge = getRoleBadge();
@@ -232,22 +240,24 @@ export default function DashboardLayout({
   const mainMargin = isCollapsed ? "ml-16" : "ml-64";
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 border-r bg-white transition-all duration-300 ${sidebarWidth}`}
+        className={`fixed inset-y-0 left-0 z-50 border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 ${sidebarWidth}`}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center gap-2 border-b px-4">
+          <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-4 dark:border-gray-700">
             <Layers className="h-8 w-8 flex-shrink-0 text-primary-600" />
             {!isCollapsed && (
-              <span className="text-xl font-bold text-gray-900">TrackDev</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
+                TrackDev
+              </span>
             )}
           </div>
 
           {/* User Info */}
-          <div className="border-b px-3 py-4">
+          <div className="border-b border-gray-200 px-3 py-4 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <div
                 className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
@@ -262,10 +272,10 @@ export default function DashboardLayout({
               </div>
               {!isCollapsed && (
                 <div className="flex-1 truncate">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </p>
-                  <p className="truncate text-xs text-gray-500">
+                  <p className="truncate text-xs text-gray-500 dark:text-gray-400">
                     {user?.email}
                   </p>
                 </div>
@@ -298,15 +308,15 @@ export default function DashboardLayout({
                   href={item.href}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-primary-50 text-primary-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
+                      : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                   } ${isCollapsed ? "justify-center" : ""}`}
                   title={isCollapsed ? item.label : undefined}
                 >
                   <span className="relative flex-shrink-0">
                     {item.icon}
                     {showBadge && (
-                      <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                      <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800" />
                     )}
                   </span>
                   {!isCollapsed && (
@@ -323,10 +333,10 @@ export default function DashboardLayout({
           </nav>
 
           {/* Collapse Toggle */}
-          <div className="border-t p-2">
+          <div className="border-t border-gray-200 p-2 dark:border-gray-700">
             <button
               onClick={toggleSidebar}
-              className="flex w-full items-center justify-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+              className="flex w-full items-center justify-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
               title={isCollapsed ? t("expandSidebar") : t("collapseSidebar")}
             >
               {isCollapsed ? (
@@ -341,10 +351,10 @@ export default function DashboardLayout({
           </div>
 
           {/* Logout */}
-          <div className="border-t p-2">
+          <div className="border-t border-gray-200 p-2 dark:border-gray-700">
             <button
               onClick={handleLogout}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 ${
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 ${
                 isCollapsed ? "justify-center" : ""
               }`}
               title={isCollapsed ? tAuth("logout") : undefined}

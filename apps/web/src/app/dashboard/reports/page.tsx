@@ -129,31 +129,31 @@ export default function ReportsPage() {
       {isLoadingReports ? (
         <LoadingContainer />
       ) : error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600">
+        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-6 py-12 text-center text-red-600 dark:text-red-400">
           {t("failedToLoad")}
         </div>
       ) : reports && reports.length > 0 ? (
         <div className="card">
-          <div className="border-b px-6 py-4">
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">
+              <h2 className="font-semibold text-gray-900 dark:text-white">
                 {t("allReports")} ({reports.length})
               </h2>
             </div>
           </div>
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {reports.map((report) => (
               <li key={report.id}>
-                <div className="flex items-center justify-between px-6 py-4 hover:bg-gray-50">
+                <div className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
-                      <FileText className="h-6 w-6 text-primary-600" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30">
+                      <FileText className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
                         {report.name}
                       </h3>
-                      <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
+                      <div className="mt-1 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                         <span>
                           {t("createdAt")}: {formatDateOnly(report.createdAt)}
                         </span>
@@ -170,7 +170,7 @@ export default function ReportsPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEditClick(report.id)}
-                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
                       title={t("editReport")}
                     >
                       <Edit className="h-4 w-4" />
@@ -178,7 +178,7 @@ export default function ReportsPage() {
                     </button>
                     <button
                       onClick={() => handleDeleteClick(report)}
-                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/30"
                       title={t("deleteReport")}
                     >
                       <Trash2 className="h-4 w-4" />

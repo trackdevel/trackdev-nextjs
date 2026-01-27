@@ -28,8 +28,10 @@ export function StatCard({
           <Icon className={`h-6 w-6 ${iconColor}`} />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-600">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            {label}
+          </p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
             {isLoading ? "..." : value}
           </p>
         </div>
@@ -61,8 +63,10 @@ export function MiniStatCard({
         <Icon className={`h-6 w-6 ${iconColor}`} />
       </div>
       <div>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        <p className="text-sm text-gray-500">{label}</p>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          {value}
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
       </div>
     </div>
   );

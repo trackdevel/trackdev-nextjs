@@ -32,21 +32,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8 dark:bg-gray-900">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2">
             <Layers className="h-10 w-10 text-primary-600" />
-            <span className="text-2xl font-bold text-gray-900">TrackDev</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              TrackDev
+            </span>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             {t("signInTitle")}
           </h2>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700">
+            <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
               <span>{error}</span>
             </div>
@@ -104,11 +106,11 @@ export default function LoginPage() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700"
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900"
+                className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
               >
                 {t("rememberMe")}
               </label>

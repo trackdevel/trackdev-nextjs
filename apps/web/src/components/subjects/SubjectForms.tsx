@@ -29,7 +29,7 @@ export function SubjectForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Name
         </label>
         <input
@@ -37,11 +37,11 @@ export function SubjectForm({
           value={data.name}
           onChange={(e) => onChange({ ...data, name: e.target.value })}
           placeholder="e.g., Software Engineering"
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Acronym
         </label>
         <input
@@ -52,15 +52,21 @@ export function SubjectForm({
           }
           placeholder="e.g., SE"
           maxLength={5}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
-        <p className="mt-1 text-xs text-gray-500">2-5 characters</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          2-5 characters
+        </p>
       </div>
-      {error && <p className="text-sm text-red-600">{error.message}</p>}
+      {error && (
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {error.message}
+        </p>
+      )}
       <div className="flex justify-end gap-3 pt-4">
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           Cancel
         </button>
@@ -105,7 +111,7 @@ export function CourseForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Start Year
         </label>
         <input
@@ -119,11 +125,11 @@ export function CourseForm({
           }
           min={1900}
           max={9999}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
           GitHub Organization (optional)
         </label>
         <input
@@ -133,14 +139,18 @@ export function CourseForm({
             onChange({ ...data, githubOrganization: e.target.value })
           }
           placeholder="e.g., my-org"
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
       </div>
-      {error && <p className="text-sm text-red-600">{error.message}</p>}
+      {error && (
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {error.message}
+        </p>
+      )}
       <div className="flex justify-end gap-3 pt-4">
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           Cancel
         </button>

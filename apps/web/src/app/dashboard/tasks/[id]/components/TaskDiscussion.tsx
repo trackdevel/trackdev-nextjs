@@ -139,13 +139,15 @@ export const TaskDiscussion = memo(function TaskDiscussion({
 
   return (
     <div className="card">
-      <div className="border-b px-6 py-4">
+      <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
             {t("discussion")}{" "}
             {comments.length > 0 && (
-              <span className="text-gray-500">({comments.length})</span>
+              <span className="text-gray-500 dark:text-gray-400">
+                ({comments.length})
+              </span>
             )}
           </h2>
           {!isExpanded && (
@@ -164,7 +166,10 @@ export const TaskDiscussion = memo(function TaskDiscussion({
 
       {/* Add Comment Form */}
       {isExpanded && (
-        <form onSubmit={handleSubmit} className="border-b px-6 py-4 bg-gray-50">
+        <form
+          onSubmit={handleSubmit}
+          className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 bg-gray-50 dark:bg-gray-800"
+        >
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
@@ -181,7 +186,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                 setIsExpanded(false);
                 setNewComment("");
               }}
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+              className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
               disabled={isSubmitting}
             >
               {tCommon("cancel")}
@@ -203,7 +208,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
       )}
 
       {comments.length > 0 ? (
-        <ul className="divide-y">
+        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {comments.map((comment) => {
             const isEditing = editingCommentId === comment.id;
             const showEditButton = canEditComment(comment);
@@ -224,10 +229,10 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {comment.author?.fullName || comment.author?.username}
                         </span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {comment.createdAt
                             ? formatDateTime(comment.createdAt)
                             : ""}
@@ -238,7 +243,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                           {showEditButton && (
                             <button
                               onClick={() => handleStartEdit(comment)}
-                              className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                              className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-colors"
                               title={t("editComment")}
                             >
                               <Pencil className="h-4 w-4" />
@@ -248,7 +253,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                             <button
                               onClick={() => handleDeleteClick(comment.id)}
                               disabled={isDeleting}
-                              className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                              className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                               title={t("deleteComment")}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -262,7 +267,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                         <textarea
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none"
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                           rows={3}
                           autoFocus
                           disabled={isUpdating}
@@ -271,7 +276,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                           <button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+                            className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
                             disabled={isUpdating}
                           >
                             <X className="h-4 w-4" />
@@ -293,7 +298,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                         </div>
                       </div>
                     ) : (
-                      <p className="mt-1 text-gray-700 whitespace-pre-wrap">
+                      <p className="mt-1 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                         {comment.content}
                       </p>
                     )}
@@ -304,7 +309,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
           })}
         </ul>
       ) : (
-        <div className="px-6 py-8 text-center text-gray-500">
+        <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
           {t("noCommentsYet")}
         </div>
       )}

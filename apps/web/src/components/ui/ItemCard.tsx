@@ -44,7 +44,9 @@ export function ItemCard({
   return (
     <Component
       className={`flex w-full items-center justify-between px-6 py-4 ${
-        onClick ? "cursor-pointer text-left hover:bg-gray-50" : ""
+        onClick
+          ? "cursor-pointer text-left hover:bg-gray-50 dark:hover:bg-gray-700"
+          : ""
       } ${className}`}
       onClick={onClick}
       type={onClick ? "button" : undefined}
@@ -59,8 +61,12 @@ export function ItemCard({
           </div>
         )}
         <div>
-          <p className="font-medium text-gray-900">{title}</p>
-          {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+          <p className="font-medium text-gray-900 dark:text-white">{title}</p>
+          {subtitle && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {subtitle}
+            </p>
+          )}
         </div>
       </div>
       {rightContent && (

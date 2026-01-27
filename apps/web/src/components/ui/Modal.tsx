@@ -35,13 +35,15 @@ export function Modal({
         aria-hidden="true"
       />
       <div
-        className={`relative z-10 w-full ${maxWidthClasses[maxWidth]} rounded-lg bg-white p-6 shadow-xl`}
+        className={`relative z-10 w-full ${maxWidthClasses[maxWidth]} rounded-lg bg-white dark:bg-gray-800 p-6 shadow-xl`}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            {title}
+          </h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200"
           >
             <X className="h-5 w-5" />
           </button>

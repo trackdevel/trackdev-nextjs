@@ -449,10 +449,12 @@ export default function TaskDetailPage() {
       <div className="p-8">
         <div className="card px-6 py-12 text-center">
           <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             {t("taskNotFound")}
           </h3>
-          <p className="mt-2 text-gray-500">{t("taskNotFoundDescription")}</p>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            {t("taskNotFoundDescription")}
+          </p>
           <Link
             href="/dashboard/projects"
             className="btn-primary mt-4 inline-flex"
