@@ -3,7 +3,7 @@
 import { Select } from "@/components/ui";
 import type { SprintSummary } from "@trackdev/api-client";
 import type { TaskStatus, TaskType } from "@trackdev/types";
-import { Check, Loader2, Pencil, UserPlus, X } from "lucide-react";
+import { Check, Loader2, Pencil, UserMinus, UserPlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { memo, useMemo, useState } from "react";
@@ -17,14 +17,16 @@ interface TaskSidebarProps {
   availableStatuses: TaskStatus[];
   availableSprints: SprintSummary[];
   canSelfAssign: boolean;
+  canUnassign: boolean;
   onStartEdit: (field: EditField) => void;
   onSave: () => void;
   onCancel: () => void;
-  onEstimationChange: (value: number) => void;
+  onEstimationChange: (value: string) => void;
   onStatusChange: (value: TaskStatus) => void;
   onTypeChange: (value: TaskType) => void;
   onSprintChange: (value: number | null) => void;
   onSelfAssign: () => Promise<void>;
+  onUnassign: () => Promise<void>;
 }
 
 export const TaskSidebar = memo(function TaskSidebar({
@@ -34,6 +36,7 @@ export const TaskSidebar = memo(function TaskSidebar({
   availableStatuses,
   availableSprints,
   canSelfAssign,
+  canUnassign,
   onStartEdit,
   onSave,
   onCancel,
@@ -42,12 +45,14 @@ export const TaskSidebar = memo(function TaskSidebar({
   onTypeChange,
   onSprintChange,
   onSelfAssign,
+  onUnassign,
 }: TaskSidebarProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
   const statusConfig = STATUS_CONFIG[task.status] || STATUS_CONFIG.TODO;
   const typeConfig = TYPE_CONFIG[task.type] || TYPE_CONFIG.TASK;
   const [isAssigning, setIsAssigning] = useState(false);
+  const [isUnassigning, setIsUnassigning] = useState(false);
 
   // Determine which types are available based on entity constraints:
   // - USER_STORY with child tasks cannot change type
@@ -121,19 +126,43 @@ export const TaskSidebar = memo(function TaskSidebar({
               {t("assignee")}
             </p>
             {task.assignee ? (
-              <div className="flex items-center gap-2">
-                <div
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium text-white"
-                  style={{
-                    backgroundColor: task.assignee.color || "#6b7280",
-                  }}
-                >
-                  {task.assignee.capitalLetters ||
-                    task.assignee.username?.slice(0, 2).toUpperCase()}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium text-white"
+                    style={{
+                      backgroundColor: task.assignee.color || "#6b7280",
+                    }}
+                  >
+                    {task.assignee.capitalLetters ||
+                      task.assignee.username?.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-gray-900">
+                    {task.assignee.fullName || task.assignee.username}
+                  </span>
                 </div>
-                <span className="text-gray-900">
-                  {task.assignee.fullName || task.assignee.username}
-                </span>
+                {canUnassign && (
+                  <button
+                    onClick={async () => {
+                      setIsUnassigning(true);
+                      try {
+                        await onUnassign();
+                      } finally {
+                        setIsUnassigning(false);
+                      }
+                    }}
+                    disabled={isUnassigning}
+                    className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                    title={t("unassignFromMe")}
+                  >
+                    {isUnassigning ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <UserMinus className="h-3 w-3" />
+                    )}
+                    {t("unassignFromMe")}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="flex items-center justify-between">
@@ -211,7 +240,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   type="number"
                   min="0"
                   value={editState.estimation}
-                  onChange={(e) => onEstimationChange(Number(e.target.value))}
+                  onChange={(e) => onEstimationChange(e.target.value)}
                   className="w-20 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   autoFocus
                   onKeyDown={(e) => {
@@ -243,7 +272,7 @@ export const TaskSidebar = memo(function TaskSidebar({
               </div>
             ) : (
               <span className="text-gray-900">
-                {task.estimationPoints !== undefined
+                {task.estimationPoints != null
                   ? `${task.estimationPoints} ${t("points")}`
                   : t("notEstimated")}
               </span>
