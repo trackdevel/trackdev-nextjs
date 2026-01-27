@@ -8,14 +8,18 @@ import { api } from "./client";
 export interface ActivitiesParams {
   page?: number;
   size?: number;
+  projectId?: number;
+  sprintId?: number;
+  actorId?: string;
 }
 
 export const activitiesApi = {
   /**
    * Get paginated activity feed for the logged-in user's projects
+   * Supports optional filters: projectId, sprintId, actorId
    */
   getActivities: async (
-    params?: ActivitiesParams
+    params?: ActivitiesParams,
   ): Promise<ActivitiesResponse> => {
     const searchParams = new URLSearchParams();
     if (params?.page !== undefined) {
@@ -23,6 +27,15 @@ export const activitiesApi = {
     }
     if (params?.size !== undefined) {
       searchParams.set("size", params.size.toString());
+    }
+    if (params?.projectId !== undefined) {
+      searchParams.set("projectId", params.projectId.toString());
+    }
+    if (params?.sprintId !== undefined) {
+      searchParams.set("sprintId", params.sprintId.toString());
+    }
+    if (params?.actorId !== undefined) {
+      searchParams.set("actorId", params.actorId);
     }
     const queryString = searchParams.toString();
     const url = `/activities${queryString ? `?${queryString}` : ""}`;
