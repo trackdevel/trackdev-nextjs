@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  ListItem,
-  MemberAvatars,
-  QuickActionCard,
-} from "@/components/dashboard";
+import { ListItem, MemberAvatars } from "@/components/dashboard";
 import { RecentTasksCard } from "@/components/tasks";
 import {
   Badge,
@@ -23,16 +19,7 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type { Course, Project, Sprint, Task } from "@trackdev/types";
-import {
-  BookOpen,
-  Calendar,
-  CheckCircle2,
-  FolderKanban,
-  GraduationCap,
-  Layers,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { BookOpen, Calendar, FolderKanban, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
@@ -361,86 +348,6 @@ export default function DashboardPage() {
           emptyTitle={tTasks("noRecentTasks")}
           emptyDescription={tTasks("tasksAppearHere")}
         />
-      </div>
-
-      {/* Quick Actions for Different Roles */}
-      <div className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          {t("quickActions")}
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {isStudent && (
-            <>
-              <QuickActionCard
-                href="/dashboard/projects"
-                icon={FolderKanban}
-                iconBgColor="bg-blue-100"
-                iconColor="text-blue-600"
-                title={t("viewProjects")}
-                description={t("seeAllProjects")}
-              />
-              <QuickActionCard
-                href="/dashboard/tasks"
-                icon={CheckCircle2}
-                iconBgColor="bg-green-100"
-                iconColor="text-green-600"
-                title={t("myTasks")}
-                description={t("trackAssignments")}
-              />
-            </>
-          )}
-
-          {(isProfessor || isAdmin) && (
-            <>
-              <QuickActionCard
-                href="/dashboard/courses"
-                icon={BookOpen}
-                iconBgColor="bg-purple-100"
-                iconColor="text-purple-600"
-                title={t("manageCourses")}
-                description={t("viewEditCourses")}
-              />
-              <QuickActionCard
-                href="/dashboard/students"
-                icon={GraduationCap}
-                iconBgColor="bg-orange-100"
-                iconColor="text-orange-600"
-                title={t("viewStudents")}
-                description={t("monitorProgress")}
-              />
-            </>
-          )}
-
-          {isAdmin && (
-            <>
-              <QuickActionCard
-                href="/dashboard/users"
-                icon={Users}
-                iconBgColor="bg-red-100"
-                iconColor="text-red-600"
-                title={t("manageUsers")}
-                description={t("userAdministration")}
-              />
-              <QuickActionCard
-                href="/dashboard/subjects"
-                icon={Layers}
-                iconBgColor="bg-indigo-100"
-                iconColor="text-indigo-600"
-                title={t("manageSubjects")}
-                description={t("configureSubjects")}
-              />
-            </>
-          )}
-
-          <QuickActionCard
-            href="/dashboard/settings"
-            icon={TrendingUp}
-            iconBgColor="bg-gray-100"
-            iconColor="text-gray-600"
-            title={tNav("settings")}
-            description={t("configureAccount")}
-          />
-        </div>
       </div>
     </div>
   );
