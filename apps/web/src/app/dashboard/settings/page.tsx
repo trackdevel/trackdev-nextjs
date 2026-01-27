@@ -39,8 +39,24 @@ export default function SettingsPage() {
   // Profile form state
   const [fullName, setFullName] = useState(user?.fullName || "");
   const [email, setEmail] = useState(user?.email || "");
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [color, setColor] = useState(user?.color || "");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  // Email validation helper
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (value.trim() && !isValidEmail(value.trim())) {
+      setEmailError(t("invalidEmail"));
+    } else {
+      setEmailError(null);
+    }
+  };
 
   // Update form state when user data changes
   useEffect(() => {
@@ -61,6 +77,13 @@ export default function SettingsPage() {
   // Handle profile save
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate email before submitting
+    if (email.trim() && !isValidEmail(email.trim())) {
+      setEmailError(t("invalidEmail"));
+      return;
+    }
+
     setIsSavingProfile(true);
 
     try {
@@ -211,33 +234,55 @@ export default function SettingsPage() {
                     </label>
                     <div className="relative mt-1">
                       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <Mail className="h-5 w-5 text-gray-400" />
+                        <Mail
+                          className={`h-5 w-5 ${emailError ? "text-red-400" : "text-gray-400"}`}
+                        />
                       </div>
                       <input
                         id="email"
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="input pl-10"
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        className={`input pl-10 ${emailError ? "border-red-300 focus:border-red-500 focus:ring-red-500" : ""}`}
                       />
                     </div>
+                    {emailError && (
+                      <p className="mt-1 text-sm text-red-600">{emailError}</p>
+                    )}
                   </div>
 
                   <div>
                     <label htmlFor="color" className="label">
                       {t("avatarColor")}
                     </label>
-                    <div className="relative mt-1">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <Palette className="h-5 w-5 text-gray-400" />
-                      </div>
+                    <div className="mt-1 flex items-center gap-3">
                       <input
-                        id="color"
-                        type="text"
-                        value={color}
+                        type="color"
+                        value={color || "#3b82f6"}
                         onChange={(e) => setColor(e.target.value)}
-                        className="input pl-10"
+                        className="h-10 w-14 cursor-pointer rounded border border-gray-300 p-1"
                       />
+                      <div className="relative flex-1">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                          <Palette className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          id="color"
+                          type="text"
+                          value={color}
+                          onChange={(e) => setColor(e.target.value)}
+                          placeholder="#3b82f6"
+                          className="input pl-10"
+                        />
+                      </div>
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold text-white"
+                        style={{ backgroundColor: color || "#3b82f6" }}
+                      >
+                        {user?.capitalLetters ||
+                          user?.fullName?.slice(0, 2).toUpperCase() ||
+                          user?.username?.slice(0, 2).toUpperCase()}
+                      </div>
                     </div>
                     <p className="mt-1 text-xs text-gray-500">
                       {t("avatarColorHint")}
