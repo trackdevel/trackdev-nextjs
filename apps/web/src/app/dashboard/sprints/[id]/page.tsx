@@ -728,7 +728,15 @@ export default function SprintBoardPage() {
       }
       setDragState({ taskId: null, source: null });
     },
-    [dragState, optimisticTasks, sprintId, removeTasksFromSprint, t, toast],
+    [
+      dragState,
+      optimisticTasks,
+      sprintId,
+      removeUserStoryFromSprint,
+      removeTasksFromSprint,
+      t,
+      toast,
+    ],
   );
 
   const handleRefresh = useCallback(() => {
@@ -1094,6 +1102,7 @@ const StoryRow = memo(function StoryRow({
   isDraggingFromSprint,
 }: StoryRowProps) {
   const t = useTranslations("sprints");
+  const [isDraggingThis, setIsDraggingThis] = useState(false);
 
   const tasksByColumn = useMemo(() => {
     const byColumn: Record<BoardColumnId, Task[]> = {
@@ -1156,9 +1165,15 @@ const StoryRow = memo(function StoryRow({
       {/* Story Header */}
       <div
         className="flex cursor-pointer items-center justify-between border-b border-gray-100 px-4 py-2 hover:bg-gray-50"
-        onClick={() => onToggleExpand(story.id)}
+        onClick={() => {
+          // Only toggle if not dragging
+          if (!isDraggingThis) {
+            onToggleExpand(story.id);
+          }
+        }}
         draggable
-        onDragStart={(e) =>
+        onDragStart={(e) => {
+          setIsDraggingThis(true);
           onDragStart(
             e,
             {
@@ -1168,9 +1183,13 @@ const StoryRow = memo(function StoryRow({
               activeSprints: [{ id: sprintId }],
             } as Task,
             "sprint",
-          )
-        }
-        onDragEnd={onDragEnd}
+          );
+        }}
+        onDragEnd={(e) => {
+          // Reset dragging state after a short delay to prevent click from firing
+          setTimeout(() => setIsDraggingThis(false), 100);
+          onDragEnd(e);
+        }}
       >
         <div className="flex items-center gap-2">
           <GripVertical className="h-4 w-4 cursor-grab text-gray-400" />
