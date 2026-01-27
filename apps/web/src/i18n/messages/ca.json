@@ -800,7 +800,13 @@
     "eventTaskRemovedFromSprint": "{actor} va eliminar {taskKey} de l'sprint {oldValue}",
     "projectActivity": "Projecte: {projectName}",
     "timeAgo": "fa {time}",
-    "justNow": "Ara mateix"
+    "justNow": "Ara mateix",
+    "filterProject": "Projecte",
+    "filterSprint": "Sprint",
+    "filterUser": "Usuari",
+    "allProjects": "Tots els projectes",
+    "allSprints": "Tots els sprints",
+    "allUsers": "Tots els usuaris"
   },
   "students": {
     "editStudent": "Editar Estudiant",
