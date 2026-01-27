@@ -18,27 +18,45 @@ import {
 import type { TaskStatus, TaskType } from "@trackdev/types";
 import { ArrowDownAZ, ArrowUpAZ, ClipboardList, Filter, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
 
 const PAGE_SIZE = 10;
-
-interface FilterState {
-  type: TaskType | "";
-  status: TaskStatus | "";
-  assigneeId: string;
-  sortOrder: "asc" | "desc";
-}
 
 export default function TasksListPage() {
   const { isAuthenticated, user } = useAuth();
   const t = useTranslations("tasks");
-  const [currentPage, setCurrentPage] = useState(0);
-  const [filters, setFilters] = useState<FilterState>({
-    type: "",
-    status: "",
-    assigneeId: "",
-    sortOrder: "desc",
-  });
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // React 19: Read filter state from URL searchParams for shareable/bookmarkable URLs
+  const filters = useMemo(
+    () => ({
+      type: (searchParams.get("type") as TaskType | "") || "",
+      status: (searchParams.get("status") as TaskStatus | "") || "",
+      assigneeId: searchParams.get("assigneeId") || "",
+      sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "desc",
+    }),
+    [searchParams],
+  );
+
+  const currentPage = parseInt(searchParams.get("page") || "0", 10);
+
+  // Update URL when filters change
+  const updateSearchParams = useCallback(
+    (updates: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === "" || value === "0") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router],
+  );
 
   // Task type options with translations
   const TASK_TYPES: { value: TaskType | ""; label: string }[] = [
@@ -72,7 +90,7 @@ export default function TasksListPage() {
   const { data: tasksResponse, isLoading } = useQuery(
     () => tasksApi.getMy(currentPage, PAGE_SIZE, filterParams),
     [currentPage, filterParams],
-    { enabled: isAuthenticated }
+    { enabled: isAuthenticated },
   );
 
   const tasks = tasksResponse?.tasks || [];
@@ -93,27 +111,23 @@ export default function TasksListPage() {
     }));
   }, [tasks]);
 
-  const handleFilterChange = (key: keyof FilterState, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    setCurrentPage(0); // Reset to first page when filters change
+  const handleFilterChange = (key: string, value: string) => {
+    updateSearchParams({ [key]: value, page: "0" }); // Reset to first page when filters change
   };
 
   const toggleSortOrder = () => {
-    setFilters((prev) => ({
-      ...prev,
-      sortOrder: prev.sortOrder === "desc" ? "asc" : "desc",
-    }));
-    setCurrentPage(0);
+    updateSearchParams({
+      sortOrder: filters.sortOrder === "desc" ? "asc" : "desc",
+      page: "0",
+    });
   };
 
   const clearFilters = () => {
-    setFilters({
-      type: "",
-      status: "",
-      assigneeId: "",
-      sortOrder: "desc",
-    });
-    setCurrentPage(0);
+    router.push("?", { scroll: false }); // Clear all params
+  };
+
+  const handlePageChange = (page: number) => {
+    updateSearchParams({ page: page.toString() });
   };
 
   const hasActiveFilters =
@@ -228,7 +242,7 @@ export default function TasksListPage() {
               totalPages={totalPages}
               totalItems={totalElements}
               pageSize={PAGE_SIZE}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
               itemLabel={t("title").toLowerCase()}
             />
           </>
