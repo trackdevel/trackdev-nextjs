@@ -43,7 +43,9 @@ export function CourseItem({
       <div className="flex items-center gap-3">
         <div
           className={`flex h-8 w-8 items-center justify-center rounded ${
-            canEdit ? "bg-green-100 dark:bg-green-900/30" : "bg-gray-100 dark:bg-gray-700"
+            canEdit
+              ? "bg-green-100 dark:bg-green-900/30"
+              : "bg-gray-100 dark:bg-gray-700"
           }`}
         >
           {canEdit ? (
@@ -154,7 +156,9 @@ export function SubjectCard({
             <BookOpen className="h-5 w-5 text-primary-600 dark:text-primary-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">{subject.name}</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              {subject.name}
+            </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {subject.acronym} • {courses.length}{" "}
               {courses.length === 1 ? t("course") : t("courses")}

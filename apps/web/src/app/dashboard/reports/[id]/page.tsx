@@ -90,7 +90,7 @@ export default function EditReportPage() {
       onError: () => {
         toast.error(t("failedToUpdate"));
       },
-    }
+    },
   );
 
   const handleSubmit = (e: React.FormEvent) => {

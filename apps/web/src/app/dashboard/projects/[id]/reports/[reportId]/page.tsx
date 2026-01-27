@@ -46,7 +46,7 @@ export default function ReportViewPage() {
   } = useQuery(
     () => projectReportsApi.compute(projectId, reportId, statusFilterQuery),
     [projectId, reportId, statusFilterQuery],
-    { enabled: !!projectId && !!reportId }
+    { enabled: !!projectId && !!reportId },
   );
 
   // Toggle status filter
@@ -119,9 +119,9 @@ export default function ReportViewPage() {
       <PageHeader
         title={reportResult.reportName}
         description={`${reportResult.projectName} • ${t(
-          reportResult.rowType.toLowerCase() as "students" | "sprints"
+          reportResult.rowType.toLowerCase() as "students" | "sprints",
         )} × ${t(
-          reportResult.columnType.toLowerCase() as "students" | "sprints"
+          reportResult.columnType.toLowerCase() as "students" | "sprints",
         )} • ${
           reportResult.magnitude === "ESTIMATION_POINTS"
             ? t("estimationPoints")
@@ -252,7 +252,9 @@ function ReportTable({ result, t }: ReportTableProps) {
                   <td
                     key={col.id}
                     className={`border-b border-r border-gray-200 dark:border-gray-700 px-4 py-3 text-center text-sm ${
-                      value > 0 ? "font-medium text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-500"
+                      value > 0
+                        ? "font-medium text-gray-900 dark:text-white"
+                        : "text-gray-400 dark:text-gray-500"
                     }`}
                   >
                     {value}

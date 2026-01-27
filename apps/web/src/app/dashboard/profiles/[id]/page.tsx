@@ -572,7 +572,9 @@ export default function ProfileDetailPage({
             ) : (
               <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-6 text-center">
                 <List className="mx-auto h-8 w-8 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t("enums.empty")}</p>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {t("enums.empty")}
+                </p>
               </div>
             )}
           </div>

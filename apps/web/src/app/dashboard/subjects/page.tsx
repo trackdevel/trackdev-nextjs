@@ -32,7 +32,7 @@ export default function SubjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedSubjects, setExpandedSubjects] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
 
   // Check if user is admin or workspace admin (can manage subjects)
@@ -70,7 +70,7 @@ export default function SubjectsPage() {
     [searchQuery],
     {
       enabled: isAuthenticated,
-    }
+    },
   );
 
   const subjects = subjectsResponse?.subjects || [];
@@ -79,7 +79,7 @@ export default function SubjectsPage() {
   const totalPages = Math.ceil(subjects.length / ITEMS_PER_PAGE);
   const paginatedSubjects = subjects.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   // Reset page when search changes
@@ -97,7 +97,7 @@ export default function SubjectsPage() {
         setSubjectForm({ name: "", acronym: "" });
         refetch();
       },
-    }
+    },
   );
 
   const updateSubjectMutation = useMutation(
@@ -109,7 +109,7 @@ export default function SubjectsPage() {
         setSelectedSubject(null);
         refetch();
       },
-    }
+    },
   );
 
   const deleteSubjectMutation = useMutation(
@@ -120,7 +120,7 @@ export default function SubjectsPage() {
         setSelectedSubject(null);
         refetch();
       },
-    }
+    },
   );
 
   const createCourseMutation = useMutation(
@@ -143,7 +143,7 @@ export default function SubjectsPage() {
         });
         refetch();
       },
-    }
+    },
   );
 
   const updateCourseMutation = useMutation(
@@ -158,7 +158,7 @@ export default function SubjectsPage() {
         setSelectedCourse(null);
         refetch();
       },
-    }
+    },
   );
 
   const deleteCourseMutation = useMutation(
@@ -169,7 +169,7 @@ export default function SubjectsPage() {
         setSelectedCourse(null);
         refetch();
       },
-    }
+    },
   );
 
   // Toggle subject expansion

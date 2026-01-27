@@ -184,7 +184,9 @@ export default function CourseDetailsPage() {
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {course.projects?.length || 0}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Projects</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Projects
+              </p>
             </div>
           </div>
           <ArrowRight className="h-5 w-5 text-gray-400" />
@@ -202,7 +204,9 @@ export default function CourseDetailsPage() {
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {course.students?.length || 0}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Enrolled Students</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Enrolled Students
+              </p>
             </div>
           </div>
           <ArrowRight className="h-5 w-5 text-gray-400" />
@@ -221,7 +225,9 @@ export default function CourseDetailsPage() {
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {course.pendingInvites?.length || 0}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Pending Invites</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Pending Invites
+                </p>
               </div>
             </div>
             <ArrowRight className="h-5 w-5 text-gray-400" />

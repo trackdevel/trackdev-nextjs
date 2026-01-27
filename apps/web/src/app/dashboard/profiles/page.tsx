@@ -201,7 +201,9 @@ export default function ProfilesPage() {
                   <FileSliders className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">{profile.name}</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white">
+                    {profile.name}
+                  </h3>
                   {profile.description && (
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {profile.description}

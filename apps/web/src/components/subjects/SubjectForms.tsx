@@ -54,9 +54,15 @@ export function SubjectForm({
           maxLength={5}
           className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">2-5 characters</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          2-5 characters
+        </p>
       </div>
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error.message}</p>}
+      {error && (
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {error.message}
+        </p>
+      )}
       <div className="flex justify-end gap-3 pt-4">
         <button
           onClick={onCancel}
@@ -136,7 +142,11 @@ export function CourseForm({
           className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
       </div>
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error.message}</p>}
+      {error && (
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {error.message}
+        </p>
+      )}
       <div className="flex justify-end gap-3 pt-4">
         <button
           onClick={onCancel}

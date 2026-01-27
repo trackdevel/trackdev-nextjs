@@ -223,7 +223,9 @@ export default function SprintPatternsPage() {
           <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             Failed to load sprint patterns
           </h3>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">Please try again later.</p>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            Please try again later.
+          </p>
         </div>
       </div>
     );
@@ -290,7 +292,9 @@ export default function SprintPatternsPage() {
           {patterns.map((pattern) => (
             <div key={pattern.id} className="card p-4">
               <div className="mb-3 flex items-start justify-between">
-                <h3 className="font-semibold text-gray-900 dark:text-white">{pattern.name}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  {pattern.name}
+                </h3>
                 {canManage && (
                   <div className="flex gap-1">
                     <button
