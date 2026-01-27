@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
@@ -307,20 +307,25 @@ export default function SettingsPage() {
 
 /**
  * Security settings component with password change functionality
+ * Uses React 19 useActionState for form handling
  */
+
+interface PasswordFormState {
+  error: string | null;
+  success: boolean;
+}
+
 function SecuritySettings() {
   const t = useTranslations("settings");
   const toast = useToast();
 
+  // Form field state (controlled inputs for validation UI)
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   // Password validation
   const hasMinLength = newPassword.length >= 8;
@@ -332,51 +337,59 @@ function SecuritySettings() {
   const isPasswordValid =
     hasMinLength && hasLowercase && hasUppercase && hasNumber;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
+  // React 19: useActionState for form submission
+  const [state, formAction, isPending] = useActionState<
+    PasswordFormState,
+    FormData
+  >(
+    async (_prevState, formData) => {
+      const oldPassword = formData.get("currentPassword") as string;
+      const newPwd = formData.get("newPassword") as string;
+      const confirmPwd = formData.get("confirmPassword") as string;
 
-    if (!currentPassword) {
-      setError(t("currentPasswordRequired"));
-      return;
-    }
-
-    if (!passwordsMatch) {
-      setError(t("passwordsDoNotMatch"));
-      return;
-    }
-
-    if (!isPasswordValid) {
-      setError(t("passwordRequirements"));
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await authApi.changePassword({
-        oldPassword: currentPassword,
-        newPassword: newPassword,
-      });
-
-      setSuccess(true);
-      toast.success(t("passwordChangedSuccess"));
-
-      // Clear form
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (err) {
-      if (err instanceof ApiClientError) {
-        setError(err.getUserMessage());
-      } else {
-        setError(t("unexpectedError"));
+      // Client-side validation
+      if (!oldPassword) {
+        return { error: t("currentPasswordRequired"), success: false };
       }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
+      if (newPwd !== confirmPwd) {
+        return { error: t("passwordsDoNotMatch"), success: false };
+      }
+
+      const pwdHasMinLength = newPwd.length >= 8;
+      const pwdHasLowercase = /[a-z]/.test(newPwd);
+      const pwdHasUppercase = /[A-Z]/.test(newPwd);
+      const pwdHasNumber = /\d/.test(newPwd);
+      const pwdIsValid =
+        pwdHasMinLength && pwdHasLowercase && pwdHasUppercase && pwdHasNumber;
+
+      if (!pwdIsValid) {
+        return { error: t("passwordRequirements"), success: false };
+      }
+
+      try {
+        await authApi.changePassword({
+          oldPassword,
+          newPassword: newPwd,
+        });
+
+        toast.success(t("passwordChangedSuccess"));
+
+        // Clear form fields
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+
+        return { error: null, success: true };
+      } catch (err) {
+        if (err instanceof ApiClientError) {
+          return { error: err.getUserMessage(), success: false };
+        }
+        return { error: t("unexpectedError"), success: false };
+      }
+    },
+    { error: null, success: false },
+  );
 
   return (
     <div className="card">
@@ -387,15 +400,15 @@ function SecuritySettings() {
         </p>
       </div>
       <div className="p-6">
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {error && (
+        <form className="space-y-4" action={formAction}>
+          {state.error && (
             <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              <span>{error}</span>
+              <span>{state.error}</span>
             </div>
           )}
 
-          {success && (
+          {state.success && (
             <div className="flex items-center gap-2 rounded-md bg-green-50 p-4 text-sm text-green-700">
               <CheckCircle className="h-5 w-5 flex-shrink-0" />
               <span>{t("passwordChangedSuccess")}</span>
@@ -409,6 +422,7 @@ function SecuritySettings() {
             <div className="relative mt-1">
               <input
                 id="current-password"
+                name="currentPassword"
                 type={showCurrentPassword ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
@@ -436,6 +450,7 @@ function SecuritySettings() {
             <div className="relative mt-1">
               <input
                 id="new-password"
+                name="newPassword"
                 type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -463,6 +478,7 @@ function SecuritySettings() {
             <div className="relative mt-1">
               <input
                 id="confirm-password"
+                name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -548,14 +564,14 @@ function SecuritySettings() {
             <button
               type="submit"
               disabled={
-                isLoading ||
+                isPending ||
                 !isPasswordValid ||
                 !passwordsMatch ||
                 !currentPassword
               }
               className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
+              {isPending ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 t("updatePassword")
