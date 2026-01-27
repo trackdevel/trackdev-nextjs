@@ -1,12 +1,22 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-import { EmptyState, LoadingContainer, PageContainer } from "@/components/ui";
+import {
+  EmptyState,
+  LoadingContainer,
+  PageContainer,
+  Select,
+} from "@/components/ui";
 import { useLanguage } from "@/i18n";
 import { formatDateOnly } from "@/utils/dateFormat";
 import { useDateFormat } from "@/utils/useDateFormat";
-import { activitiesApi, useAuth, useQuery } from "@trackdev/api-client";
-import type { Activity, ActivityType } from "@trackdev/types";
+import {
+  activitiesApi,
+  projectsApi,
+  useAuth,
+  useQuery,
+} from "@trackdev/api-client";
+import type { Activity, ActivityType, UserPublic } from "@trackdev/types";
 import {
   Activity as ActivityIcon,
   CheckCircle,
@@ -146,6 +156,45 @@ function ActivityItem({ activity, t }: ActivityItemProps) {
   );
 }
 
+// Filter dropdown component
+interface FilterDropdownProps {
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+  placeholder?: string;
+}
+
+function FilterDropdown({
+  label,
+  value,
+  options,
+  onChange,
+  placeholder,
+}: FilterDropdownProps) {
+  // Add empty option at the beginning for "All" selection
+  const allOptions = [{ value: "", label: placeholder || "All" }, ...options];
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+        {label}
+      </label>
+      <Select
+        value={value}
+        onChange={onChange}
+        options={allOptions}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+}
+
+interface SprintOption {
+  id: number;
+  name: string;
+}
+
 export default function ActivityPage() {
   const { isAuthenticated } = useAuth();
   const t = useTranslations("activity");
@@ -154,15 +203,63 @@ export default function ActivityPage() {
   const [hasMore, setHasMore] = useState(true);
   const hasMarkedAsReadRef = useRef(false);
 
+  // Filter state
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [selectedSprintId, setSelectedSprintId] = useState<string>("");
+  const [selectedActorId, setSelectedActorId] = useState<string>("");
+
+  // Fetch projects for the project filter
+  const { data: projectsData } = useQuery(() => projectsApi.getAll(), [], {
+    enabled: isAuthenticated,
+  });
+
+  // Fetch sprints and members when a project is selected
+  const { data: sprintsData } = useQuery(
+    () =>
+      selectedProjectId
+        ? projectsApi.getSprints(parseInt(selectedProjectId))
+        : Promise.resolve({ sprints: [], projectId: 0 }),
+    [selectedProjectId],
+    { enabled: isAuthenticated && !!selectedProjectId },
+  );
+
+  // Get project members from the selected project
+  const selectedProject = projectsData?.projects?.find(
+    (p) => p.id.toString() === selectedProjectId,
+  );
+  const projectMembers: UserPublic[] = selectedProject?.members || [];
+  const projectSprints: SprintOption[] =
+    sprintsData?.sprints?.map((s) => ({ id: s.id, name: s.label })) || [];
+
   const {
     data: activitiesResponse,
     isLoading,
     refetch,
   } = useQuery(
-    () => activitiesApi.getActivities({ page: currentPage, size: PAGE_SIZE }),
-    [currentPage],
+    () =>
+      activitiesApi.getActivities({
+        page: currentPage,
+        size: PAGE_SIZE,
+        projectId: selectedProjectId ? parseInt(selectedProjectId) : undefined,
+        sprintId: selectedSprintId ? parseInt(selectedSprintId) : undefined,
+        actorId: selectedActorId || undefined,
+      }),
+    [currentPage, selectedProjectId, selectedSprintId, selectedActorId],
     { enabled: isAuthenticated },
   );
+
+  // Reset pagination and clear results when filters change
+  useEffect(() => {
+    setCurrentPage(0);
+    setAllActivities([]);
+    setHasMore(true);
+  }, [selectedProjectId, selectedSprintId, selectedActorId]);
+
+  // Reset sprint and actor filters when project changes
+  useEffect(() => {
+    setSelectedSprintId("");
+    setSelectedActorId("");
+  }, [selectedProjectId]);
 
   // Mark as read when page loads (only once per page visit)
   useEffect(() => {
@@ -232,6 +329,48 @@ export default function ActivityPage() {
             />
             {t("markAllRead")}
           </button>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+          <FilterDropdown
+            label={t("filterProject")}
+            value={selectedProjectId}
+            options={
+              projectsData?.projects?.map((p) => ({
+                value: p.id.toString(),
+                label: p.name,
+              })) || []
+            }
+            onChange={setSelectedProjectId}
+            placeholder={t("allProjects")}
+          />
+
+          {selectedProjectId && (
+            <>
+              <FilterDropdown
+                label={t("filterSprint")}
+                value={selectedSprintId}
+                options={projectSprints.map((s) => ({
+                  value: s.id.toString(),
+                  label: s.name,
+                }))}
+                onChange={setSelectedSprintId}
+                placeholder={t("allSprints")}
+              />
+
+              <FilterDropdown
+                label={t("filterUser")}
+                value={selectedActorId}
+                options={projectMembers.map((m) => ({
+                  value: m.id,
+                  label: m.fullName || m.username,
+                }))}
+                onChange={setSelectedActorId}
+                placeholder={t("allUsers")}
+              />
+            </>
+          )}
         </div>
 
         {isLoading && allActivities.length === 0 ? (
