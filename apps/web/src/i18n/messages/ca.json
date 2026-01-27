@@ -566,7 +566,8 @@
     "addSubtask": "Afegir subtasca",
     "userStoryChildrenMustBeTodo": "Totes les subtasques han d'estar en estat Per Fer per moure la història al backlog",
     "taskBegunCannotGoBacklog": "Una tasca que ha començat no pot tornar al backlog",
-    "subtaskCannotMoveToBacklog": "Una subtasca no es pot moure al backlog individualment. Mou la història principal en el seu lloc."
+    "subtaskCannotMoveToBacklog": "Una subtasca no es pot moure al backlog individualment. Mou la història principal en el seu lloc.",
+    "unassignedTasks": "Tasques sense assignar"
   },
   "courses": {
     "title": "Cursos",

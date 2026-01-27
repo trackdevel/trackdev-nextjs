@@ -566,7 +566,8 @@
     "addSubtask": "Add subtask",
     "userStoryChildrenMustBeTodo": "All subtasks must be in To Do state to move the story back to backlog",
     "taskBegunCannotGoBacklog": "A task that has begun cannot go back to the backlog",
-    "subtaskCannotMoveToBacklog": "A subtask cannot be moved to the backlog individually. Move the parent story instead."
+    "subtaskCannotMoveToBacklog": "A subtask cannot be moved to the backlog individually. Move the parent story instead.",
+    "unassignedTasks": "Unassigned Tasks"
   },
   "courses": {
     "title": "Courses",

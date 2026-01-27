@@ -566,7 +566,8 @@
     "addSubtask": "Añadir subtarea",
     "userStoryChildrenMustBeTodo": "Todas las subtareas deben estar en estado Por Hacer para mover la historia al backlog",
     "taskBegunCannotGoBacklog": "Una tarea que ha comenzado no puede volver al backlog",
-    "subtaskCannotMoveToBacklog": "Una subtarea no puede moverse al backlog individualmente. Mueve la historia principal en su lugar."
+    "subtaskCannotMoveToBacklog": "Una subtarea no puede moverse al backlog individualmente. Mueve la historia principal en su lugar.",
+    "unassignedTasks": "Tareas sin asignar"
   },
   "courses": {
     "title": "Cursos",
