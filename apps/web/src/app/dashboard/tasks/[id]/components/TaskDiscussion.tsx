@@ -1,9 +1,19 @@
 "use client";
 
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 import { useDateFormat } from "@/utils/useDateFormat";
-import { tasksApi, useMutation } from "@trackdev/api-client";
+import { ApiClientError, tasksApi, useMutation } from "@trackdev/api-client";
 import type { Comment } from "@trackdev/types";
-import { Loader2, MessageSquare, Plus, Send } from "lucide-react";
+import {
+  Loader2,
+  MessageSquare,
+  Pencil,
+  Plus,
+  Send,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useState } from "react";
 
@@ -13,6 +23,7 @@ interface TaskDiscussionProps {
   onCommentAdded?: () => void;
   isFrozen?: boolean;
   isProfessor?: boolean;
+  currentUserId?: string;
 }
 
 export const TaskDiscussion = memo(function TaskDiscussion({
@@ -21,15 +32,30 @@ export const TaskDiscussion = memo(function TaskDiscussion({
   onCommentAdded,
   isFrozen = false,
   isProfessor = false,
+  currentUserId,
 }: TaskDiscussionProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
+  const toast = useToast();
   const { formatDateTime } = useDateFormat();
   const [newComment, setNewComment] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   // Professors can comment on frozen tasks, students cannot
   const canComment = !isFrozen || isProfessor;
+
+  // Check if user can edit a specific comment
+  const canEditComment = (comment: Comment) => {
+    if (!currentUserId) return false;
+    // Students can edit their own comments, professors can edit any
+    return comment.author?.id === currentUserId || isProfessor;
+  };
+
+  // Check if user can delete a comment (only professors)
+  const canDeleteComment = () => isProfessor;
 
   const { mutate: addComment, isLoading: isSubmitting } = useMutation(
     (content: string) => tasksApi.addComment(taskId, { content }),
@@ -42,10 +68,72 @@ export const TaskDiscussion = memo(function TaskDiscussion({
     },
   );
 
+  const { mutate: updateComment, isLoading: isUpdating } = useMutation(
+    ({ commentId, content }: { commentId: number; content: string }) =>
+      tasksApi.updateComment(taskId, commentId, { content }),
+    {
+      onSuccess: () => {
+        setEditingCommentId(null);
+        setEditContent("");
+        onCommentAdded?.();
+      },
+      onError: (err) => {
+        const errorMessage =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("errorUpdatingComment");
+        toast.error(errorMessage);
+      },
+    },
+  );
+
+  const { mutate: deleteComment, isLoading: isDeleting } = useMutation(
+    (commentId: number) => tasksApi.deleteComment(taskId, commentId),
+    {
+      onSuccess: () => {
+        setDeleteConfirmId(null);
+        onCommentAdded?.();
+      },
+      onError: (err) => {
+        const errorMessage =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("errorDeletingComment");
+        toast.error(errorMessage);
+      },
+    },
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
       addComment(newComment.trim());
+    }
+  };
+
+  const handleStartEdit = (comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditContent(comment.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditContent("");
+  };
+
+  const handleSaveEdit = (commentId: number) => {
+    if (editContent.trim()) {
+      updateComment({ commentId, content: editContent.trim() });
+    }
+  };
+
+  const handleDeleteClick = (commentId: number) => {
+    setDeleteConfirmId(commentId);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirmId !== null) {
+      deleteComment(deleteConfirmId);
     }
   };
 
@@ -116,42 +204,122 @@ export const TaskDiscussion = memo(function TaskDiscussion({
 
       {comments.length > 0 ? (
         <ul className="divide-y">
-          {comments.map((comment) => (
-            <li key={comment.id} className="px-6 py-4">
-              <div className="flex gap-3">
-                <div
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium text-white"
-                  style={{
-                    backgroundColor: comment.author?.color || "#6b7280",
-                  }}
-                >
-                  {comment.author?.capitalLetters ||
-                    comment.author?.username?.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">
-                      {comment.author?.fullName || comment.author?.username}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {comment.createdAt
-                        ? formatDateTime(comment.createdAt)
-                        : ""}
-                    </span>
+          {comments.map((comment) => {
+            const isEditing = editingCommentId === comment.id;
+            const showEditButton = canEditComment(comment);
+            const showDeleteButton = canDeleteComment();
+
+            return (
+              <li key={comment.id} className="px-6 py-4">
+                <div className="flex gap-3">
+                  <div
+                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium text-white"
+                    style={{
+                      backgroundColor: comment.author?.color || "#6b7280",
+                    }}
+                  >
+                    {comment.author?.capitalLetters ||
+                      comment.author?.username?.slice(0, 2).toUpperCase()}
                   </div>
-                  <p className="mt-1 text-gray-700 whitespace-pre-wrap">
-                    {comment.content}
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-900">
+                          {comment.author?.fullName || comment.author?.username}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {comment.createdAt
+                            ? formatDateTime(comment.createdAt)
+                            : ""}
+                        </span>
+                      </div>
+                      {!isEditing && (showEditButton || showDeleteButton) && (
+                        <div className="flex items-center gap-1">
+                          {showEditButton && (
+                            <button
+                              onClick={() => handleStartEdit(comment)}
+                              className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                              title={t("editComment")}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                          )}
+                          {showDeleteButton && (
+                            <button
+                              onClick={() => handleDeleteClick(comment.id)}
+                              disabled={isDeleting}
+                              className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                              title={t("deleteComment")}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <div className="mt-2">
+                        <textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none"
+                          rows={3}
+                          autoFocus
+                          disabled={isUpdating}
+                        />
+                        <div className="mt-2 flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+                            disabled={isUpdating}
+                          >
+                            <X className="h-4 w-4" />
+                            {tCommon("cancel")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSaveEdit(comment.id)}
+                            disabled={!editContent.trim() || isUpdating}
+                            className="flex items-center gap-1 rounded-md bg-primary-600 px-2 py-1 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {isUpdating ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Send className="h-4 w-4" />
+                            )}
+                            {tCommon("save")}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="mt-1 text-gray-700 whitespace-pre-wrap">
+                        {comment.content}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <div className="px-6 py-8 text-center text-gray-500">
           {t("noCommentsYet")}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmId !== null}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={handleConfirmDelete}
+        title={t("deleteCommentTitle")}
+        message={t("confirmDeleteComment")}
+        confirmLabel={tCommon("delete")}
+        isLoading={isDeleting}
+        variant="danger"
+      />
     </div>
   );
 });
