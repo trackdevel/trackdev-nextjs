@@ -35,6 +35,7 @@ export interface Activity {
   // Actor info
   actorId?: string;
   actorUsername?: string;
+  actorFullName?: string;
   actorEmail?: string;
 
   // Project info

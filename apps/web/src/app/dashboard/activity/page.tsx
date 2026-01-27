@@ -118,7 +118,8 @@ function ActivityItem({ activity, t }: ActivityItemProps) {
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-900 dark:text-gray-100">
           {t(translationKey, {
-            actor: activity.actorUsername || "Unknown",
+            actor:
+              activity.actorFullName || activity.actorUsername || "Unknown",
             taskKey: activity.taskKey || "task",
             oldValue: activity.oldValue || "",
             newValue: activity.newValue || "",
