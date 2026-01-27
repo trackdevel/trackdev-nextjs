@@ -131,7 +131,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-gray-900">
-                      {comment.author?.username}
+                      {comment.author?.fullName || comment.author?.username}
                     </span>
                     <span className="text-sm text-gray-500">
                       {comment.createdAt
