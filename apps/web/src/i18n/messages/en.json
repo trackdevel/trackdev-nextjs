@@ -801,5 +801,14 @@
     "projectActivity": "Project: {projectName}",
     "timeAgo": "{time} ago",
     "justNow": "Just now"
+  },
+  "students": {
+    "editStudent": "Edit Student",
+    "fullName": "Full Name",
+    "githubUsername": "GitHub Username",
+    "githubUsernameHint": "Enter the student's GitHub username for repository integration",
+    "studentUpdated": "Student updated successfully",
+    "failedToUpdate": "Failed to update student",
+    "fullNameRequired": "Full name is required"
   }
 }
