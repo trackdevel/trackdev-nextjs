@@ -181,7 +181,9 @@
     "assignedToMe": "Asignado a mí",
     "unassigned": "Sin asignar",
     "assignToMe": "Asignarme",
-    "failedToAssign": "Error al asignar tarea",
+    "unassignFromMe": "Desasignar",
+    "failedToAssign": "Error al asignar la tarea",
+    "failedToUnassign": "Error al desasignar la tarea",
     "sortNewestFirst": "Más recientes primero",
     "sortOldestFirst": "Más antiguos primero",
     "newest": "Recientes",
@@ -556,7 +558,15 @@
     "backlogTaskMustGoToTodo": "Las tareas del backlog solo pueden añadirse a la columna Por Hacer",
     "cannotAddToClosedSprint": "No se pueden añadir tareas a un sprint cerrado o pasado",
     "addTask": "Añadir tarea",
-    "dropHere": "Suelta la tarea aquí"
+    "dropHere": "Soltar tarea aquí",
+    "dropToBacklog": "Soltar aquí para mover al backlog",
+    "failedToMoveToBacklog": "Error al mover la tarea al backlog",
+    "tasks": "tareas",
+    "points": "pts",
+    "addSubtask": "Añadir subtarea",
+    "userStoryChildrenMustBeTodo": "Todas las subtareas deben estar en estado Por Hacer para mover la historia al backlog",
+    "taskBegunCannotGoBacklog": "Una tarea que ha comenzado no puede volver al backlog",
+    "subtaskCannotMoveToBacklog": "Una subtarea no puede moverse al backlog individualmente. Mueve la historia principal en su lugar."
   },
   "courses": {
     "title": "Cursos",
