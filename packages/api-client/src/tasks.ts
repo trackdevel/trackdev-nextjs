@@ -6,8 +6,11 @@ import type {
   Comment,
   CommentCreateRequest,
   IdObject,
+  ProfileAttribute,
   PullRequestChange,
+  SetAttributeValueRequest,
   Task,
+  TaskAttributeValue,
   TaskCreateRequest,
   TaskDetail,
   TaskLog,
@@ -215,4 +218,37 @@ export const tasksApi = {
    * Unassign task from current user
    */
   unassign: (id: number) => api.delete<Task>(`/tasks/${id}/assign`),
+
+  // ==================== Task Attribute Values ====================
+
+  /**
+   * Get attribute values set for a task
+   */
+  getAttributeValues: (taskId: number) =>
+    api.get<TaskAttributeValue[]>(`/tasks/${taskId}/attributes`),
+
+  /**
+   * Get available attributes from the course profile that can be applied to this task
+   */
+  getAvailableAttributes: (taskId: number) =>
+    api.get<ProfileAttribute[]>(`/tasks/${taskId}/available-attributes`),
+
+  /**
+   * Set or update an attribute value for a task (PROFESSOR only)
+   */
+  setAttributeValue: (
+    taskId: number,
+    attributeId: number,
+    data: SetAttributeValueRequest,
+  ) =>
+    api.put<TaskAttributeValue>(
+      `/tasks/${taskId}/attributes/${attributeId}`,
+      data,
+    ),
+
+  /**
+   * Delete an attribute value from a task (PROFESSOR only)
+   */
+  deleteAttributeValue: (taskId: number, attributeId: number) =>
+    api.delete<void>(`/tasks/${taskId}/attributes/${attributeId}`),
 };
