@@ -115,6 +115,15 @@ export const coursesApi = {
     ),
 
   /**
+   * Get numeric TASK-targeted profile attributes for report magnitude options
+   * Returns INTEGER and FLOAT attributes that can be used as custom report magnitudes
+   */
+  getReportMagnitudeAttributes: (courseId: number) =>
+    api.get<import("@trackdev/types").ProfileAttribute[]>(
+      `/courses/${courseId}/report-magnitude-attributes`,
+    ),
+
+  /**
    * Apply a profile to a course (Professor/Admin only)
    */
   applyProfile: (courseId: number, profileId: number) =>

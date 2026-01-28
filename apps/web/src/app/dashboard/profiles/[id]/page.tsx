@@ -72,6 +72,8 @@ export default function ProfileDetailPage({
   const [attributeTarget, setAttributeTarget] =
     useState<AttributeTarget>("STUDENT");
   const [attributeEnumRef, setAttributeEnumRef] = useState<string>("");
+  const [attributeDefaultValue, setAttributeDefaultValue] =
+    useState<string>("");
   const [attributeValidationError, setAttributeValidationError] = useState<
     string | null
   >(null);
@@ -111,6 +113,7 @@ export default function ProfileDetailPage({
       type: a.type,
       target: a.target,
       enumRefName: a.enumRefName,
+      defaultValue: a.defaultValue,
     })),
   });
 
@@ -145,6 +148,7 @@ export default function ProfileDetailPage({
     setAttributeType("STRING");
     setAttributeTarget("STUDENT");
     setAttributeEnumRef("");
+    setAttributeDefaultValue("");
     setAttributeValidationError(null);
   };
 
@@ -292,6 +296,16 @@ export default function ProfileDetailPage({
       setAttributeType(attribute.type);
       setAttributeTarget(attribute.target);
       setAttributeEnumRef(attribute.enumRefName || "");
+      // Use existing value or type-based default
+      if (attribute.defaultValue) {
+        setAttributeDefaultValue(attribute.defaultValue);
+      } else if (attribute.type === "INTEGER") {
+        setAttributeDefaultValue("0");
+      } else if (attribute.type === "FLOAT") {
+        setAttributeDefaultValue("0.0");
+      } else {
+        setAttributeDefaultValue("");
+      }
     } else {
       resetAttributeForm();
     }
@@ -321,6 +335,10 @@ export default function ProfileDetailPage({
       type: attributeType,
       target: attributeTarget,
       enumRefName: attributeType === "ENUM" ? attributeEnumRef : undefined,
+      defaultValue:
+        attributeType === "INTEGER" || attributeType === "FLOAT"
+          ? attributeDefaultValue.trim() || undefined
+          : undefined,
     };
 
     if (editingAttributeIndex !== null) {
@@ -337,6 +355,7 @@ export default function ProfileDetailPage({
           type: a.type,
           target: a.target,
           enumRefName: a.enumRefName,
+          defaultValue: a.defaultValue,
         })),
         newAttr,
       ];
@@ -376,6 +395,7 @@ export default function ProfileDetailPage({
         type: a.type,
         target: a.target,
         enumRefName: a.enumRefName,
+        defaultValue: a.defaultValue,
       }));
 
     try {
@@ -768,7 +788,18 @@ export default function ProfileDetailPage({
             </label>
             <Select
               value={attributeType}
-              onChange={(value) => setAttributeType(value as AttributeType)}
+              onChange={(value) => {
+                const newType = value as AttributeType;
+                setAttributeType(newType);
+                // Set type-based default value
+                if (newType === "INTEGER") {
+                  setAttributeDefaultValue("0");
+                } else if (newType === "FLOAT") {
+                  setAttributeDefaultValue("0.0");
+                } else {
+                  setAttributeDefaultValue("");
+                }
+              }}
               options={[
                 { value: "STRING", label: t("types.string") },
                 { value: "INTEGER", label: t("types.integer") },
@@ -822,6 +853,28 @@ export default function ProfileDetailPage({
               aria-label={t("form.attributeTarget")}
             />
           </div>
+          {(attributeType === "INTEGER" || attributeType === "FLOAT") && (
+            <div>
+              <label
+                htmlFor="attributeDefaultValue"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                {t("form.defaultValue")}
+              </label>
+              <input
+                type="number"
+                id="attributeDefaultValue"
+                value={attributeDefaultValue}
+                onChange={(e) => setAttributeDefaultValue(e.target.value)}
+                placeholder={t("form.defaultValuePlaceholder")}
+                step={attributeType === "INTEGER" ? "1" : "0.01"}
+                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {t("form.defaultValueHint")}
+              </p>
+            </div>
+          )}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"

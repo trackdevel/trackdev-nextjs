@@ -25,6 +25,8 @@ export const reportsApi = {
 
   /**
    * Update a report (PROFESSOR only)
+   * Note: When using profileAttributeId, magnitude should be omitted or set to null.
+   * When using built-in magnitude, profileAttributeId should be null.
    */
   update: (
     id: number,
@@ -33,9 +35,11 @@ export const reportsApi = {
       rowType?: ReportAxisType;
       columnType?: ReportAxisType;
       element?: ReportElement;
-      magnitude?: ReportMagnitude;
+      magnitude?: ReportMagnitude | null;
       courseId?: number | null;
-    }
+      /** Use a profile attribute as the magnitude source instead of built-in magnitudes */
+      profileAttributeId?: number | null;
+    },
   ) => api.patch<Report>(`/reports/${id}`, data),
 
   /**

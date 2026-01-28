@@ -295,7 +295,16 @@
     "enterDescription": "Enter description (optional)",
     "cannotAddSubtask": "Cannot add subtask",
     "subtasksOnlyForUserStories": "Subtasks can only be added to User Stories",
-    "noSubtasks": "No subtasks yet"
+    "noSubtasks": "No subtasks yet",
+    "profileAttributes": "Profile Attributes",
+    "addAttribute": "Add attribute...",
+    "selectValue": "Select value...",
+    "noValue": "No value",
+    "noAttributesAvailable": "No attributes configured for this task",
+    "attributeValueSaved": "Attribute value saved",
+    "attributeValueError": "Failed to save attribute value",
+    "attributeValueDeleted": "Attribute value removed",
+    "attributeValueDeleteError": "Failed to remove attribute value"
   },
   "reports": {
     "title": "Reports",
@@ -337,6 +346,8 @@
     "selectMagnitude": "Select magnitude to compute",
     "estimationPoints": "Estimation Points",
     "pullRequests": "Pull Requests",
+    "profileAttributes": "Profile Attributes",
+    "profileAttributesMagnitudeHint": "You can also use numeric attributes from the course profile as magnitude.",
     "assignToCourse": "Assign to Course",
     "noCourseAssigned": "No course assigned",
     "selectCourse": "Select a course",
@@ -410,7 +421,10 @@
       "attributeType": "Type",
       "attributeTarget": "Target",
       "enumRef": "Enum Reference",
-      "selectEnum": "Select an enum"
+      "selectEnum": "Select an enum",
+      "defaultValue": "Default Value",
+      "defaultValuePlaceholder": "Enter default value",
+      "defaultValueHint": "Used as fallback when tasks don't have a value set for this attribute"
     },
     "validation": {
       "nameRequired": "Profile name is required",

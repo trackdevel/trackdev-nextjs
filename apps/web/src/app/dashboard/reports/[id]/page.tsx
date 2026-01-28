@@ -16,13 +16,14 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type {
+  ProfileAttribute,
   ReportAxisType,
   ReportElement,
   ReportMagnitude,
 } from "@trackdev/types";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function EditReportPage() {
   const { user } = useAuth();
@@ -36,7 +37,8 @@ export default function EditReportPage() {
   const [rowType, setRowType] = useState<ReportAxisType | "">("");
   const [columnType, setColumnType] = useState<ReportAxisType | "">("");
   const [element, setElement] = useState<ReportElement | "">("");
-  const [magnitude, setMagnitude] = useState<ReportMagnitude | "">("");
+  // magnitude can be a built-in value or "attr_<id>" for profile attributes
+  const [magnitudeValue, setMagnitudeValue] = useState<string>("");
   const [courseId, setCourseId] = useState<number | "">("");
 
   // Check if user is professor
@@ -56,6 +58,18 @@ export default function EditReportPage() {
     enabled: isProfessor,
   });
 
+  // Fetch available numeric profile attributes for the selected course
+  const { data: profileAttributes } = useQuery(
+    () =>
+      courseId
+        ? coursesApi.getReportMagnitudeAttributes(courseId as number)
+        : Promise.resolve([]),
+    [courseId],
+    {
+      enabled: isProfessor && !!courseId,
+    },
+  );
+
   // Update form when report loads
   useEffect(() => {
     if (report) {
@@ -63,13 +77,30 @@ export default function EditReportPage() {
       setRowType(report.rowType || "");
       setColumnType(report.columnType || "");
       setElement(report.element || "TASK"); // Default to TASK
-      setMagnitude(report.magnitude || "");
+      // Set magnitude value: either built-in or profile attribute
+      if (report.profileAttributeId) {
+        setMagnitudeValue(`attr_${report.profileAttributeId}`);
+      } else {
+        setMagnitudeValue(report.magnitude || "");
+      }
       setCourseId(report.course?.id || "");
     }
   }, [report]);
 
   // Get courses list
   const courses = coursesData?.courses || [];
+
+  // Parse magnitude value to determine if it's built-in or profile attribute
+  const { magnitude, profileAttributeId } = useMemo(() => {
+    if (magnitudeValue.startsWith("attr_")) {
+      const attrId = parseInt(magnitudeValue.substring(5), 10);
+      return { magnitude: null, profileAttributeId: attrId };
+    }
+    return {
+      magnitude: (magnitudeValue as ReportMagnitude) || null,
+      profileAttributeId: null,
+    };
+  }, [magnitudeValue]);
 
   // Update mutation
   const { mutate: updateReport, isLoading: isPending } = useMutation(
@@ -79,8 +110,11 @@ export default function EditReportPage() {
         rowType: rowType || undefined,
         columnType: columnType || undefined,
         element: element || undefined,
-        magnitude: magnitude || undefined,
+        // When using profile attribute, explicitly send null to clear built-in magnitude
+        magnitude: profileAttributeId ? null : magnitude || undefined,
         courseId: courseId || null,
+        // When using built-in magnitude, explicitly send null to clear profile attribute
+        profileAttributeId: magnitude ? null : profileAttributeId,
       }),
     {
       onSuccess: () => {
@@ -280,8 +314,8 @@ export default function EditReportPage() {
               {t("magnitude")}
             </label>
             <Select
-              value={magnitude}
-              onChange={(value) => setMagnitude(value as ReportMagnitude | "")}
+              value={magnitudeValue}
+              onChange={(value) => setMagnitudeValue(value)}
               options={[
                 { value: "", label: t("selectMagnitude") },
                 {
@@ -294,11 +328,31 @@ export default function EditReportPage() {
                   label: t("pullRequests"),
                   disabled: element !== "TASK",
                 },
+                // Add profile attributes as magnitude options (grouped)
+                ...(profileAttributes && profileAttributes.length > 0
+                  ? [
+                      {
+                        value: "_separator",
+                        label: `── ${t("profileAttributes")} ──`,
+                        disabled: true,
+                      },
+                      ...profileAttributes.map((attr: ProfileAttribute) => ({
+                        value: `attr_${attr.id}`,
+                        label: attr.name,
+                        disabled: element !== "TASK",
+                      })),
+                    ]
+                  : []),
               ]}
               placeholder={t("selectMagnitude")}
               className="mt-1"
               disabled={!element}
             />
+            {profileAttributes && profileAttributes.length > 0 && (
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {t("profileAttributesMagnitudeHint")}
+              </p>
+            )}
           </div>
 
           <div className="flex justify-end space-x-3">
