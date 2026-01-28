@@ -19,6 +19,8 @@ export interface ProfileAttribute {
   target: AttributeTarget;
   enumRefId?: number;
   enumRefName?: string;
+  enumValues?: string[];
+  defaultValue?: string;
 }
 
 export interface ProfileBasic {
@@ -49,6 +51,7 @@ export interface ProfileAttributeRequest {
   type: AttributeType;
   target: AttributeTarget;
   enumRefName?: string;
+  defaultValue?: string;
 }
 
 export interface ProfileRequest {
