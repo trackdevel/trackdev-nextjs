@@ -22,6 +22,7 @@ import {
   useTransition,
 } from "react";
 import {
+  TaskAttributes,
   TaskChildren,
   TaskDescription,
   TaskDiscussion,
@@ -536,24 +537,29 @@ export default function TaskDetailPage() {
         </div>
 
         {/* Right Column - Sidebar */}
-        <TaskSidebar
-          task={optimisticTask as TaskWithProject}
-          editState={editState}
-          canEdit={canEdit}
-          availableStatuses={availableStatuses}
-          availableSprints={availableSprints}
-          canSelfAssign={canSelfAssign}
-          canUnassign={canUnassign}
-          onStartEdit={handleStartEdit}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          onEstimationChange={handleEstimationChange}
-          onStatusChange={handleStatusChange}
-          onTypeChange={handleTypeChange}
-          onSprintChange={handleSprintChange}
-          onSelfAssign={handleSelfAssign}
-          onUnassign={handleUnassign}
-        />
+        <div className="space-y-6">
+          <TaskSidebar
+            task={optimisticTask as TaskWithProject}
+            editState={editState}
+            canEdit={canEdit}
+            availableStatuses={availableStatuses}
+            availableSprints={availableSprints}
+            canSelfAssign={canSelfAssign}
+            canUnassign={canUnassign}
+            onStartEdit={handleStartEdit}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            onEstimationChange={handleEstimationChange}
+            onStatusChange={handleStatusChange}
+            onTypeChange={handleTypeChange}
+            onSprintChange={handleSprintChange}
+            onSelfAssign={handleSelfAssign}
+            onUnassign={handleUnassign}
+          />
+
+          {/* Profile Attributes - Only visible to professors */}
+          <TaskAttributes taskId={taskId} isProfessor={isProfessor} />
+        </div>
       </div>
     </div>
   );
