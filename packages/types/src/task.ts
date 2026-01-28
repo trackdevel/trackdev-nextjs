@@ -104,6 +104,26 @@ export interface PointsReview {
 }
 
 /**
+ * Task attribute value - stores the value of a profile attribute for a task
+ */
+export interface TaskAttributeValue {
+  id: number;
+  taskId: number;
+  attributeId: number;
+  attributeName: string;
+  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
+  value: string | null;
+  enumValues?: string[];
+}
+
+/**
+ * Request to set an attribute value on a task
+ */
+export interface SetAttributeValueRequest {
+  value: string | null;
+}
+
+/**
  * Task detail response - flat structure with all task properties plus pointsReview
  */
 export interface TaskDetail extends Task {
