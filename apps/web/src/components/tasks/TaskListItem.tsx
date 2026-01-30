@@ -92,7 +92,6 @@ export function TaskStatusBadge({ status }: TaskStatusBadgeProps) {
     INPROGRESS: "statusInProgress",
     VERIFY: "statusVerify",
     DONE: "statusDone",
-    DEFINED: "statusDefined",
   };
 
   return (
