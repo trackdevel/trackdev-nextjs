@@ -14,6 +14,7 @@ interface TaskSidebarProps {
   task: TaskWithProject;
   editState: EditState;
   canEdit: boolean;
+  canEditSprint: boolean;
   availableStatuses: TaskStatus[];
   availableSprints: SprintSummary[];
   canSelfAssign: boolean;
@@ -33,6 +34,7 @@ export const TaskSidebar = memo(function TaskSidebar({
   task,
   editState,
   canEdit,
+  canEditSprint,
   availableStatuses,
   availableSprints,
   canSelfAssign,
@@ -55,27 +57,31 @@ export const TaskSidebar = memo(function TaskSidebar({
   const [isUnassigning, setIsUnassigning] = useState(false);
 
   // Determine which types are available based on entity constraints:
-  // - USER_STORY with child tasks cannot change type
+  // - USER_STORY cannot change type at all
+  // - BUG cannot change type at all
   // - Subtasks (tasks with parentTaskId) can only be TASK or BUG
-  // - Top-level tasks can be USER_STORY, TASK, or BUG
+  // - Top-level TASK can be USER_STORY, TASK, or BUG
   const availableTypes = useMemo<TaskType[]>(() => {
-    // If this is a USER_STORY with child tasks, it cannot change type
-    if (
-      task.type === "USER_STORY" &&
-      task.childTasks &&
-      task.childTasks.length > 0
-    ) {
+    // USER_STORY cannot change type at all
+    if (task.type === "USER_STORY") {
+      return []; // Cannot change type
+    }
+
+    // BUG cannot change type at all
+    if (task.type === "BUG") {
       return []; // Cannot change type
     }
 
     // If this is a subtask (has parentTaskId), can only be TASK or BUG
+    // But since it's already TASK (only TASK reaches here), and BUG can't change,
+    // a subtask TASK can only become BUG
     if (task.parentTaskId) {
       return ["TASK", "BUG"];
     }
 
-    // Top-level task: can be any type
+    // Top-level TASK: can be any type
     return ["USER_STORY", "TASK", "BUG"];
-  }, [task.type, task.childTasks, task.parentTaskId]);
+  }, [task.type, task.parentTaskId]);
 
   // Can edit type only if there are available types to choose from
   const canEditType = canEdit && availableTypes.length > 1;
@@ -98,7 +104,6 @@ export const TaskSidebar = memo(function TaskSidebar({
       INPROGRESS: "statusInProgress",
       VERIFY: "statusVerify",
       DONE: "statusDone",
-      DEFINED: "statusDefined",
     };
     return t(statusKeyMap[status] || status);
   };
@@ -440,7 +445,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   {t("sprint")}
                 </p>
-                {canEdit &&
+                {canEditSprint &&
                   task.status !== "DONE" &&
                   editState.field !== "sprint" && (
                     <button
