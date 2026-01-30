@@ -1,6 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
@@ -13,7 +14,7 @@ import type { TaskDetail, TaskStatus, TaskType } from "@trackdev/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useMemo,
@@ -95,9 +96,12 @@ export default function TaskDetailPage() {
   // Get navigation source from query params
   const fromSource = searchParams.get("from");
   const sprintIdParam = searchParams.get("sprintId");
+  const router = useRouter();
 
   // Core state: base task data from server
   const [baseTask, setBaseTask] = useState<TaskDetail | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch task data
   const {
@@ -149,25 +153,32 @@ export default function TaskDetailPage() {
       });
   }, [projectSprints?.sprints]);
 
-  // Check user roles
+  // Check user roles (still needed for comment edit/delete permissions and TaskAttributes)
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
-  const isStudent = user?.roles?.includes("STUDENT") ?? false;
 
   // Derived values
   const isLoading = authLoading || dataLoading;
-  const isFrozen = optimisticTask?.frozen ?? false;
-  const canEdit =
-    (optimisticTask?.canEdit ?? false) && (!isFrozen || isProfessor);
-  const canSelfAssign =
-    isStudent && !optimisticTask?.assignee && !isFrozen && !!optimisticTask;
-  const canUnassign =
-    !!optimisticTask?.assignee &&
-    !isFrozen &&
-    (optimisticTask.assignee.id === user?.id || isProfessor);
 
+  // =============================================================================
+  // PERMISSION FLAGS (computed by backend, used directly in UI)
+  // =============================================================================
+  // These are computed by the backend based on the current user context.
+  // The frontend just uses them - no duplicate business logic needed.
+
+  const canEdit = optimisticTask?.canEdit ?? false;
+  const canEditSprint = optimisticTask?.canEditSprint ?? false;
+  const canSelfAssign = optimisticTask?.canSelfAssign ?? false;
+  const canUnassign = optimisticTask?.canUnassign ?? false;
+  const canDelete = optimisticTask?.canDelete ?? false;
+  const canAddSubtask = optimisticTask?.canAddSubtask ?? false;
+  const canFreeze = optimisticTask?.canFreeze ?? false;
+  const canComment = optimisticTask?.canComment ?? false;
+
+  // USER_STORY status is derived from its children - no manual status change available
+  // Only TASK and BUG can have their status changed manually
   const availableStatuses: TaskStatus[] =
     optimisticTask?.type === "USER_STORY"
-      ? ["BACKLOG", "DEFINED", "DONE"]
+      ? [] // USER_STORY status is computed, not manually changeable
       : ["BACKLOG", "TODO", "INPROGRESS", "VERIFY", "DONE"];
 
   // Compute back navigation
@@ -434,6 +445,54 @@ export default function TaskDetailPage() {
   }, [refetchTask]);
 
   // =============================================================================
+  // DELETE HANDLER
+  // =============================================================================
+  // Note: canDelete is now computed by the backend and received as a flag
+
+  const handleDeleteClick = useCallback(() => {
+    setShowDeleteConfirm(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!taskId || isNaN(taskId)) return;
+
+    setIsDeleting(true);
+    try {
+      await tasksApi.delete(taskId);
+      toast.success(t("taskDeleted"));
+
+      // Navigate back after successful deletion
+      if (fromSource === "sprint" && sprintIdParam) {
+        router.push(`/dashboard/sprints/${sprintIdParam}`);
+      } else if (optimisticTask?.project?.id) {
+        router.push(`/dashboard/projects/${optimisticTask.project.id}`);
+      } else {
+        router.push("/dashboard/tasks");
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : t("failedToDelete");
+      toast.error(errorMessage);
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  }, [
+    taskId,
+    fromSource,
+    sprintIdParam,
+    optimisticTask?.project?.id,
+    router,
+    t,
+    toast,
+  ]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setShowDeleteConfirm(false);
+  }, []);
+
+  // =============================================================================
   // RENDER
   // =============================================================================
 
@@ -481,13 +540,15 @@ export default function TaskDetailPage() {
         task={optimisticTask as TaskWithProject}
         editState={editState}
         canEdit={canEdit}
-        isProfessor={isProfessor}
+        canDelete={canDelete}
+        canFreeze={canFreeze}
         onStartEdit={handleStartEdit}
         onSave={handleSave}
         onCancel={handleCancel}
         onNameChange={handleNameChange}
         onFreeze={handleFreeze}
         onUnfreeze={handleUnfreeze}
+        onDelete={handleDeleteClick}
       />
 
       {/* Main Content Grid */}
@@ -530,7 +591,7 @@ export default function TaskDetailPage() {
             comments={optimisticTask.discussion || []}
             taskId={taskId}
             onCommentAdded={handleCommentAdded}
-            isFrozen={isFrozen}
+            canComment={canComment}
             isProfessor={isProfessor}
             currentUserId={user?.id}
           />
@@ -542,6 +603,7 @@ export default function TaskDetailPage() {
             task={optimisticTask as TaskWithProject}
             editState={editState}
             canEdit={canEdit}
+            canEditSprint={canEditSprint}
             availableStatuses={availableStatuses}
             availableSprints={availableSprints}
             canSelfAssign={canSelfAssign}
@@ -561,6 +623,18 @@ export default function TaskDetailPage() {
           <TaskAttributes taskId={taskId} isProfessor={isProfessor} />
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title={t("deleteTaskConfirmTitle")}
+        message={t("deleteTaskConfirmMessage")}
+        confirmLabel={t("deleteTask")}
+        isLoading={isDeleting}
+        variant="danger"
+      />
     </div>
   );
 }
