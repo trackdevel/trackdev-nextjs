@@ -164,7 +164,6 @@
     "statusInProgress": "En Progreso",
     "statusVerify": "En Verificación",
     "statusDone": "Finalizada",
-    "statusDefined": "Definida",
     "typeUserStory": "Historia de Usuario",
     "typeTask": "Tarea",
     "typeBug": "Error",
@@ -277,6 +276,11 @@
     "taskUnfrozen": "Tarea descongelada correctamente",
     "confirmFreezeTask": "¿Estás seguro de que quieres congelar esta tarea? Nadie podrá hacer cambios hasta que la descongeles.",
     "confirmUnfreezeTask": "¿Estás seguro de que quieres descongelar esta tarea? Los usuarios podrán hacer cambios nuevamente.",
+    "deleteTask": "Eliminar Tarea",
+    "deleteTaskConfirmTitle": "¿Eliminar Tarea?",
+    "deleteTaskConfirmMessage": "¿Estás seguro de que quieres eliminar esta tarea? Esta acción no se puede deshacer.",
+    "taskDeleted": "Tarea eliminada correctamente",
+    "failedToDelete": "Error al eliminar la tarea. Por favor, inténtalo de nuevo.",
     "addTask": "Añadir tarea",
     "addSubtask": "Añadir Subtarea",
     "subtaskCreated": "Subtarea creada correctamente",
@@ -587,7 +591,12 @@
     "userStoryChildrenMustBeTodo": "Todas las subtareas deben estar en estado Por Hacer para mover la historia al backlog",
     "taskBegunCannotGoBacklog": "Una tarea que ha comenzado no puede volver al backlog",
     "subtaskCannotMoveToBacklog": "Una subtarea no puede moverse al backlog individualmente. Mueve la historia principal en su lugar.",
-    "unassignedTasks": "Tareas sin asignar"
+    "unassignedTasks": "Tareas sin asignar",
+    "noTasksInSprint": "No hay tareas en este sprint",
+    "dropHereToAdd": "Suelta aquí para añadir al sprint",
+    "dragTasksFromBacklog": "Arrastra tareas del backlog para añadirlas a este sprint",
+    "cannotChangeStatusInFutureSprint": "El estado de la tarea no se puede cambiar mientras esté en un sprint que aún no ha comenzado",
+    "cannotChangeStatusInClosedSprint": "El estado de la tarea no se puede cambiar en un sprint cerrado"
   },
   "courses": {
     "title": "Cursos",
