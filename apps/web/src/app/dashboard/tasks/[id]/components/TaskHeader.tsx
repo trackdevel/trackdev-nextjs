@@ -7,6 +7,7 @@ import {
   Loader2,
   Pencil,
   Snowflake,
+  Trash2,
   User,
   X,
 } from "lucide-react";
@@ -19,26 +20,30 @@ interface TaskHeaderProps {
   task: TaskWithProject;
   editState: EditState;
   canEdit: boolean;
-  isProfessor: boolean;
+  canDelete: boolean;
+  canFreeze: boolean;
   onStartEdit: (field: "name") => void;
   onSave: () => void;
   onCancel: () => void;
   onNameChange: (value: string) => void;
   onFreeze: () => void;
   onUnfreeze: () => void;
+  onDelete: () => void;
 }
 
 export const TaskHeader = memo(function TaskHeader({
   task,
   editState,
   canEdit,
-  isProfessor,
+  canDelete,
+  canFreeze,
   onStartEdit,
   onSave,
   onCancel,
   onNameChange,
   onFreeze,
   onUnfreeze,
+  onDelete,
 }: TaskHeaderProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
@@ -54,7 +59,6 @@ export const TaskHeader = memo(function TaskHeader({
       INPROGRESS: "statusInProgress",
       VERIFY: "statusVerify",
       DONE: "statusDone",
-      DEFINED: "statusDefined",
     };
     return t(statusKeyMap[status] || status);
   };
@@ -186,21 +190,36 @@ export const TaskHeader = memo(function TaskHeader({
           </div>
         </div>
 
-        {/* Freeze/Unfreeze Button - Professor Only */}
-        {isProfessor && (
-          <button
-            onClick={task.frozen ? onUnfreeze : onFreeze}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-              task.frozen
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-            }`}
-            title={task.frozen ? t("unfreezeTask") : t("freezeTask")}
-          >
-            <Snowflake className="h-4 w-4" />
-            {task.frozen ? t("unfreezeTask") : t("freezeTask")}
-          </button>
-        )}
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          {/* Delete Button */}
+          {canDelete && (
+            <button
+              onClick={onDelete}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+              title={t("deleteTask")}
+            >
+              <Trash2 className="h-4 w-4" />
+              {t("deleteTask")}
+            </button>
+          )}
+
+          {/* Freeze/Unfreeze Button - Only if user can freeze */}
+          {canFreeze && (
+            <button
+              onClick={task.frozen ? onUnfreeze : onFreeze}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                task.frozen
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              }`}
+              title={task.frozen ? t("unfreezeTask") : t("freezeTask")}
+            >
+              <Snowflake className="h-4 w-4" />
+              {task.frozen ? t("unfreezeTask") : t("freezeTask")}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

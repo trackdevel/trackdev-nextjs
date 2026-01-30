@@ -16,7 +16,6 @@ export const TASK_STATUS_CONFIG: Record<
   INPROGRESS: { label: "In Progress", color: "#f59e0b", bgColor: "#fef3c7" },
   VERIFY: { label: "Verify", color: "#8b5cf6", bgColor: "#ede9fe" },
   DONE: { label: "Done", color: "#10b981", bgColor: "#d1fae5" },
-  DEFINED: { label: "Defined", color: "#6b7280", bgColor: "#f3f4f6" },
 };
 
 /**

@@ -164,7 +164,6 @@
     "statusInProgress": "In Progress",
     "statusVerify": "In Verification",
     "statusDone": "Done",
-    "statusDefined": "Defined",
     "typeUserStory": "User Story",
     "typeTask": "Task",
     "typeBug": "Bug",
@@ -282,6 +281,11 @@
     "taskUnfrozen": "Task unfrozen successfully",
     "confirmFreezeTask": "Are you sure you want to freeze this task? No one will be able to make changes until you unfreeze it.",
     "confirmUnfreezeTask": "Are you sure you want to unfreeze this task? Users will be able to make changes again.",
+    "deleteTask": "Delete Task",
+    "deleteTaskConfirmTitle": "Delete Task?",
+    "deleteTaskConfirmMessage": "Are you sure you want to delete this task? This action cannot be undone.",
+    "taskDeleted": "Task deleted successfully",
+    "failedToDelete": "Failed to delete task. Please try again.",
     "addTask": "Add task",
     "addSubtask": "Add Subtask",
     "subtaskCreated": "Subtask created successfully",
@@ -592,7 +596,12 @@
     "userStoryChildrenMustBeTodo": "All subtasks must be in To Do state to move the story back to backlog",
     "taskBegunCannotGoBacklog": "A task that has begun cannot go back to the backlog",
     "subtaskCannotMoveToBacklog": "A subtask cannot be moved to the backlog individually. Move the parent story instead.",
-    "unassignedTasks": "Unassigned Tasks"
+    "unassignedTasks": "Unassigned Tasks",
+    "noTasksInSprint": "No tasks in this sprint",
+    "dragTasksFromBacklog": "Drag tasks from the backlog to add them to this sprint",
+    "dropHereToAdd": "Drop here to add to sprint",
+    "cannotChangeStatusInFutureSprint": "Task status cannot be changed while in a sprint that has not started yet",
+    "cannotChangeStatusInClosedSprint": "Task status cannot be changed in a closed sprint"
   },
   "courses": {
     "title": "Courses",

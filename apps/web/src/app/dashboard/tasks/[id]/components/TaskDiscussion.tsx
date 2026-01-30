@@ -21,7 +21,7 @@ interface TaskDiscussionProps {
   comments: Comment[];
   taskId: number;
   onCommentAdded?: () => void;
-  isFrozen?: boolean;
+  canComment?: boolean;
   isProfessor?: boolean;
   currentUserId?: string;
 }
@@ -30,7 +30,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
   comments,
   taskId,
   onCommentAdded,
-  isFrozen = false,
+  canComment = false,
   isProfessor = false,
   currentUserId,
 }: TaskDiscussionProps) {
@@ -43,9 +43,6 @@ export const TaskDiscussion = memo(function TaskDiscussion({
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
-
-  // Professors can comment on frozen tasks, students cannot
-  const canComment = !isFrozen || isProfessor;
 
   // Check if user can edit a specific comment
   const canEditComment = (comment: Comment) => {

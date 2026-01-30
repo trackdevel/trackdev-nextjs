@@ -164,7 +164,6 @@
     "statusInProgress": "En Progrés",
     "statusVerify": "En Verificació",
     "statusDone": "Finalitzada",
-    "statusDefined": "Definida",
     "typeUserStory": "Història d'Usuari",
     "typeTask": "Tasca",
     "typeBug": "Error",
@@ -277,6 +276,11 @@
     "taskUnfrozen": "Tasca descongelada correctament",
     "confirmFreezeTask": "Estàs segur que vols congelar aquesta tasca? Ningú podrà fer canvis fins que la descongelis.",
     "confirmUnfreezeTask": "Estàs segur que vols descongelar aquesta tasca? Els usuaris podran fer canvis de nou.",
+    "deleteTask": "Eliminar Tasca",
+    "deleteTaskConfirmTitle": "Eliminar Tasca?",
+    "deleteTaskConfirmMessage": "Estàs segur que vols eliminar aquesta tasca? Aquesta acció no es pot desfer.",
+    "taskDeleted": "Tasca eliminada correctament",
+    "failedToDelete": "Error en eliminar la tasca. Si us plau, torna-ho a provar.",
     "addTask": "Afegir tasca",
     "addSubtask": "Afegir Subtasca",
     "subtaskCreated": "Subtasca creada correctament",
@@ -587,7 +591,12 @@
     "userStoryChildrenMustBeTodo": "Totes les subtasques han d'estar en estat Per Fer per moure la història al backlog",
     "taskBegunCannotGoBacklog": "Una tasca que ha començat no pot tornar al backlog",
     "subtaskCannotMoveToBacklog": "Una subtasca no es pot moure al backlog individualment. Mou la història principal en el seu lloc.",
-    "unassignedTasks": "Tasques sense assignar"
+    "unassignedTasks": "Tasques sense assignar",
+    "noTasksInSprint": "No hi ha tasques en aquest sprint",
+    "dropHereToAdd": "Deixa aquí per afegir al sprint",
+    "dragTasksFromBacklog": "Arrossega tasques del backlog per afegir-les a aquest sprint",
+    "cannotChangeStatusInFutureSprint": "L'estat de la tasca no es pot canviar mentre estigui en un sprint que encara no ha començat",
+    "cannotChangeStatusInClosedSprint": "L'estat de la tasca no es pot canviar en un sprint tancat"
   },
   "courses": {
     "title": "Cursos",

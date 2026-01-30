@@ -167,3 +167,105 @@ For business‑heavy apps, prefer a thin global store (Zustand, Redux Toolkit, J
    Treat TypeScript as first‑class: strongly typed props, hooks, actions, and domain models, with interfaces/types co‑located near usage but reusable types extracted into domain modules.
 
 Organize by feature/slice (feature‑first structure) instead of global “components/hooks/utils” buckets, and back this with linting, codemods, and React 19 upgrade tooling to keep a large professional codebase consistent over time.
+
+
+### Sprint and task mechanics
+
+## Sprint view
+
+- The view shows tasks assigned to the sprint
+- The structure show a left collapsible panel with the backlog and a main area with the sprint board
+- The main area has 4 columns: TODO, INPROGRESS, VERIFY, DONE
+- Each column shows the tasks assigned to that status
+- Tasks of type USER_STORY are shown as parent tasks in a lane spaning all the 4 columns with their subtasks nested inside. They are collapsible
+- The lanes that show USER_STORY assigned to the current Sprint will have right to the title, a list of badges indicating all the sprints where this USER_STORY has subtasks assigned. This is to give a visual clue that some subtasks are in other sprints.
+- Tasks of type TASK and BUG are shown as individual cards inside the corresponding column
+
+# Drag and Drop mechanics
+
+- Tasks in the backlog:
+  - Tasks in the backlog can be dragged to the sprint board, only if the sprint endDate is in the future
+  - The task is assigned to the current sprint (we are in a sprint view) and its status is set to TODO
+
+- Tasks in the sprint board:
+  - Tasks of type TASK and BUG can be dragged between columns (TODO, INPROGRESS, VERIFY, DONE)
+  - Tasks in PAST sprints cannot be dragged to change its status betwen TODO, INPROGRESS, VERIFY, DONE
+  - Tasks in the ACTIVE or FUTURE sprint can be dragged back to the backlog. Conditions: 
+    - USER_STORY: all its subtasks must be in TODO state. All its subtask are moved to backlog as well
+    - TASK or BUG with no parent: its status must be TODO
+    - Subtask (TASK or BUG with parent): cannot be moved to backlog individually - must move the parent USER_STORY instead
+  - Tasks of any type in a FUTURE sprint cannot change their status from TODO to any other status until the sprint becomes ACTIVE
+
+
+## Task View
+
+- The task view shows the details of a task
+- The view shows:
+  - Title
+  - Description (markdown supported)
+  - Project
+  - Sprint, considering that:
+    - Tasks of type TASK and BUG must only have 1 sprint assigned maximum
+    - Tasks of type USER_STORY shows a list of sprints where its subtasks are assigned
+  - Type (USER_STORY, TASK, BUG)
+  - Status (TODO, INPROGRESS, VERIFY, DONE)
+  - Assignee (user assigned to the task)
+  - Parent task (if any)
+  - Subtasks (if any)
+- The task can be edited by:
+  - Only by a PROFESSOR assigned to the corresponding project or a STUDENT assigned to the Task
+  - If the task is frozen, only a PROFESSOR assigned to the corresponding project can edit it
+  - If a Task of type TASK or BUG is in a PAST sprint, it cannot be edited, except:
+    - STUDENT assigned can edit the sprint to move it to ACTIVE or FUTURE sprint
+    - PROFESSOR users assigned to the corresponding project can edit all
+- The following fields can be edited:
+  - Changing the title
+  - Changing the description
+  - Changing the type. Restrictions:
+    - A USER_STORY cannot be changed of type
+    - A TASK cannot be changed to USER_STORY if it has a parent
+    - A BUG can never have its type changed
+  - Changing the status
+  - Changing the assignee. Only PROFESSOR and assignee can unssign a Task
+  - Changing the Sprint. Restrictions:
+    - Only of tasks of type TASK or BUG
+    - Only tasks in TODO, INPROGRESS and  VERIFY status can change sprint
+    - A task can only be assigned to a sprint that belongs to the same project as the task
+    - A task can obly be assigned to a sprint that is ACTIVE or FUTURE (not PAST)
+    - A task cannot be assigned to a previous sprint
+  - There will be a delete button in the task view to delete the task. Restrictions:
+    - Only by a PROFESSOR assigned to the corresponding project or a STUDENT assigned to the Task
+    - A USER_STORY can only be deleted if it has no subtasks
+    - A TASK or BUG can be deleted only if its state is TODO or INPROGRESS
+    - Asks for confirmation before deleting
+
+## Task creation
+- Tasks can be created in three ways:
+  - In the Sprint View, from the backlog panel with a "+" button in the header of the panel
+  - In the task view, only for subtasks of a USER_STORY, with the "Add subtask" button in the subtasks section
+  - In the Tasks list view, with the "Add task" button in the header of the page
+
+- When creating a task in the Sprint View backlog panel:
+  - The task is created in BACKLOG state
+  - The task is not assigned to any sprint
+  - The task can be of any type (USER_STORY, TASK, BUG)
+
+- When creating a subtask in the Task View of a USER_STORY:
+  - The task is created as a subtask of the USER_STORY
+  - The type of the task can only be TASK or BUG
+  - The task status will be:
+    - If the USER_STORY is in BACKLOG state, the subtask is created in BACKLOG state
+    - If the USER_STORY is assigned to a sprint, the subtask is created in TODO state
+  - The task sprint will be:
+    - None if the USER_STORY is in BACKLOG state
+    - The most modern sprint where the parent USER_STORY has other subtasks assigned. If no subtasks exist, the task is not assigned to any sprint
+  - The user can choose the task to be assigned to another sprint, provided that the sprint is ACTIVE or FUTURE
+
+- When creating a task in the Tasks list view:
+  - Same conditions as creating a task in the Sprint View backlog panel
+
+## Permissions
+- All the actions that modify an existing task (drag and drop, edit, create subtask, sprint change) can only be done by:
+  - a PROFESSOR assigned to the corresponding project (it owns the course of the project)
+  - a STUDENT assigned to the Task
+

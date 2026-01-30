@@ -46,13 +46,7 @@ export interface Task {
 
 export type TaskType = "USER_STORY" | "TASK" | "BUG";
 
-export type TaskStatus =
-  | "BACKLOG"
-  | "TODO"
-  | "INPROGRESS"
-  | "VERIFY"
-  | "DONE"
-  | "DEFINED";
+export type TaskStatus = "BACKLOG" | "TODO" | "INPROGRESS" | "VERIFY" | "DONE";
 
 export interface TaskCreateRequest {
   name: string;
@@ -125,6 +119,7 @@ export interface SetAttributeValueRequest {
 
 /**
  * Task detail response - flat structure with all task properties plus pointsReview
+ * Includes computed permission flags based on current user context.
  */
 export interface TaskDetail extends Task {
   project?: {
@@ -133,8 +128,43 @@ export interface TaskDetail extends Task {
     members?: Array<{ id: string; username: string; color?: string }>;
   };
   pointsReview: PointsReview[];
-  /** Whether the current user can edit this task */
+
+  // =============================================================================
+  // PERMISSION FLAGS (computed by backend based on current user context)
+  // =============================================================================
+
+  /** Whether the current user can edit this task (name, description, etc.) */
   canEdit: boolean;
+
+  /** Whether the current user can change the task status */
+  canEditStatus: boolean;
+
+  /** Whether the current user can change the sprint assignment */
+  canEditSprint: boolean;
+
+  /** Whether the current user can change the task type */
+  canEditType: boolean;
+
+  /** Whether the current user can change estimation points */
+  canEditEstimation: boolean;
+
+  /** Whether the current user can delete this task */
+  canDelete: boolean;
+
+  /** Whether the current user can self-assign this task */
+  canSelfAssign: boolean;
+
+  /** Whether the current user can unassign the current assignee */
+  canUnassign: boolean;
+
+  /** Whether the current user can add subtasks to this task (only for USER_STORY) */
+  canAddSubtask: boolean;
+
+  /** Whether the current user can freeze/unfreeze this task */
+  canFreeze: boolean;
+
+  /** Whether the current user can add comments */
+  canComment: boolean;
 }
 
 /**

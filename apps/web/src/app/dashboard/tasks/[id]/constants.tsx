@@ -35,12 +35,6 @@ export const STATUS_CONFIG: Record<
     bgColor: "bg-green-100 dark:bg-green-900/30",
     icon: <CheckCircle2 className="h-4 w-4" />,
   },
-  DEFINED: {
-    label: "Defined",
-    color: "text-purple-700 dark:text-purple-400",
-    bgColor: "bg-purple-100 dark:bg-purple-900/30",
-    icon: <FileText className="h-4 w-4" />,
-  },
 };
 
 export const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
