@@ -94,6 +94,8 @@ interface Story {
   name: string;
   estimationPoints: number;
   subtasks: Task[];
+  // All sprints where this story has subtasks (for sprint badges)
+  allSubtaskSprints: { id: number; name: string }[];
 }
 
 interface DragState {
@@ -125,26 +127,35 @@ type TaskOptimisticAction =
 // =============================================================================
 
 function selectSprintTasks(tasks: Map<number, Task>, sprintId: number): Task[] {
-  return Array.from(tasks.values()).filter(
-    (task) =>
-      task.activeSprints &&
-      task.activeSprints.length > 0 &&
-      task.activeSprints.some((s) => s.id === sprintId),
-  );
+  return Array.from(tasks.values())
+    .filter(
+      (task) =>
+        task.activeSprints &&
+        task.activeSprints.length > 0 &&
+        task.activeSprints.some((s) => s.id === sprintId),
+    )
+    .sort((a, b) => a.id - b.id);
 }
 
 function selectBacklogTasks(tasks: Map<number, Task>): Task[] {
-  return Array.from(tasks.values()).filter(
-    (task) =>
-      (!task.activeSprints || task.activeSprints.length === 0) &&
-      (task.type === "USER_STORY" || !task.parentTaskId),
-  );
+  return Array.from(tasks.values())
+    .filter(
+      (task) =>
+        (!task.activeSprints || task.activeSprints.length === 0) &&
+        (task.type === "USER_STORY" || !task.parentTaskId),
+    )
+    .sort((a, b) => a.id - b.id);
 }
 
-function selectStories(sprintTasks: Task[]): Story[] {
+function selectStories(
+  sprintTasks: Task[],
+  allTasks: Map<number, Task>,
+  sprintId: number,
+): Story[] {
   const storyMap = new Map<number, Story>();
   const orphanTasks: Task[] = [];
 
+  // First, identify USER_STORYs in this sprint
   for (const task of sprintTasks) {
     if (task.type === "USER_STORY") {
       storyMap.set(task.id, {
@@ -152,23 +163,62 @@ function selectStories(sprintTasks: Task[]): Story[] {
         name: task.name,
         estimationPoints: task.estimationPoints || 0,
         subtasks: [],
+        allSubtaskSprints: [],
       });
     }
   }
 
-  for (const task of sprintTasks) {
-    if ((task.type === "TASK" || task.type === "BUG") && task.parentTaskId) {
-      const parentStory = storyMap.get(task.parentTaskId);
-      if (parentStory) {
-        parentStory.subtasks.push(task);
-      } else {
-        orphanTasks.push(task);
+  // For each USER_STORY, first collect ALL subtasks to compute sprint badges,
+  // then filter to only include subtasks in THIS sprint for the board
+  for (const [storyId, story] of storyMap.entries()) {
+    const allSubtasks: Task[] = [];
+    const sprintMap = new Map<number, { id: number; name: string }>();
+
+    // Find ALL subtasks of this story (from any sprint)
+    for (const task of allTasks.values()) {
+      if (
+        (task.type === "TASK" || task.type === "BUG") &&
+        task.parentTaskId === storyId
+      ) {
+        allSubtasks.push(task);
+        // Collect all sprints from this subtask
+        if (task.activeSprints) {
+          for (const sprint of task.activeSprints) {
+            if (!sprintMap.has(sprint.id)) {
+              sprintMap.set(sprint.id, { id: sprint.id, name: sprint.name });
+            }
+          }
+        }
       }
+    }
+
+    // Store all sprints for badges (sorted by id for chronological order)
+    story.allSubtaskSprints = Array.from(sprintMap.values()).sort(
+      (a, b) => a.id - b.id,
+    );
+
+    // Filter subtasks to only those in THIS sprint for the board, sorted by id
+    story.subtasks = allSubtasks
+      .filter(
+        (task) =>
+          task.activeSprints &&
+          task.activeSprints.some((s) => s.id === sprintId),
+      )
+      .sort((a, b) => a.id - b.id);
+  }
+
+  // Handle orphan tasks (TASK/BUG without parent or parent not in this sprint)
+  for (const task of sprintTasks) {
+    if ((task.type === "TASK" || task.type === "BUG") && !task.parentTaskId) {
+      orphanTasks.push(task);
     } else if (
       (task.type === "TASK" || task.type === "BUG") &&
-      !task.parentTaskId
+      task.parentTaskId
     ) {
-      orphanTasks.push(task);
+      // If parent story is not in this sprint, add to orphans
+      if (!storyMap.has(task.parentTaskId)) {
+        orphanTasks.push(task);
+      }
     }
   }
 
@@ -177,11 +227,18 @@ function selectStories(sprintTasks: Task[]): Story[] {
       id: -1,
       name: "Unassigned Tasks",
       estimationPoints: 0,
-      subtasks: orphanTasks,
+      subtasks: orphanTasks.sort((a, b) => a.id - b.id),
+      allSubtaskSprints: [],
     });
   }
 
-  return Array.from(storyMap.values());
+  // Return stories sorted by id (with orphan tasks lane at the end)
+  return Array.from(storyMap.values()).sort((a, b) => {
+    // Keep orphan tasks (-1) at the end
+    if (a.id === -1) return 1;
+    if (b.id === -1) return -1;
+    return a.id - b.id;
+  });
 }
 
 // =============================================================================
@@ -315,7 +372,8 @@ export default function SprintBoardPage() {
   const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useState<
     number | null
   >(null);
-  const [expandedStories, setExpandedStories] = useState<Set<number>>(
+  // Track collapsed stories (all stories are expanded by default)
+  const [collapsedStories, setCollapsedStories] = useState<Set<number>>(
     new Set(),
   );
   const [isInitialized, setIsInitialized] = useState(false);
@@ -348,6 +406,43 @@ export default function SprintBoardPage() {
     { enabled: isAuthenticated && !!sprintBoard?.project?.id },
   );
 
+  // Fetch all sprints for the project to enable prev/next navigation
+  const { data: projectSprints } = useQuery(
+    () =>
+      sprintBoard?.project?.id
+        ? projectsApi.getSprints(sprintBoard.project.id)
+        : Promise.resolve({ sprints: [], projectId: 0 }),
+    [sprintBoard?.project?.id],
+    { enabled: isAuthenticated && !!sprintBoard?.project?.id },
+  );
+
+  // Compute previous and next sprint IDs for navigation
+  const { prevSprintId, nextSprintId } = useMemo(() => {
+    if (!projectSprints?.sprints || projectSprints.sprints.length === 0) {
+      return { prevSprintId: null, nextSprintId: null };
+    }
+    const sprints = projectSprints.sprints;
+    const currentIndex = sprints.findIndex((s) => s.id === sprintId);
+    if (currentIndex === -1) {
+      return { prevSprintId: null, nextSprintId: null };
+    }
+    return {
+      prevSprintId: currentIndex > 0 ? sprints[currentIndex - 1].id : null,
+      nextSprintId:
+        currentIndex < sprints.length - 1 ? sprints[currentIndex + 1].id : null,
+    };
+  }, [projectSprints, sprintId]);
+
+  // Refetch data when window gains focus (to catch changes made in other views)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchBoard();
+      refetchProjectTasks();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [refetchBoard, refetchProjectTasks]);
+
   // Sync server data to local state
   useEffect(() => {
     if (sprintBoard && projectTasks) {
@@ -362,18 +457,21 @@ export default function SprintBoardPage() {
         project: sprintBoard.project,
       });
       if (!isInitialized) {
-        // Expand all USER_STORY tasks by default
-        const storyIds = new Set<number>();
-        for (const task of sprintBoard.tasks) {
-          if (task.type === "USER_STORY") {
-            storyIds.add(task.id);
+        // Load collapsed stories from localStorage (all stories expanded by default)
+        const storageKey = `sprint-${sprintId}-collapsed-stories`;
+        try {
+          const stored = localStorage.getItem(storageKey);
+          if (stored) {
+            const collapsedIds = JSON.parse(stored) as number[];
+            setCollapsedStories(new Set(collapsedIds));
           }
+        } catch {
+          // Ignore localStorage errors
         }
-        setExpandedStories(storyIds);
         setIsInitialized(true);
       }
     }
-  }, [sprintBoard, projectTasks, isInitialized]);
+  }, [sprintBoard, projectTasks, isInitialized, sprintId]);
 
   // Derived state using optimisticTasks (which includes pending optimistic updates)
   const sprintTasks = useMemo(
@@ -404,7 +502,10 @@ export default function SprintBoardPage() {
     }
     return map;
   }, [optimisticTasks]);
-  const stories = useMemo(() => selectStories(sprintTasks), [sprintTasks]);
+  const stories = useMemo(
+    () => selectStories(sprintTasks, optimisticTasks, sprintId),
+    [sprintTasks, optimisticTasks, sprintId],
+  );
 
   const isLoading = authLoading || boardLoading || !isInitialized;
 
@@ -412,14 +513,27 @@ export default function SprintBoardPage() {
   // EVENT HANDLERS
   // =============================================================================
 
-  const toggleStoryExpand = useCallback((storyId: number) => {
-    setExpandedStories((prev) => {
-      const next = new Set(prev);
-      if (next.has(storyId)) next.delete(storyId);
-      else next.add(storyId);
-      return next;
-    });
-  }, []);
+  const toggleStoryExpand = useCallback(
+    (storyId: number) => {
+      setCollapsedStories((prev) => {
+        const next = new Set(prev);
+        if (next.has(storyId)) {
+          next.delete(storyId); // Expand (remove from collapsed)
+        } else {
+          next.add(storyId); // Collapse (add to collapsed)
+        }
+        // Persist to localStorage
+        const storageKey = `sprint-${sprintId}-collapsed-stories`;
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(Array.from(next)));
+        } catch {
+          // Ignore localStorage errors
+        }
+        return next;
+      });
+    },
+    [sprintId],
+  );
 
   const handleDragStart = useCallback(
     (e: React.DragEvent, task: Task, source: "sprint" | "backlog") => {
@@ -497,16 +611,10 @@ export default function SprintBoardPage() {
       const task = optimisticTasks.get(taskId);
       if (!task) return;
 
-      // Validation
-      if (sprintMeta.status !== "ACTIVE") {
-        const endDate = sprintMeta.endDate
-          ? new Date(sprintMeta.endDate)
-          : null;
-        const now = new Date();
-        if (!endDate || endDate < now) {
-          toast.error(t("cannotAddToClosedSprint"));
-          return;
-        }
+      // Validation: Cannot add tasks to CLOSED sprints
+      if (sprintMeta.status === "CLOSED") {
+        toast.error(t("cannotAddToClosedSprint"));
+        return;
       }
 
       // Find subtasks if this is a USER_STORY (backend cascades sprint assignment)
@@ -665,13 +773,45 @@ export default function SprintBoardPage() {
         }
         addTaskToSprint(taskId);
       } else {
+        // USER_STORY cannot change status via drag (status is derived from children)
+        if (task.type === "USER_STORY") {
+          setDragState({ taskId: null, source: null });
+          return;
+        }
+
+        // Tasks in CLOSED (past) sprints cannot change status
+        if (sprintMeta.status === "CLOSED") {
+          toast.error(t("cannotChangeStatusInClosedSprint"));
+          setDragState({ taskId: null, source: null });
+          return;
+        }
+
+        // Tasks in FUTURE sprint (DRAFT) cannot change from TODO
+        if (
+          sprintMeta.status === "DRAFT" &&
+          task.status === "TODO" &&
+          columnId !== "TODO"
+        ) {
+          toast.error(t("cannotChangeStatusInFutureSprint"));
+          setDragState({ taskId: null, source: null });
+          return;
+        }
+
         if (task.status !== columnId) {
           moveTaskToColumn(taskId, columnId);
         }
       }
       setDragState({ taskId: null, source: null });
     },
-    [dragState, optimisticTasks, addTaskToSprint, moveTaskToColumn, t, toast],
+    [
+      dragState,
+      optimisticTasks,
+      addTaskToSprint,
+      moveTaskToColumn,
+      sprintMeta.status,
+      t,
+      toast,
+    ],
   );
 
   const handleDropOnBacklog = useCallback(
@@ -692,16 +832,15 @@ export default function SprintBoardPage() {
       }
 
       if (task.type === "USER_STORY") {
-        // Get child tasks in this sprint
-        const childTasks = Array.from(optimisticTasks.values()).filter(
+        // Get ALL child tasks (from any sprint, not just current sprint)
+        // This is required because ALL subtasks must be in TODO state to move story to backlog
+        const allChildTasks = Array.from(optimisticTasks.values()).filter(
           (t) =>
             t.parentTaskId === taskId &&
-            t.activeSprints &&
-            t.activeSprints.length > 0 &&
-            t.activeSprints.some((s) => s.id === sprintId),
+            (t.type === "TASK" || t.type === "BUG"),
         );
 
-        const hasNonTodoChildren = childTasks.some(
+        const hasNonTodoChildren = allChildTasks.some(
           (child) => child.status !== "TODO",
         );
         if (hasNonTodoChildren) {
@@ -710,10 +849,18 @@ export default function SprintBoardPage() {
           return;
         }
 
+        // Get child tasks in this sprint for optimistic update
+        const childIdsInSprint = allChildTasks
+          .filter(
+            (t) =>
+              t.activeSprints &&
+              t.activeSprints.length > 0 &&
+              t.activeSprints.some((s) => s.id === sprintId),
+          )
+          .map((c) => c.id);
+
         // Only send USER_STORY ID to backend - it will cascade to subtasks
-        // Pass childIds for optimistic update only
-        const childIds = childTasks.map((c) => c.id);
-        removeUserStoryFromSprint(taskId, childIds);
+        removeUserStoryFromSprint(taskId, childIdsInSprint);
       } else if (task.parentTaskId) {
         toast.error(t("subtaskCannotMoveToBacklog"));
         setDragState({ taskId: null, source: null });
@@ -802,6 +949,35 @@ export default function SprintBoardPage() {
                 {isPending && (
                   <Loader2 className="h-4 w-4 animate-spin text-primary-600" />
                 )}
+                {/* Sprint Navigation Arrows */}
+                <div className="flex items-center gap-1 ml-2">
+                  {prevSprintId ? (
+                    <Link
+                      href={`/dashboard/sprints/${prevSprintId}`}
+                      className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                      title="Previous Sprint"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Link>
+                  ) : (
+                    <span className="p-1 text-gray-300 dark:text-gray-600 cursor-not-allowed">
+                      <ChevronLeft className="h-5 w-5" />
+                    </span>
+                  )}
+                  {nextSprintId ? (
+                    <Link
+                      href={`/dashboard/sprints/${nextSprintId}`}
+                      className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                      title="Next Sprint"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Link>
+                  ) : (
+                    <span className="p-1 text-gray-300 dark:text-gray-600 cursor-not-allowed">
+                      <ChevronRight className="h-5 w-5" />
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="mt-1 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                 {sprintMeta.project && (
@@ -957,12 +1133,46 @@ export default function SprintBoardPage() {
               />
             ) : (
               <div className="space-y-4">
+                {/* Drop zone for backlog tasks when dragging from backlog */}
+                {isDragging && !isDraggingFromSprint && (
+                  <div className="grid grid-cols-4 gap-4">
+                    {BOARD_COLUMNS.map((col) => (
+                      <div
+                        key={col.id}
+                        className={`min-h-[60px] rounded-lg border-2 border-dashed p-4 transition-colors ${
+                          col.id === "TODO"
+                            ? dragOverTarget?.type === "column" &&
+                              dragOverTarget.storyId === -1 &&
+                              dragOverTarget.columnId === "TODO"
+                              ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
+                              : "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
+                            : "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50"
+                        }`}
+                        onDragOver={(e) => {
+                          if (col.id === "TODO") {
+                            handleDragOver(e, -1, col.id);
+                          }
+                        }}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => {
+                          if (col.id === "TODO") {
+                            handleDropOnColumn(e, -1, col.id);
+                          }
+                        }}
+                      >
+                        <div className="flex h-full items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
+                          {col.id === "TODO" ? t("dropHereToAdd") : ""}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {stories.map((story) => (
                   <StoryRow
                     key={story.id}
                     story={story}
                     sprintId={sprintId}
-                    expanded={expandedStories.has(story.id)}
+                    expanded={!collapsedStories.has(story.id)}
                     onToggleExpand={toggleStoryExpand}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
@@ -1111,7 +1321,9 @@ const StoryRow = memo(function StoryRow({
       VERIFY: [],
       DONE: [],
     };
-    for (const task of story.subtasks) {
+    // Sort subtasks by id first for consistent ordering
+    const sortedSubtasks = [...story.subtasks].sort((a, b) => a.id - b.id);
+    for (const task of sortedSubtasks) {
       const status = task.status as BoardColumnId;
       if (byColumn[status]) {
         byColumn[status].push(task);
@@ -1208,6 +1420,24 @@ const StoryRow = memo(function StoryRow({
           <span className="text-sm text-gray-500 dark:text-gray-400">
             ({story.subtasks.length} {t("tasks")})
           </span>
+          {/* Sprint badges showing which sprints have subtasks */}
+          {story.allSubtaskSprints.length > 0 && (
+            <div className="flex items-center gap-1 ml-2">
+              {story.allSubtaskSprints.map((sprint) => (
+                <span
+                  key={sprint.id}
+                  className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${
+                    sprint.id === sprintId
+                      ? "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 ring-1 ring-primary-500"
+                      : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                  }`}
+                  title={sprint.name}
+                >
+                  {sprint.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-4">
           {totalPoints > 0 && (
@@ -1454,11 +1684,11 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
             </button>
           )}
           {getTypeIcon()}
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 overflow-hidden">
             <Link
               href={`/dashboard/tasks/${task.id}`}
               onClick={(e) => e.stopPropagation()}
-              className="truncate text-sm font-medium text-gray-900 dark:text-white hover:text-primary-600 hover:underline"
+              className="block truncate text-sm font-medium text-gray-900 dark:text-white hover:text-primary-600 hover:underline"
             >
               {task.name}
             </Link>
