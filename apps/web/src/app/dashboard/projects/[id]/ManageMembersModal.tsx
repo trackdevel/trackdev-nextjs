@@ -189,7 +189,7 @@ export function ManageMembersModal({
                               setSearchQuery("");
                             }}
                             disabled={isLoading}
-                            className="flex items-center gap-1 rounded bg-primary-600 px-2 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+                            className="flex items-center gap-1 rounded-sm bg-primary-600 px-2 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50"
                           >
                             <Plus className="h-3 w-3" />
                             {t("addMember")}

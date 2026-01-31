@@ -70,12 +70,12 @@ export const TaskChildren = memo(function TaskChildren({
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`flex h-8 w-8 items-center justify-center rounded ${subtaskStatus.bgColor}`}
+                        className={`flex h-8 w-8 items-center justify-center rounded-sm ${subtaskStatus.bgColor}`}
                       >
                         {subtaskStatus.icon}
                       </div>
                       {/* Fixed-width type badge container for alignment */}
-                      <div className="w-14 flex-shrink-0">
+                      <div className="w-14 shrink-0">
                         {subtask.type && (
                           <span
                             className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -93,7 +93,7 @@ export const TaskChildren = memo(function TaskChildren({
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {subtask.taskKey && (
-                            <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
+                            <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-sm mr-2 dark:bg-gray-700 dark:text-gray-400">
                               {subtask.taskKey}
                             </span>
                           )}

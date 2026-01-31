@@ -171,7 +171,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder={t("writeComment")}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500 resize-none"
             rows={3}
             autoFocus
             disabled={isSubmitting}
@@ -215,7 +215,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
               <li key={comment.id} className="px-6 py-4">
                 <div className="flex gap-3">
                   <div
-                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium text-white"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium text-white"
                     style={{
                       backgroundColor: comment.author?.color || "#6b7280",
                     }}
@@ -240,7 +240,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                           {showEditButton && (
                             <button
                               onClick={() => handleStartEdit(comment)}
-                              className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-colors"
+                              className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-colors"
                               title={t("editComment")}
                             >
                               <Pencil className="h-4 w-4" />
@@ -250,7 +250,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                             <button
                               onClick={() => handleDeleteClick(comment.id)}
                               disabled={isDeleting}
-                              className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                              className="rounded-sm p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                               title={t("deleteComment")}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -264,7 +264,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                         <textarea
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 resize-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500 resize-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                           rows={3}
                           autoFocus
                           disabled={isUpdating}

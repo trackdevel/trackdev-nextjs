@@ -50,7 +50,7 @@ export const TaskDescription = memo(function TaskDescription({
             <textarea
               value={editState.description}
               onChange={(e) => onDescriptionChange(e.target.value)}
-              className="w-full min-h-[150px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-y dark:text-white dark:border-gray-600 dark:bg-gray-800"
+              className="w-full min-h-[150px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-primary-500 resize-y dark:text-white dark:border-gray-600 dark:bg-gray-800"
               autoFocus
               placeholder={t("addDescription")}
             />

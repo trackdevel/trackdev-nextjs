@@ -436,7 +436,7 @@ export default function ProjectDetailPage() {
                     />
                     <button
                       onClick={() => handleDeleteRepo(repo.id)}
-                      className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
                       title={t("removeRepository")}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -660,7 +660,7 @@ export default function ProjectDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowTokenFor(showTokenFor === -1 ? null : -1)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-1 text-gray-400 hover:text-gray-600"
               >
                 {showTokenFor === -1 ? (
                   <EyeOff className="h-4 w-4" />

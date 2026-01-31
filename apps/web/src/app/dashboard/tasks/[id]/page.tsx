@@ -170,9 +170,9 @@ export default function TaskDetailPage() {
   const canSelfAssign = optimisticTask?.canSelfAssign ?? false;
   const canUnassign = optimisticTask?.canUnassign ?? false;
   const canDelete = optimisticTask?.canDelete ?? false;
-  const canAddSubtask = optimisticTask?.canAddSubtask ?? false;
   const canFreeze = optimisticTask?.canFreeze ?? false;
   const canComment = optimisticTask?.canComment ?? false;
+  // Additional permission flag available: canAddSubtask (in optimisticTask)
 
   // USER_STORY status is derived from its children - no manual status change available
   // Only TASK and BUG can have their status changed manually

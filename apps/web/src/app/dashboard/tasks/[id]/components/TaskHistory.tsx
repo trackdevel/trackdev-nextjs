@@ -86,7 +86,7 @@ function HistoryEntry({ log }: HistoryEntryProps) {
 
   return (
     <div className="flex gap-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
-      <div className="flex-shrink-0 mt-1">
+      <div className="shrink-0 mt-1">
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
           <User className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
         </div>

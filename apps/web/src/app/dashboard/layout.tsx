@@ -248,7 +248,7 @@ export default function DashboardLayout({
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-4 dark:border-gray-700">
-            <Layers className="h-8 w-8 flex-shrink-0 text-primary-600" />
+            <Layers className="h-8 w-8 shrink-0 text-primary-600" />
             {!isCollapsed && (
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 TrackDev
@@ -260,7 +260,7 @@ export default function DashboardLayout({
           <div className="border-b border-gray-200 px-3 py-4 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <div
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
                 style={{ backgroundColor: user?.color || "#3b82f6" }}
                 title={
                   isCollapsed ? user?.fullName || user?.username : undefined
@@ -313,7 +313,7 @@ export default function DashboardLayout({
                   } ${isCollapsed ? "justify-center" : ""}`}
                   title={isCollapsed ? item.label : undefined}
                 >
-                  <span className="relative flex-shrink-0">
+                  <span className="relative shrink-0">
                     {item.icon}
                     {showBadge && (
                       <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800" />
@@ -359,7 +359,7 @@ export default function DashboardLayout({
               }`}
               title={isCollapsed ? tAuth("logout") : undefined}
             >
-              <LogOut className="h-5 w-5 flex-shrink-0" />
+              <LogOut className="h-5 w-5 shrink-0" />
               {!isCollapsed && tAuth("logout")}
             </button>
           </div>

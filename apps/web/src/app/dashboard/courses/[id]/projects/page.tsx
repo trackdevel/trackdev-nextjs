@@ -163,7 +163,7 @@ export default function CourseProjectsPage() {
               id="pageSize"
               value={pageSize}
               onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
             >
               {PAGE_SIZE_OPTIONS.map((size) => (
                 <option key={size} value={size}>
@@ -395,13 +395,13 @@ function CreateProjectModal({
               students.map((student) => (
                 <label
                   key={student.id}
-                  className="flex cursor-pointer items-center gap-3 rounded p-2 hover:bg-gray-50"
+                  className="flex cursor-pointer items-center gap-3 rounded-sm p-2 hover:bg-gray-50"
                 >
                   <input
                     type="checkbox"
                     checked={selectedMembers.includes(student.id)}
                     onChange={() => toggleMember(student.id)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900">

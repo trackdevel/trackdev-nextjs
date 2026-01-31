@@ -84,7 +84,7 @@ export function EditStudentModal({
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-xs focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
               required
             />
           </div>
@@ -102,7 +102,7 @@ export function EditStudentModal({
               value={githubUsername}
               onChange={(e) => setGithubUsername(e.target.value)}
               placeholder="e.g., octocat"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-xs focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
             />
             <p className="mt-1 text-xs text-gray-500">
               {t("githubUsernameHint")}

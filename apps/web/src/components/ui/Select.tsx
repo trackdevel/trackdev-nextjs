@@ -113,7 +113,7 @@ export function Select({
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 ${
+        className={`flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-xs transition-colors focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 ${
           disabled
             ? "cursor-not-allowed opacity-50"
             : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -139,7 +139,7 @@ export function Select({
       {isOpen && (
         <ul
           role="listbox"
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg focus:outline-hidden dark:border-gray-600 dark:bg-gray-800"
         >
           {options.map((option) => (
             <li

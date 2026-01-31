@@ -174,7 +174,7 @@ export const TaskAttributes = memo(function TaskAttributes({
             type="number"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
             step="1"
           />
         );
@@ -184,7 +184,7 @@ export const TaskAttributes = memo(function TaskAttributes({
             type="number"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
             step="0.01"
           />
         );
@@ -195,7 +195,7 @@ export const TaskAttributes = memo(function TaskAttributes({
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
           />
         );
     }
@@ -251,7 +251,7 @@ export const TaskAttributes = memo(function TaskAttributes({
                   <button
                     onClick={handleSaveEdit}
                     disabled={setValueMutation.isLoading}
-                    className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded"
+                    className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-sm"
                     title={tCommon("save")}
                   >
                     {setValueMutation.isLoading ? (
@@ -262,7 +262,7 @@ export const TaskAttributes = memo(function TaskAttributes({
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                    className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
                     title={tCommon("cancel")}
                   >
                     <X className="h-4 w-4" />
@@ -281,7 +281,7 @@ export const TaskAttributes = memo(function TaskAttributes({
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleStartEdit(attrValue)}
-                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
                         title={tCommon("edit")}
                       >
                         <Pencil className="h-4 w-4" />
@@ -289,7 +289,7 @@ export const TaskAttributes = memo(function TaskAttributes({
                       <button
                         onClick={() => handleDelete(attrValue.attributeId)}
                         disabled={deleteValueMutation.isLoading}
-                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-sm"
                         title={tCommon("delete")}
                       >
                         {deleteValueMutation.isLoading ? (
@@ -326,7 +326,7 @@ export const TaskAttributes = memo(function TaskAttributes({
               <button
                 onClick={handleSaveAdd}
                 disabled={setValueMutation.isLoading}
-                className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded"
+                className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-sm"
                 title={tCommon("save")}
               >
                 {setValueMutation.isLoading ? (
@@ -337,7 +337,7 @@ export const TaskAttributes = memo(function TaskAttributes({
               </button>
               <button
                 onClick={handleCancelAdd}
-                className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
                 title={tCommon("cancel")}
               >
                 <X className="h-4 w-4" />

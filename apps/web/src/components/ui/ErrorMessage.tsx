@@ -123,7 +123,7 @@ export function ErrorMessage({
       <div
         className={`flex items-center gap-2 text-sm text-red-600 dark:text-red-400 ${className}`}
       >
-        <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+        <AlertTriangle className="h-4 w-4 shrink-0" />
         <span>{message}</span>
         {onRetry && (
           <button
@@ -160,7 +160,7 @@ export function ErrorMessage({
           {onRetry && (
             <button
               onClick={onRetry}
-              className="flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
+              className="flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
             >
               <RefreshCw className="h-4 w-4" />
               Retry
@@ -182,7 +182,7 @@ export function ErrorMessage({
     <div
       className={`rounded-lg border p-6 text-center ${bgColor} ${className}`}
     >
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm dark:bg-gray-700">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-xs dark:bg-gray-700">
         {icon}
       </div>
       <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -192,7 +192,7 @@ export function ErrorMessage({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-4 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
+          className="mt-4 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
         >
           <RefreshCw className="h-4 w-4" />
           Try Again

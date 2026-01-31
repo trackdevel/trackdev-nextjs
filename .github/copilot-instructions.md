@@ -30,6 +30,12 @@ When displaying user information, prefer `fullName` over `username`:
 }
 ```
 
+## Architecture
+
+Backend as Authority + Rich Permission Flags. The backend computes and returns granular permission flags on every entity. The frontend uses these flags to enable/disable UI actions, ensuring consistent permission enforcement.
+
+Optimistic UI Updates with Rollback. The frontend immediately reflects user actions in the UI for responsiveness, while performing API calls in the background. On API failure, the UI rolls back to the previous state and shows an error toast.
+
 ## Sprint Board Drag & Drop
 
 The sprint view (`dashboard/sprints/[id]/page.tsx`) uses HTML5 drag and drop:
@@ -43,6 +49,7 @@ The sprint view (`dashboard/sprints/[id]/page.tsx`) uses HTML5 drag and drop:
 
 - Tasks can be moved from backlog to a future sprint (status becomes TODO)
 - Tasks in a future sprint (DRAFT status) cannot change from TODO until the sprint becomes ACTIVE
+- Tasks in a FUTURE sprint can only be moved to the backlog (not to another sprint)
 - The backend will return an error if attempting to change status in a future-only sprint
 
 ### Moving tasks back to backlog
@@ -231,8 +238,8 @@ Organize by feature/slice (feature‑first structure) instead of global “compo
     - Only of tasks of type TASK or BUG
     - Only tasks in TODO, INPROGRESS and  VERIFY status can change sprint
     - A task can only be assigned to a sprint that belongs to the same project as the task
-    - A task can obly be assigned to a sprint that is ACTIVE or FUTURE (not PAST)
-    - A task cannot be assigned to a previous sprint
+    - A task in a FUTURE sprint can only moved to the backlog
+    - A task can only be assigned to a sprint that is ACTIVE or FUTURE (not PAST)
   - There will be a delete button in the task view to delete the task. Restrictions:
     - Only by a PROFESSOR assigned to the corresponding project or a STUDENT assigned to the Task
     - A USER_STORY can only be deleted if it has no subtasks

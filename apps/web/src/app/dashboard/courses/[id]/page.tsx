@@ -432,7 +432,7 @@ function InviteStudentsModal({
           </h2>
           <button
             onClick={onClose}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
+            className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
           >
             <X className="h-5 w-5" />
           </button>
@@ -446,7 +446,7 @@ function InviteStudentsModal({
             <textarea
               value={entries}
               onChange={(e) => setEntries(e.target.value)}
-              className="h-32 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="h-32 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
               placeholder='Enter one per line. Formats:&#10;&#10;"John Doe", john.doe@example.com&#10;"Jane Smith", jane@example.com&#10;&#10;Or just emails:&#10;student@example.com'
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">

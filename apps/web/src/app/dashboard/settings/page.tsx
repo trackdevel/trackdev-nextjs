@@ -265,7 +265,7 @@ export default function SettingsPage() {
                         type="color"
                         value={color || "#3b82f6"}
                         onChange={(e) => setColor(e.target.value)}
-                        className="h-10 w-14 cursor-pointer rounded border border-gray-300 p-1 dark:border-gray-600"
+                        className="h-10 w-14 cursor-pointer rounded-sm border border-gray-300 p-1 dark:border-gray-600"
                       />
                       <div className="relative flex-1">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -462,14 +462,14 @@ function SecuritySettings() {
         <form className="space-y-4" action={formAction}>
           {state.error && (
             <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 shrink-0" />
               <span>{state.error}</span>
             </div>
           )}
 
           {state.success && (
             <div className="flex items-center gap-2 rounded-md bg-green-50 p-4 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
-              <CheckCircle className="h-5 w-5 flex-shrink-0" />
+              <CheckCircle className="h-5 w-5 shrink-0" />
               <span>{t("passwordChangedSuccess")}</span>
             </div>
           )}

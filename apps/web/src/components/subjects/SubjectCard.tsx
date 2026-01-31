@@ -144,7 +144,7 @@ export function SubjectCard({
         <div className="flex items-center gap-3">
           <button
             onClick={() => onToggleExpand(subject.id)}
-            className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="rounded-sm p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             {isExpanded ? (
               <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />

@@ -124,7 +124,7 @@ function ActivityItem({ activity, t }: ActivityItemProps) {
 
   return (
     <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-      <div className="flex-shrink-0 mt-1">{getActivityIcon(activity.type)}</div>
+      <div className="shrink-0 mt-1">{getActivityIcon(activity.type)}</div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-900 dark:text-gray-100">
           {t(translationKey, {
@@ -382,7 +382,7 @@ export default function ActivityPage() {
             description={t("noActivityDescription")}
           />
         ) : (
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             {allActivities.map((activity) => (
               <ActivityItem key={activity.id} activity={activity} t={t} />
             ))}

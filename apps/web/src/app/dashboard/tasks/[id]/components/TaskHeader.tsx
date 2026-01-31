@@ -124,7 +124,7 @@ export const TaskHeader = memo(function TaskHeader({
                 type="text"
                 value={editState.name}
                 onChange={(e) => onNameChange(e.target.value)}
-                className="flex-1 text-2xl font-bold text-gray-900 border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-white dark:border-gray-600 dark:bg-gray-800"
+                className="flex-1 text-2xl font-bold text-gray-900 border border-gray-300 rounded-lg px-3 py-1 focus:outline-hidden focus:ring-2 focus:ring-primary-500 dark:text-white dark:border-gray-600 dark:bg-gray-800"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") onSave();
@@ -155,7 +155,7 @@ export const TaskHeader = memo(function TaskHeader({
           ) : (
             <div className="group flex items-center gap-2">
               {task.taskKey && (
-                <span className="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded dark:bg-gray-700 dark:text-gray-400">
+                <span className="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-400">
                   {task.taskKey}
                 </span>
               )}
@@ -165,7 +165,7 @@ export const TaskHeader = memo(function TaskHeader({
               {canEdit && (
                 <button
                   onClick={() => onStartEdit("name")}
-                  className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                  className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-sm transition-colors"
                   title={tCommon("edit")}
                 >
                   <Pencil className="h-4 w-4" />

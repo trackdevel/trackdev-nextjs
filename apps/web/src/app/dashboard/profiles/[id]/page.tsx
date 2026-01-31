@@ -477,13 +477,13 @@ export default function ProfileDetailPage({
                       type="text"
                       value={profileName}
                       onChange={(e) => setProfileName(e.target.value)}
-                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-lg font-semibold text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-lg font-semibold text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
                     />
                     <textarea
                       value={profileDescription}
                       onChange={(e) => setProfileDescription(e.target.value)}
                       rows={2}
-                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
                       placeholder={t("form.descriptionPlaceholder")}
                     />
                   </div>
@@ -695,7 +695,7 @@ export default function ProfileDetailPage({
               id="enumName"
               value={enumName}
               onChange={(e) => setEnumName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-xs focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.enumNamePlaceholder")}
             />
           </div>
@@ -711,7 +711,7 @@ export default function ProfileDetailPage({
               id="enumValues"
               value={enumValues}
               onChange={(e) => setEnumValues(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-xs focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.enumValuesPlaceholder")}
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -775,7 +775,7 @@ export default function ProfileDetailPage({
               id="attributeName"
               value={attributeName}
               onChange={(e) => setAttributeName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-xs focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
               placeholder={t("form.attributeNamePlaceholder")}
             />
           </div>
@@ -868,7 +868,7 @@ export default function ProfileDetailPage({
                 onChange={(e) => setAttributeDefaultValue(e.target.value)}
                 placeholder={t("form.defaultValuePlaceholder")}
                 step={attributeType === "INTEGER" ? "1" : "0.01"}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {t("form.defaultValueHint")}
