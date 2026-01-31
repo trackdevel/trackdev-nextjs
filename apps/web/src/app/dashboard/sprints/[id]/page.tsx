@@ -933,7 +933,7 @@ export default function SprintBoardPage() {
   return (
     <div className="flex h-[calc(100vh-120px)] flex-col">
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
+      <div className="shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallbackHref="/dashboard/projects" />
@@ -954,7 +954,7 @@ export default function SprintBoardPage() {
                   {prevSprintId ? (
                     <Link
                       href={`/dashboard/sprints/${prevSprintId}`}
-                      className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                      className="p-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                       title="Previous Sprint"
                     >
                       <ChevronLeft className="h-5 w-5" />
@@ -967,7 +967,7 @@ export default function SprintBoardPage() {
                   {nextSprintId ? (
                     <Link
                       href={`/dashboard/sprints/${nextSprintId}`}
-                      className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                      className="p-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                       title="Next Sprint"
                     >
                       <ChevronRight className="h-5 w-5" />
@@ -1026,7 +1026,7 @@ export default function SprintBoardPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Backlog Panel */}
         <div
-          className={`flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-all duration-300 ${
+          className={`shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-all duration-300 ${
             isBacklogOpen ? "w-80" : "w-12"
           }`}
         >
@@ -1040,7 +1040,7 @@ export default function SprintBoardPage() {
                   </h2>
                   <button
                     onClick={() => setShowCreateTaskModal(true)}
-                    className="mr-2 rounded p-1 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30"
+                    className="mr-2 rounded-sm p-1 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30"
                     title={t("addTask")}
                   >
                     <Plus className="h-5 w-5" />
@@ -1049,7 +1049,7 @@ export default function SprintBoardPage() {
               )}
               <button
                 onClick={() => setIsBacklogOpen(!isBacklogOpen)}
-                className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
+                className="rounded-sm p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {isBacklogOpen ? (
                   <ChevronLeft className="h-5 w-5" />
@@ -1450,7 +1450,7 @@ const StoryRow = memo(function StoryRow({
               e.stopPropagation();
               onCreateSubtask(story.id);
             }}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
+            className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
             title={t("addSubtask")}
           >
             <Plus className="h-4 w-4" />
@@ -1577,11 +1577,11 @@ const TaskCard = memo(function TaskCard({
       draggable
       onDragStart={(e) => onDragStart(e, task, "sprint")}
       onDragEnd={onDragEnd}
-      className="block cursor-grab rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-3 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
+      className="block cursor-grab rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-3 shadow-xs transition-shadow hover:shadow-md active:cursor-grabbing"
     >
       <div className="flex items-start gap-2">
         <div
-          className={`mt-1 h-2 w-2 flex-shrink-0 rounded-full ${getTypeColor()}`}
+          className={`mt-1 h-2 w-2 shrink-0 rounded-full ${getTypeColor()}`}
         />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
@@ -1591,7 +1591,7 @@ const TaskCard = memo(function TaskCard({
             {task.taskKey && <span>{task.taskKey}</span>}
             {task.estimationPoints !== undefined &&
               task.estimationPoints > 0 && (
-                <span className="rounded bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5">
+                <span className="rounded-sm bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5">
                   {task.estimationPoints}p
                 </span>
               )}
@@ -1604,7 +1604,7 @@ const TaskCard = memo(function TaskCard({
         </div>
         {task.assignee && (
           <div
-            className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium text-white"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium text-white"
             style={{ backgroundColor: task.assignee.color || "#3b82f6" }}
             title={task.assignee.fullName || task.assignee.username}
           >
@@ -1660,7 +1660,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm">
+    <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs">
       <div
         draggable
         onDragStart={(e) => onDragStart(e, task, "backlog")}
@@ -1674,7 +1674,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
                 e.stopPropagation();
                 setExpanded(!expanded);
               }}
-              className="mt-0.5 rounded p-0.5 hover:bg-gray-100 dark:hover:bg-gray-600"
+              className="mt-0.5 rounded-sm p-0.5 hover:bg-gray-100 dark:hover:bg-gray-600"
             >
               {expanded ? (
                 <ChevronUp className="h-3 w-3 text-gray-400" />
@@ -1701,7 +1701,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
               )}
               {task.estimationPoints !== undefined &&
                 task.estimationPoints > 0 && (
-                  <span className="rounded bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5">
+                  <span className="rounded-sm bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5">
                     {task.estimationPoints}p
                   </span>
                 )}
@@ -1709,7 +1709,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
           </div>
           {task.assignee && (
             <div
-              className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-medium text-white"
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-medium text-white"
               style={{ backgroundColor: task.assignee.color || "#3b82f6" }}
               title={task.assignee.fullName || task.assignee.username}
             >
@@ -1730,7 +1730,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
               <Link
                 key={subtask.id}
                 href={`/dashboard/tasks/${subtask.id}`}
-                className="flex items-center gap-2 rounded p-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center gap-2 rounded-sm p-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 {getSubtaskTypeIcon(subtask.type)}
                 <span className="min-w-0 flex-1 truncate text-gray-700 dark:text-gray-300">
@@ -1738,7 +1738,7 @@ const BacklogTaskCard = memo(function BacklogTaskCard({
                 </span>
                 {subtask.estimationPoints !== undefined &&
                   subtask.estimationPoints > 0 && (
-                    <span className="rounded bg-gray-200 dark:bg-gray-600 px-1 py-0.5 text-gray-600 dark:text-gray-300">
+                    <span className="rounded-sm bg-gray-200 dark:bg-gray-600 px-1 py-0.5 text-gray-600 dark:text-gray-300">
                       {subtask.estimationPoints}p
                     </span>
                   )}
