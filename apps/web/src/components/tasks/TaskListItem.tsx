@@ -23,7 +23,7 @@ export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
           </div>
           <div>
             <h3 className="font-medium text-gray-900 dark:text-white">
-              <span className="mr-2 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs dark:bg-gray-700 dark:text-gray-300">
+              <span className="mr-2 rounded-sm bg-gray-100 px-1.5 py-0.5 font-mono text-xs dark:bg-gray-700 dark:text-gray-300">
                 {task.taskKey || `#${task.id}`}
               </span>
               {task.name}
