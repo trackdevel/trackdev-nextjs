@@ -244,7 +244,7 @@ export default function DashboardPage() {
                       title={sprint.name}
                       subtitle={
                         <>
-                          <span className="mr-1 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">
+                          <span className="mr-1 rounded-sm bg-gray-100 px-1.5 py-0.5 font-mono text-xs">
                             {project.slug}
                           </span>
                           {project.name}
