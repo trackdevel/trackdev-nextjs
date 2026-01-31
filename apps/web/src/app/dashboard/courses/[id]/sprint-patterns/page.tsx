@@ -299,21 +299,21 @@ export default function SprintPatternsPage() {
                   <div className="flex gap-1">
                     <button
                       onClick={() => openEditModal(pattern)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
                       title="Edit"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => openDuplicateModal(pattern)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
                       title="Duplicate"
                     >
                       <Copy className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(pattern.id)}
-                      className="rounded p-1 text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                       title="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -335,7 +335,7 @@ export default function SprintPatternsPage() {
                   .map((item, idx) => (
                     <div
                       key={item.id || idx}
-                      className="flex items-center gap-2 rounded bg-gray-50 dark:bg-gray-700 px-3 py-2 text-sm"
+                      className="flex items-center gap-2 rounded-sm bg-gray-50 dark:bg-gray-700 px-3 py-2 text-sm"
                     >
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-xs font-medium text-indigo-700 dark:text-indigo-400">
                         {idx + 1}
@@ -375,7 +375,7 @@ export default function SprintPatternsPage() {
               </h2>
               <button
                 onClick={closeModal}
-                className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
+                className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -394,7 +394,7 @@ export default function SprintPatternsPage() {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                   placeholder="e.g., Standard 2-Week Sprints"
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
                 />
               </div>
 
@@ -426,7 +426,7 @@ export default function SprintPatternsPage() {
                         {formData.items.length > 1 && (
                           <button
                             onClick={() => removeItem(idx)}
-                            className="rounded p-1 text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -445,7 +445,7 @@ export default function SprintPatternsPage() {
                               updateItem(idx, "name", e.target.value)
                             }
                             placeholder="Sprint 1"
-                            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
                           />
                         </div>
                         <div>
@@ -458,7 +458,7 @@ export default function SprintPatternsPage() {
                             onChange={(e) =>
                               updateItem(idx, "startDate", e.target.value)
                             }
-                            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
                           />
                         </div>
                         <div>
@@ -471,7 +471,7 @@ export default function SprintPatternsPage() {
                             onChange={(e) =>
                               updateItem(idx, "endDate", e.target.value)
                             }
-                            className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="w-full rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
                           />
                         </div>
                       </div>
