@@ -129,11 +129,11 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
         styles[toast.type]
       }`}
     >
-      <Icon className={`h-5 w-5 flex-shrink-0 ${iconStyles[toast.type]}`} />
+      <Icon className={`h-5 w-5 shrink-0 ${iconStyles[toast.type]}`} />
       <p className="flex-1 text-sm font-medium">{toast.message}</p>
       <button
         onClick={onClose}
-        className="flex-shrink-0 opacity-70 transition-opacity hover:opacity-100"
+        className="shrink-0 opacity-70 transition-opacity hover:opacity-100"
         aria-label="Close notification"
       >
         <X className="h-4 w-4" />
