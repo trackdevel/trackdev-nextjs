@@ -28,7 +28,7 @@ export function ActionButtons({
       {showEdit && onEdit && (
         <button
           onClick={onEdit}
-          className="rounded p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-600"
+          className="rounded-sm p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-600"
           title={editLabel}
         >
           <Pencil className="h-4 w-4" />
@@ -37,7 +37,7 @@ export function ActionButtons({
       {showDelete && onDelete && (
         <button
           onClick={onDelete}
-          className="rounded p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-red-600"
+          className="rounded-sm p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-red-600"
           title={deleteLabel}
         >
           <Trash2 className="h-4 w-4" />
