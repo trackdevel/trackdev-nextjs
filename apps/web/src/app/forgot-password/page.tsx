@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
