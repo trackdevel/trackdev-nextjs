@@ -252,7 +252,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   min="0"
                   value={editState.estimation}
                   onChange={(e) => onEstimationChange(e.target.value)}
-                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  className="w-20 border border-gray-300 rounded-sm px-2 py-1 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === "Enter") onSave();
@@ -265,7 +265,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                 <button
                   onClick={onSave}
                   disabled={editState.isSaving}
-                  className="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50 dark:text-green-500 dark:hover:bg-green-900/30"
+                  className="p-1 text-green-600 hover:bg-green-50 rounded-sm disabled:opacity-50 dark:text-green-500 dark:hover:bg-green-900/30"
                   title={tCommon("save")}
                 >
                   {editState.isSaving ? (
@@ -277,7 +277,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                 <button
                   onClick={onCancel}
                   disabled={editState.isSaving}
-                  className="p-1 text-gray-600 hover:bg-gray-100 rounded disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700"
+                  className="p-1 text-gray-600 hover:bg-gray-100 rounded-sm disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700"
                   title={tCommon("cancel")}
                 >
                   <X className="h-4 w-4" />
@@ -322,7 +322,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   <button
                     onClick={onSave}
                     disabled={editState.isSaving}
-                    className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                    className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded-sm border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1"
                   >
                     {editState.isSaving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -334,7 +334,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   <button
                     onClick={onCancel}
                     disabled={editState.isSaving}
-                    className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                    className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-sm border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1"
                   >
                     <X className="h-4 w-4" />
                     {tCommon("cancel")}
@@ -380,7 +380,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   <button
                     onClick={onSave}
                     disabled={editState.isSaving}
-                    className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-green-500 dark:hover:bg-green-900/30 dark:border-green-800"
+                    className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded-sm border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-green-500 dark:hover:bg-green-900/30 dark:border-green-800"
                   >
                     {editState.isSaving ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -392,7 +392,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                   <button
                     onClick={onCancel}
                     disabled={editState.isSaving}
-                    className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:border-gray-600"
+                    className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-sm border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:border-gray-600"
                   >
                     <X className="h-4 w-4" />
                     {tCommon("cancel")}
@@ -476,7 +476,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                     <button
                       onClick={onSave}
                       disabled={editState.isSaving}
-                      className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-green-500 dark:hover:bg-green-900/30 dark:border-green-800"
+                      className="flex-1 py-1 text-sm text-green-600 hover:bg-green-50 rounded-sm border border-green-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-green-500 dark:hover:bg-green-900/30 dark:border-green-800"
                     >
                       {editState.isSaving ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -488,7 +488,7 @@ export const TaskSidebar = memo(function TaskSidebar({
                     <button
                       onClick={onCancel}
                       disabled={editState.isSaving}
-                      className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:border-gray-600"
+                      className="flex-1 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-sm border border-gray-200 disabled:opacity-50 flex items-center justify-center gap-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:border-gray-600"
                     >
                       <X className="h-4 w-4" />
                       {tCommon("cancel")}
