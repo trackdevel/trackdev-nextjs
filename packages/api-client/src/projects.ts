@@ -6,6 +6,7 @@ import type {
   IdObject,
   Project,
   ProjectUpdateRequest,
+  PullRequest,
   SprintCreateRequest,
   Task,
   TaskCreateRequest,
@@ -33,6 +34,20 @@ export interface SprintSummary {
   startDate: string;
   endDate: string;
   status: string;
+}
+
+export interface TaskWithPRStats {
+  taskId: number;
+  taskKey: string;
+  taskName: string;
+  assigneeFullName?: string;
+  assigneeUsername?: string;
+  pullRequests: PullRequest[];
+}
+
+export interface ProjectPRStatsResponse {
+  projectId: number;
+  tasks: TaskWithPRStats[];
 }
 
 export interface ProjectQualificationResponse {
@@ -110,4 +125,22 @@ export const projectsApi = {
    */
   applySprintPattern: (projectId: number, patternId: number) =>
     api.post<Project>(`/projects/${projectId}/apply-pattern/${patternId}`, {}),
+
+  /**
+   * Fetch PR statistics for all completed tasks in a project.
+   * Fetches additions, deletions, and changed files from GitHub API.
+   * @param projectId - The project ID
+   * @param sprintId - Optional sprint ID to filter by (undefined means all sprints)
+   * @param assigneeId - Optional assignee ID to filter by (undefined means all team members)
+   */
+  fetchPRStats: (projectId: number, sprintId?: number, assigneeId?: string) => {
+    const params = new URLSearchParams();
+    if (sprintId) params.append("sprintId", String(sprintId));
+    if (assigneeId) params.append("assigneeId", assigneeId);
+    const queryString = params.toString();
+    const url = queryString
+      ? `/projects/${projectId}/pr-stats?${queryString}`
+      : `/projects/${projectId}/pr-stats`;
+    return api.post<ProjectPRStatsResponse>(url, {});
+  },
 };
