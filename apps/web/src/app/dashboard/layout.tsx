@@ -6,6 +6,7 @@ import { activitiesApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { RoleName } from "@trackdev/types";
 import {
   Activity,
+  BarChart3,
   BookOpen,
   Building2,
   ChevronLeft,
@@ -47,6 +48,12 @@ const navItemsConfig: NavItem[] = [
     href: "/dashboard/projects",
     labelKey: "projects",
     icon: <FolderKanban className="h-5 w-5" />,
+  },
+  {
+    href: "/dashboard/analytics",
+    labelKey: "analytics",
+    icon: <BarChart3 className="h-5 w-5" />,
+    roles: ["PROFESSOR", "STUDENT"],
   },
   {
     href: "/dashboard/activity",
