@@ -21,6 +21,14 @@ export interface PullRequest {
   author?: UserPublic;
   createdAt?: string;
   updatedAt?: string;
+  /** Lines added (from GitHub API) */
+  additions?: number;
+  /** Lines deleted (from GitHub API) */
+  deletions?: number;
+  /** Files changed (from GitHub API) */
+  changedFiles?: number;
+  /** Lines from this PR still present in main branch (computed dynamically) */
+  survivingLines?: number;
 }
 
 export interface Task {
