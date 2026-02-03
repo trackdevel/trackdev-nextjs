@@ -31,6 +31,75 @@ export interface PullRequest {
   survivingLines?: number;
 }
 
+/**
+ * Range of lines in a file
+ */
+export interface LineRange {
+  startLine: number;
+  endLine: number;
+  lineCount: number;
+  commitSha?: string;
+}
+
+/**
+ * Status of a line
+ * - SURVIVING: Current line that came from the PR (still exists)
+ * - CURRENT: Current line that is NOT from the PR (context/other commits)
+ * - DELETED: Line from PR that was modified or deleted since merge
+ */
+export type LineStatus = "SURVIVING" | "CURRENT" | "DELETED";
+
+/**
+ * Detailed line information with content.
+ * Lines are ordered for display: current file lines with deleted lines interleaved.
+ */
+export interface LineDetail {
+  lineNumber: number | null; // Current line number (null for deleted lines)
+  originalLineNumber?: number | null; // Line number in the merge commit (for deleted lines)
+  content: string;
+  status: LineStatus;
+  commitSha?: string;
+  commitUrl?: string; // URL to the commit
+  authorFullName?: string; // Full name of the author (from app user matched by GitHub username)
+  authorGithubUsername?: string; // GitHub username of the commit author
+  prFileUrl?: string; // URL to the file in the PR being analyzed
+  originPrNumber?: number; // PR number that originally introduced this line (for CURRENT lines)
+  originPrUrl?: string; // URL to the PR that originally introduced this line
+}
+
+/**
+ * Detailed file information in a Pull Request
+ */
+export interface PRFileDetail {
+  filePath: string;
+  status: "added" | "modified" | "deleted" | "renamed";
+  additions: number;
+  deletions: number;
+  survivingLines: number;
+  deletedLines?: number;
+  currentLines?: number; // Total lines in current file
+  lines: LineDetail[];
+}
+
+/**
+ * Detailed Pull Request analysis with file-level information
+ */
+export interface PRDetailedAnalysis {
+  id: string;
+  url: string;
+  prNumber?: number;
+  title?: string;
+  state?: "open" | "closed";
+  merged?: boolean;
+  repoFullName?: string;
+  author?: UserPublic;
+  additions?: number;
+  deletions?: number;
+  changedFiles?: number;
+  survivingLines?: number;
+  files: PRFileDetail[];
+}
+
 export interface Task {
   id: number;
   taskNumber?: number;
