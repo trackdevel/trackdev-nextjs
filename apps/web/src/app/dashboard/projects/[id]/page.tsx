@@ -65,6 +65,7 @@ export default function ProjectDetailPage() {
   const tSprints = useTranslations("sprints");
   const tTasks = useTranslations("tasks");
   const tReports = useTranslations("reports");
+  const tAnalysis = useTranslations("projectAnalysis");
   const { formatDateTimeRange } = useDateFormat();
 
   // Check if user is professor or admin
@@ -480,6 +481,26 @@ export default function ProjectDetailPage() {
           </ul>
         </CardSection>
       </div>
+
+      {/* Project Analysis Section - Professors/Admins only */}
+      {(isProfessor || isAdmin) && (
+        <div className="mb-8">
+          <CardSection title={tAnalysis("title")} icon={BarChart3}>
+            <div className="px-4 py-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {tAnalysis("description")}
+              </p>
+              <Link
+                href={`/dashboard/projects/${projectId}/analysis`}
+                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              >
+                <BarChart3 className="h-4 w-4" />
+                {tAnalysis("title")}
+              </Link>
+            </div>
+          </CardSection>
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid gap-8 lg:grid-cols-3">
