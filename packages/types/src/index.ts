@@ -13,6 +13,7 @@ export * from "./github";
 export * from "./invite";
 export * from "./profile";
 export * from "./project";
+export * from "./projectAnalysis";
 export * from "./report";
 export * from "./sprint";
 export * from "./sprintPattern";
