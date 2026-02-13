@@ -19,23 +19,28 @@ import {
   EyeOff,
   Globe,
   Key,
+  Link,
   Loader2,
   Mail,
   Palette,
   Shield,
   User,
 } from "lucide-react";
+import { DiscordLinkButton } from "@/components/settings/DiscordLinkButton";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useActionState, useEffect, useState, useRef } from "react";
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
   const t = useTranslations("settings");
   const toast = useToast();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
+  const discordParam = searchParams.get("discord");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
+  const processedDiscordParam = useRef<string | null>(null);
 
   // Profile form state
   const [fullName, setFullName] = useState(user?.fullName || "");
@@ -70,10 +75,41 @@ export default function SettingsPage() {
 
   // Update active tab when URL param changes
   useEffect(() => {
-    if (tabParam && ["profile", "preferences", "security"].includes(tabParam)) {
+    if (
+      tabParam &&
+      ["profile", "preferences", "security", "integrations"].includes(tabParam)
+    ) {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
+
+  // Handle Discord OAuth result params
+  useEffect(() => {
+    // If no param or we already processed this specific value, stop
+    if (!discordParam || processedDiscordParam.current === discordParam) {
+      return;
+    }
+
+    // Mark as processed immediately
+    processedDiscordParam.current = discordParam;
+
+    if (discordParam === "success") {
+      toast.success(t("discordLinkSuccess"));
+      refreshUser();
+    } else if (discordParam === "error") {
+      toast.error(t("discordLinkError"));
+    }
+
+    // Immediate cleanup to stop further effect triggers
+    const url = new URL(window.location.href);
+    url.searchParams.delete("discord");
+    url.searchParams.set("tab", "integrations");
+    window.history.replaceState({}, "", url.toString());
+
+    // Also update via router for internal consistency
+    router.replace(`/dashboard/settings?tab=integrations`, { scroll: false });
+    setActiveTab("integrations");
+  }, [discordParam, router, t, toast, refreshUser]);
 
   // Handle profile save
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -112,6 +148,7 @@ export default function SettingsPage() {
     { id: "profile", label: t("profile"), icon: User },
     { id: "preferences", label: t("preferences"), icon: Globe },
     { id: "security", label: t("security"), icon: Key },
+    { id: "integrations", label: t("integrations"), icon: Link },
   ];
 
   return (
@@ -128,11 +165,10 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors ${
-                    activeTab === tab.id
+                  className={`flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors ${activeTab === tab.id
                       ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
                       : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-5 w-5" />
                   {tab.label}
@@ -176,13 +212,12 @@ export default function SettingsPage() {
                       {userRoles.map((role) => (
                         <span
                           key={role}
-                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                            role === "ADMIN"
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${role === "ADMIN"
                               ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                               : role === "PROFESSOR"
                                 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
                                 : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                          }`}
+                            }`}
                         >
                           <Shield className="h-3 w-3" />
                           {role}
@@ -356,6 +391,24 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "security" && <SecuritySettings />}
+
+          {activeTab === "integrations" && (
+            <div className="card">
+              <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                <h2 className="font-semibold text-gray-900 dark:text-white">
+                  {t("integrations")}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {t("integrationsDescription")}
+                </p>
+              </div>
+              <div className="p-6">
+                <div className="space-y-6">
+                  <DiscordLinkButton />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </PageContainer>
