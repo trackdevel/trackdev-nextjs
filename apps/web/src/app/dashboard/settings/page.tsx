@@ -29,7 +29,7 @@ import {
 import { DiscordLinkButton } from "@/components/settings/DiscordLinkButton";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useActionState, useEffect, useState, useRef } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
@@ -40,7 +40,6 @@ export default function SettingsPage() {
   const tabParam = searchParams.get("tab");
   const discordParam = searchParams.get("discord");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
-  const processedDiscordParam = useRef<string | null>(null);
 
   // Profile form state
   const [fullName, setFullName] = useState(user?.fullName || "");
@@ -85,13 +84,7 @@ export default function SettingsPage() {
 
   // Handle Discord OAuth result params
   useEffect(() => {
-    // If no param or we already processed this specific value, stop
-    if (!discordParam || processedDiscordParam.current === discordParam) {
-      return;
-    }
-
-    // Mark as processed immediately
-    processedDiscordParam.current = discordParam;
+    if (!discordParam) return;
 
     if (discordParam === "success") {
       toast.success(t("discordLinkSuccess"));
@@ -100,14 +93,8 @@ export default function SettingsPage() {
       toast.error(t("discordLinkError"));
     }
 
-    // Immediate cleanup to stop further effect triggers
-    const url = new URL(window.location.href);
-    url.searchParams.delete("discord");
-    url.searchParams.set("tab", "integrations");
-    window.history.replaceState({}, "", url.toString());
-
-    // Also update via router for internal consistency
-    router.replace(`/dashboard/settings?tab=integrations`, { scroll: false });
+    // Clean up URL params and switch to integrations tab
+    router.replace("/dashboard/settings?tab=integrations", { scroll: false });
     setActiveTab("integrations");
   }, [discordParam, router, t, toast, refreshUser]);
 
@@ -165,10 +152,11 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors ${activeTab === tab.id
+                  className={`flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors ${
+                    activeTab === tab.id
                       ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
                       : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    }`}
+                  }`}
                 >
                   <Icon className="h-5 w-5" />
                   {tab.label}
@@ -212,12 +200,13 @@ export default function SettingsPage() {
                       {userRoles.map((role) => (
                         <span
                           key={role}
-                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${role === "ADMIN"
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                            role === "ADMIN"
                               ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                               : role === "PROFESSOR"
                                 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
                                 : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                            }`}
+                          }`}
                         >
                           <Shield className="h-3 w-3" />
                           {role}

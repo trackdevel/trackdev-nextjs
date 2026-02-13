@@ -44,8 +44,8 @@ export interface GithubInfo {
 }
 
 export interface DiscordInfo {
-  discordId?: string;
-  username?: string;
+  discordId: string;
+  username: string;
   discriminator?: string;
   avatarHash?: string;
 }

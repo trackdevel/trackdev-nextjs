@@ -28,9 +28,8 @@ export function DiscordLinkButton({ className = "" }: DiscordLinkButtonProps) {
         onSuccess: (data) => {
             window.location.href = data.url;
         },
-        onError: (err: Error) => {
-            const errorMessage =
-                err instanceof ApiClientError && err.body?.message
+        onError: (err: ApiClientError) => {
+            const errorMessage = err.body?.message
                     ? err.body.message
                     : t("discordLinkError");
             toast.error(errorMessage);
@@ -43,9 +42,8 @@ export function DiscordLinkButton({ className = "" }: DiscordLinkButtonProps) {
             setIsConfirmOpen(false);
             refreshUser();
         },
-        onError: (err: Error) => {
-            const errorMessage =
-                err instanceof ApiClientError && err.body?.message
+        onError: (err: ApiClientError) => {
+            const errorMessage = err.body?.message
                     ? err.body.message
                     : t("discordUnlinkError");
             toast.error(errorMessage);
@@ -86,7 +84,7 @@ export function DiscordLinkButton({ className = "" }: DiscordLinkButtonProps) {
                         type="button"
                         onClick={handleUnlink}
                         disabled={unlinkMutation.isLoading}
-                        className="btn-outline flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/30 dark:hover:bg-red-900/20"
+                        className="btn-outline flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/30 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300"
                     >
                         {unlinkMutation.isLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin" />

@@ -734,7 +734,7 @@
     "discordLinkError": "Failed to initiate Discord link. Please try again.",
     "discordUnlinkError": "Failed to unlink Discord account.",
     "confirmUnlinkDiscord": "Unlink Discord?",
-    "confirmUnlinkDiscordMessage": "Are you sure you want to unlink your Discord account? You will lose access to the server"
+    "confirmUnlinkDiscordMessage": "Are you sure you want to unlink your Discord account? You will lose access to the server."
   },
   "users": {
     "title": "Users",
