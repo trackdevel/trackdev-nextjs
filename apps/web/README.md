@@ -4,8 +4,8 @@ Next.js web application for TrackDev project management.
 
 ## Features
 
-- ⚡ Next.js 14 with App Router
-- 🎨 Tailwind CSS for styling
+- ⚡ Next.js 16 with App Router
+- 🎨 Tailwind 4.1 CSS for styling
 - 🔐 JWT authentication
 - 📦 Shared packages with mobile app
 - 🔄 React Server Components
