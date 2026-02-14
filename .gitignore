@@ -1,9 +1,10 @@
 tmp/
 next-env.d.ts
 .claude
-.mcp.json
 CLAUDE.md
+.mcp.json
 nul
+
 
 # Dependencies
 node_modules/

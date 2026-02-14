@@ -19,22 +19,26 @@ import {
   EyeOff,
   Globe,
   Key,
+  Link,
   Loader2,
   Mail,
   Palette,
   Shield,
   User,
 } from "lucide-react";
+import { DiscordLinkButton } from "@/components/settings/DiscordLinkButton";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
   const t = useTranslations("settings");
   const toast = useToast();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
+  const discordParam = searchParams.get("discord");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
 
   // Profile form state
@@ -70,10 +74,31 @@ export default function SettingsPage() {
 
   // Update active tab when URL param changes
   useEffect(() => {
-    if (tabParam && ["profile", "preferences", "security"].includes(tabParam)) {
+    if (
+      tabParam &&
+      ["profile", "preferences", "security", "integrations"].includes(tabParam)
+    ) {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
+
+  // Handle Discord OAuth result params
+  const discordProcessed = useRef(false);
+  useEffect(() => {
+    if (!discordParam || discordProcessed.current) return;
+    discordProcessed.current = true;
+
+    if (discordParam === "success") {
+      toast.success(t("discordLinkSuccess"));
+      refreshUser();
+    } else if (discordParam === "error") {
+      toast.error(t("discordLinkError"));
+    }
+
+    // Clean up URL params and switch to integrations tab
+    router.replace("/dashboard/settings?tab=integrations", { scroll: false });
+    setActiveTab("integrations");
+  }, [discordParam, router, t, toast, refreshUser]);
 
   // Handle profile save
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -112,6 +137,7 @@ export default function SettingsPage() {
     { id: "profile", label: t("profile"), icon: User },
     { id: "preferences", label: t("preferences"), icon: Globe },
     { id: "security", label: t("security"), icon: Key },
+    { id: "integrations", label: t("integrations"), icon: Link },
   ];
 
   return (
@@ -356,6 +382,24 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "security" && <SecuritySettings />}
+
+          {activeTab === "integrations" && (
+            <div className="card">
+              <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                <h2 className="font-semibold text-gray-900 dark:text-white">
+                  {t("integrations")}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {t("integrationsDescription")}
+                </p>
+              </div>
+              <div className="p-6">
+                <div className="space-y-6">
+                  <DiscordLinkButton />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </PageContainer>
