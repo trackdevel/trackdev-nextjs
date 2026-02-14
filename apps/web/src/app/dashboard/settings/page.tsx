@@ -29,7 +29,7 @@ import {
 import { DiscordLinkButton } from "@/components/settings/DiscordLinkButton";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
@@ -83,8 +83,10 @@ export default function SettingsPage() {
   }, [tabParam]);
 
   // Handle Discord OAuth result params
+  const discordProcessed = useRef(false);
   useEffect(() => {
-    if (!discordParam) return;
+    if (!discordParam || discordProcessed.current) return;
+    discordProcessed.current = true;
 
     if (discordParam === "success") {
       toast.success(t("discordLinkSuccess"));
