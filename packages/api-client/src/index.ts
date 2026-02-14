@@ -8,6 +8,7 @@ export * from "./auth";
 export * from "./client";
 export * from "./context";
 export * from "./courses";
+export * from "./discord";
 export * from "./githubRepos";
 export * from "./hooks";
 export * from "./invites";

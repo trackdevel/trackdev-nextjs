@@ -293,6 +293,9 @@ export default function UsersPage() {
                     {t("email")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {t("discord")}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t("roles")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -329,6 +332,19 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {user.email}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {user.discordInfo?.username ? (
+                        <span className="font-medium text-gray-700">
+                          @{user.discordInfo.username}
+                          {user.discordInfo.discriminator &&
+                          user.discordInfo.discriminator !== "0"
+                            ? `#${user.discordInfo.discriminator}`
+                            : ""}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">{t("notLinked")}</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1">

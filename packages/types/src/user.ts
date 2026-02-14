@@ -16,6 +16,7 @@ export interface User {
   enabled: boolean;
   changePassword: boolean;
   githubInfo?: GithubInfo;
+  discordInfo?: DiscordInfo;
   workspaceId?: number;
   timezone: string;
 }
@@ -28,6 +29,7 @@ export interface UserPublic {
   color: string;
   capitalLetters: string;
   githubInfo?: GithubInfo;
+  discordInfo?: DiscordInfo;
 }
 
 // Role type no longer needed - API returns roles as string array
@@ -39,6 +41,13 @@ export interface GithubInfo {
   login?: string;
   avatar_url?: string;
   html_url?: string;
+}
+
+export interface DiscordInfo {
+  discordId: string;
+  username: string;
+  discriminator?: string;
+  avatarHash?: string;
 }
 
 export interface UserUpdateRequest {
