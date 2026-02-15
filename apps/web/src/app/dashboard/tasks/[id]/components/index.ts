@@ -4,5 +4,6 @@ export { TaskDescription } from "./TaskDescription";
 export { TaskDiscussion } from "./TaskDiscussion";
 export { TaskHeader } from "./TaskHeader";
 export { TaskHistory } from "./TaskHistory";
+export { TaskPointsReview } from "./TaskPointsReview";
 export { TaskPullRequests } from "./TaskPullRequests";
 export { TaskSidebar } from "./TaskSidebar";
