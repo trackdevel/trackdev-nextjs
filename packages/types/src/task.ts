@@ -202,7 +202,7 @@ export interface TaskDetail extends Task {
   project?: {
     id: number;
     name: string;
-    members?: Array<{ id: string; username: string; color?: string }>;
+    members?: UserPublic[];
   };
   pointsReview: PointsReview[];
 
@@ -242,6 +242,19 @@ export interface TaskDetail extends Task {
 
   /** Whether the current user can add comments */
   canComment: boolean;
+
+  // =============================================================================
+  // POINTS REVIEW FLAGS
+  // =============================================================================
+
+  /** Whether the current user can start a points review conversation */
+  canStartPointsReview: boolean;
+
+  /** Whether the current user can view points review conversations */
+  canViewPointsReviews: boolean;
+
+  /** Number of points review conversations on this task */
+  pointsReviewConversationCount: number;
 }
 
 /**

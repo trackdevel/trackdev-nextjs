@@ -2,7 +2,7 @@
 
 import { useDateFormat } from "@/utils/useDateFormat";
 import { tasksApi, useQuery } from "@trackdev/api-client";
-import type { PullRequest, PullRequestChange } from "@trackdev/types";
+import type { PullRequest, PullRequestChange, UserPublic } from "@trackdev/types";
 import {
   ChevronDown,
   ChevronRight,
@@ -21,13 +21,7 @@ import { useMemo, useState } from "react";
 interface TaskPullRequestsProps {
   pullRequests: PullRequest[];
   taskId: number;
-  projectMembers?: Array<{
-    id: string;
-    username: string;
-    fullName?: string;
-    color?: string;
-    githubInfo?: { login?: string };
-  }>;
+  projectMembers?: UserPublic[];
 }
 
 /**

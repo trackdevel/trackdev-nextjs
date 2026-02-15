@@ -12,6 +12,7 @@ export * from "./course";
 export * from "./github";
 export * from "./invite";
 export * from "./profile";
+export * from "./pointsReviewConversation";
 export * from "./project";
 export * from "./projectAnalysis";
 export * from "./report";

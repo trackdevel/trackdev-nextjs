@@ -12,6 +12,7 @@ export * from "./discord";
 export * from "./githubRepos";
 export * from "./hooks";
 export * from "./invites";
+export * from "./pointsReviews";
 export * from "./profiles";
 export * from "./projectAnalysis";
 export * from "./projects";
