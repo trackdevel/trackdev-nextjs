@@ -29,6 +29,7 @@ import {
   TaskDiscussion,
   TaskHeader,
   TaskHistory,
+  TaskPointsReview,
   TaskPullRequests,
   TaskSidebar,
 } from "./components";
@@ -581,6 +582,16 @@ export default function TaskDetailPage() {
             pullRequests={optimisticTask.pullRequests || []}
             taskId={taskId}
             projectMembers={optimisticTask.project?.members}
+          />
+
+          {/* Points Review Conversations */}
+          <TaskPointsReview
+            taskId={taskId}
+            canStartPointsReview={optimisticTask.canStartPointsReview ?? false}
+            canViewPointsReviews={optimisticTask.canViewPointsReviews ?? false}
+            pointsReviewConversationCount={optimisticTask.pointsReviewConversationCount ?? 0}
+            projectMembers={optimisticTask.project?.members}
+            onConversationCreated={() => refetchTask()}
           />
 
           {/* Task History - Only visible to professors */}
