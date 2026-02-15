@@ -5,31 +5,49 @@ import { AlertCircle, Layers, Lock, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+
+interface LoginFormState {
+  error: string | null;
+}
+
+function LoginSubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} className="btn-primary w-full py-3">
+      {pending ? (
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+      ) : (
+        label
+      )}
+    </button>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { login } = useAuth();
   const t = useTranslations("auth");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const [state, formAction] = useActionState<LoginFormState, FormData>(
+    async (_prev, formData) => {
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
 
-    try {
-      await login({ email, password });
-      router.push("/dashboard");
-    } catch (err) {
-      if (err instanceof ApiClientError) {
-        setError(err.getUserMessage());
-      } else {
-        setError(t("unexpectedError"));
+      try {
+        await login({ email, password });
+        router.push("/dashboard");
+        return { error: null };
+      } catch (err) {
+        if (err instanceof ApiClientError) {
+          return { error: err.getUserMessage() };
+        }
+        return { error: t("unexpectedError") };
       }
-    }
-  };
+    },
+    { error: null },
+  );
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8 dark:bg-gray-900">
@@ -46,11 +64,11 @@ export default function LoginPage() {
           </h2>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
+        <form className="mt-8 space-y-6" action={formAction}>
+          {state.error && (
             <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
               <AlertCircle className="h-5 w-5 shrink-0" />
-              <span>{error}</span>
+              <span>{state.error}</span>
             </div>
           )}
 
@@ -69,8 +87,6 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   className="input pl-10"
                   placeholder="you@example.com"
                 />
@@ -91,8 +107,6 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   className="input pl-10"
                   placeholder="••••••••"
                 />
@@ -126,17 +140,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="btn-primary w-full py-3"
-          >
-            {isLoading ? (
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            ) : (
-              t("login")
-            )}
-          </button>
+          <LoginSubmitButton label={t("login")} />
         </form>
       </div>
     </div>

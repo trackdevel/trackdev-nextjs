@@ -20,7 +20,6 @@ import {
   Globe,
   Key,
   Link,
-  Loader2,
   Mail,
   Palette,
   Shield,
@@ -30,6 +29,7 @@ import { DiscordLinkButton } from "@/components/settings/DiscordLinkButton";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
@@ -46,7 +46,6 @@ export default function SettingsPage() {
   const [email, setEmail] = useState(user?.email || "");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [color, setColor] = useState(user?.color || "");
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Email validation helper
   const isValidEmail = (email: string) => {
@@ -100,36 +99,34 @@ export default function SettingsPage() {
     setActiveTab("integrations");
   }, [discordParam, router, t, toast, refreshUser]);
 
-  // Handle profile save
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // React 19: useActionState for profile save
+  const [, profileAction] = useActionState<null, FormData>(
+    async () => {
+      // Validate email before submitting
+      if (email.trim() && !isValidEmail(email.trim())) {
+        setEmailError(t("invalidEmail"));
+        return null;
+      }
 
-    // Validate email before submitting
-    if (email.trim() && !isValidEmail(email.trim())) {
-      setEmailError(t("invalidEmail"));
-      return;
-    }
-
-    setIsSavingProfile(true);
-
-    try {
-      await usersApi.updateSelf({
-        fullName: fullName.trim() || undefined,
-        email: email.trim() || undefined,
-        color: color.trim() || undefined,
-      });
-      await refreshUser();
-      toast.success(t("profileSavedSuccess"));
-    } catch (err) {
-      const errorMessage =
-        err instanceof ApiClientError && err.body?.message
-          ? err.body.message
-          : t("unexpectedError");
-      toast.error(errorMessage);
-    } finally {
-      setIsSavingProfile(false);
-    }
-  };
+      try {
+        await usersApi.updateSelf({
+          fullName: fullName.trim() || undefined,
+          email: email.trim() || undefined,
+          color: color.trim() || undefined,
+        });
+        await refreshUser();
+        toast.success(t("profileSavedSuccess"));
+      } catch (err) {
+        const errorMessage =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("unexpectedError");
+        toast.error(errorMessage);
+      }
+      return null;
+    },
+    null,
+  );
 
   const userRoles = user?.roles || [];
 
@@ -219,7 +216,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Form */}
-                <form className="space-y-4" onSubmit={handleSaveProfile}>
+                <form className="space-y-4" action={profileAction}>
                   <div>
                     <label htmlFor="username" className="label">
                       {t("username")}
@@ -321,16 +318,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="flex justify-end pt-4">
-                    <button
-                      type="submit"
-                      className="btn-primary inline-flex items-center gap-2"
-                      disabled={isSavingProfile}
-                    >
-                      {isSavingProfile && (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      )}
-                      {t("saveChanges")}
-                    </button>
+                    <ProfileSubmitButton label={t("saveChanges")} />
                   </div>
                 </form>
               </div>
@@ -403,6 +391,22 @@ export default function SettingsPage() {
         </div>
       </div>
     </PageContainer>
+  );
+}
+
+function ProfileSubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="btn-primary inline-flex items-center gap-2"
+    >
+      {pending ? (
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+      ) : null}
+      {label}
+    </button>
   );
 }
 
