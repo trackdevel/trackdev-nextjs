@@ -76,13 +76,13 @@ export default function CourseInvitesPage() {
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
       case "ACCEPTED":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
       case "CANCELLED":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
     }
   };
 
@@ -116,14 +116,14 @@ export default function CourseInvitesPage() {
 
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-yellow-100">
-              <Mail className="h-8 w-8 text-yellow-600" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-yellow-100 dark:bg-yellow-900/30">
+              <Mail className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Course Invites
               </h1>
-              <div className="mt-1 text-gray-600">
+              <div className="mt-1 text-gray-600 dark:text-gray-400">
                 {course.subject?.name || "Course"} - {course.startYear} -{" "}
                 {(course.startYear || 0) + 1}
               </div>
@@ -145,46 +145,46 @@ export default function CourseInvitesPage() {
       {/* Invites Table */}
       {invites.length === 0 ? (
         <div className="card px-6 py-12 text-center">
-          <Mail className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <Mail className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             No pending invites
           </h3>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
             Send invitations to students to enroll them in this course.
           </p>
         </div>
       ) : (
         <>
           <div className="card overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Sent
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Expires
                   </th>
                   {canManage && (
-                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                       Actions
                     </th>
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                 {paginatedInvites.map((invite) => (
                   <tr key={invite.id}>
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center">
-                        <Mail className="mr-2 h-5 w-5 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-900">
+                        <Mail className="mr-2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {invite.email}
                         </span>
                       </div>
@@ -199,10 +199,10 @@ export default function CourseInvitesPage() {
                         {invite.status}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {formatDateOnly(invite.createdAt)}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {invite.expiresAt
                         ? formatDateOnly(invite.expiresAt)
                         : "-"}

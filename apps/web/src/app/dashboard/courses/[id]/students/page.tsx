@@ -94,14 +94,14 @@ export default function CourseStudentsPage() {
 
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-green-100">
-              <Users className="h-8 w-8 text-green-600" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/30">
+              <Users className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Enrolled Students
               </h1>
-              <div className="mt-1 text-gray-600">
+              <div className="mt-1 text-gray-600 dark:text-gray-400">
                 {course.subject?.name || "Course"} - {course.startYear} -{" "}
                 {(course.startYear || 0) + 1}
               </div>
@@ -123,34 +123,34 @@ export default function CourseStudentsPage() {
       {/* Students Table */}
       {students.length === 0 ? (
         <div className="card px-6 py-12 text-center">
-          <Users className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <Users className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             No students enrolled
           </h3>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
             Invite students to enroll them in this course.
           </p>
         </div>
       ) : (
         <>
           <div className="card overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Student
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Email
                   </th>
                   {canManage && (
-                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                       Actions
                     </th>
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                 {paginatedStudents.map((student) => (
                   <tr key={student.id}>
                     <td className="whitespace-nowrap px-6 py-4">
@@ -166,13 +166,13 @@ export default function CourseStudentsPage() {
                             student.username?.slice(0, 2).toUpperCase()}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {student.fullName || student.username}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {student.email}
                     </td>
                     {canManage && (
@@ -180,7 +180,7 @@ export default function CourseStudentsPage() {
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => setEditingStudent(student)}
-                            className="text-gray-600 hover:text-gray-800"
+                            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
                             title="Edit student"
                           >
                             <Pencil className="h-4 w-4" />
