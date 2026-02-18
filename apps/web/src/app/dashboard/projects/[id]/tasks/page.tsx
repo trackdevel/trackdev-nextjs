@@ -248,13 +248,13 @@ export default function ProjectTasksPage() {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               {tTasks("title")}
             </h1>
-            <p className="mt-1 text-gray-600">
+            <p className="mt-1 text-gray-600 dark:text-gray-400">
               {filteredTasks.length} {tTasks("title").toLowerCase()}
               {filteredTasks.length > 0 && (
-                <span className="ml-2 text-gray-400">
+                <span className="ml-2 text-gray-400 dark:text-gray-500">
                   ({tTasks("page")} {currentPage} {tTasks("of")} {totalPages})
                 </span>
               )}
@@ -270,9 +270,9 @@ export default function ProjectTasksPage() {
         </div>
 
         {/* Filters */}
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <Filter className="h-4 w-4" />
               <span className="text-sm font-medium">{tTasks("filters")}:</span>
             </div>
@@ -315,7 +315,7 @@ export default function ProjectTasksPage() {
 
             <button
               onClick={toggleSortOrder}
-              className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700"
+              className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               title={
                 filters.sortOrder === "asc"
                   ? tTasks("sortNewestFirst")
@@ -338,7 +338,7 @@ export default function ProjectTasksPage() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700"
+                className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <X className="h-4 w-4" />
                 {tTasks("clearFilters")}
@@ -372,9 +372,9 @@ export default function ProjectTasksPage() {
 
         {/* Pagination Controls */}
         {filteredTasks.length > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {tTasks("itemsPerPage")}:
               </span>
               <Select
@@ -386,7 +386,7 @@ export default function ProjectTasksPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {(currentPage - 1) * itemsPerPage + 1}-
                 {Math.min(currentPage * itemsPerPage, filteredTasks.length)}{" "}
                 {tTasks("of")} {filteredTasks.length}
@@ -398,7 +398,7 @@ export default function ProjectTasksPage() {
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
-                  className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+                  className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                   aria-label={tTasks("previousPage")}
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -408,7 +408,7 @@ export default function ProjectTasksPage() {
                     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
                   disabled={currentPage === totalPages}
-                  className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+                  className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                   aria-label={tTasks("nextPage")}
                 >
                   <ChevronRight className="h-5 w-5" />
