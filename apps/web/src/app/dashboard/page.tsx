@@ -162,7 +162,7 @@ export default function DashboardPage() {
     return (
       <div className="p-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t("title")}</h1>
         </div>
         <ErrorMessage
           error={criticalError}
@@ -177,10 +177,10 @@ export default function DashboardPage() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {t("welcome", { name: user?.fullName || user?.username || "" })}
         </h1>
-        <p className="mt-1 text-gray-600">
+        <p className="mt-1 text-gray-600 dark:text-gray-400">
           {isAdmin && t("adminSubtitle")}
           {isProfessor && !isAdmin && t("professorSubtitle")}
           {isStudent && t("studentSubtitle")}
@@ -193,32 +193,32 @@ export default function DashboardPage() {
           icon={FolderKanban}
           label={tNav("projects")}
           value={totalProjects}
-          iconBgColor="bg-primary-100"
-          iconColor="text-primary-600"
+          iconBgColor="bg-primary-100 dark:bg-primary-900/30"
+          iconColor="text-primary-600 dark:text-primary-400"
           isLoading={isLoading}
         />
         <StatCard
           icon={BookOpen}
           label={tNav("courses")}
           value={totalCourses}
-          iconBgColor="bg-green-100"
-          iconColor="text-green-600"
+          iconBgColor="bg-green-100 dark:bg-green-900/30"
+          iconColor="text-green-600 dark:text-green-400"
           isLoading={isLoading}
         />
         <StatCard
           icon={Users}
           label={isProfessor || isAdmin ? tNav("students") : t("teamMembers")}
           value={totalMembers}
-          iconBgColor="bg-purple-100"
-          iconColor="text-purple-600"
+          iconBgColor="bg-purple-100 dark:bg-purple-900/30"
+          iconColor="text-purple-600 dark:text-purple-400"
           isLoading={isLoading}
         />
         <StatCard
           icon={Calendar}
           label={t("activeSprints")}
           value={activeSprintsCount}
-          iconBgColor="bg-orange-100"
-          iconColor="text-orange-600"
+          iconBgColor="bg-orange-100 dark:bg-orange-900/30"
+          iconColor="text-orange-600 dark:text-orange-400"
           isLoading={isLoading}
         />
       </div>
@@ -231,7 +231,7 @@ export default function DashboardPage() {
             {projectsLoading ? (
               <LoadingContainer />
             ) : activeSprintsWithProjects.length > 0 ? (
-              <ul className="divide-y">
+              <ul className="divide-y dark:divide-gray-700">
                 {activeSprintsWithProjects
                   .slice(0, 5)
                   .map(({ sprint, project }) => (
@@ -239,12 +239,12 @@ export default function DashboardPage() {
                       key={sprint.id}
                       href={`/dashboard/sprints/${sprint.id}`}
                       icon={Calendar}
-                      iconBgColor="bg-orange-100"
-                      iconColor="text-orange-600"
+                      iconBgColor="bg-orange-100 dark:bg-orange-900/30"
+                      iconColor="text-orange-600 dark:text-orange-400"
                       title={sprint.name}
                       subtitle={
                         <>
-                          <span className="mr-1 rounded-sm bg-gray-100 px-1.5 py-0.5 font-mono text-xs">
+                          <span className="mr-1 rounded-sm bg-gray-100 px-1.5 py-0.5 font-mono text-xs dark:bg-gray-700">
                             {project.slug}
                           </span>
                           {project.name}
@@ -271,20 +271,20 @@ export default function DashboardPage() {
             {coursesLoading ? (
               <LoadingContainer />
             ) : courses && courses.length > 0 ? (
-              <ul className="divide-y">
+              <ul className="divide-y dark:divide-gray-700">
                 {courses.slice(0, 5).map((course) => (
                   <ListItem
                     key={course.id}
                     href={`/dashboard/courses/${course.id}`}
                     icon={BookOpen}
-                    iconBgColor="bg-primary-100"
-                    iconColor="text-primary-600"
+                    iconBgColor="bg-primary-100 dark:bg-primary-900/30"
+                    iconColor="text-primary-600 dark:text-primary-400"
                     title={course.subject?.name || tCourses("title")}
                     subtitle={`${course.startYear} - ${
                       (course.startYear || 0) + 1
                     }`}
                     rightContent={
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <FolderKanban className="h-4 w-4" />
                         {course.projects?.length || 0}{" "}
                         {tNav("projects").toLowerCase()}
@@ -313,14 +313,14 @@ export default function DashboardPage() {
           {projectsLoading ? (
             <LoadingContainer />
           ) : projects && projects.length > 0 ? (
-            <ul className="divide-y">
+            <ul className="divide-y dark:divide-gray-700">
               {projects.slice(0, 5).map((project) => (
                 <ListItem
                   key={project.id}
                   href={`/dashboard/projects/${project.id}`}
                   icon={FolderKanban}
-                  iconBgColor="bg-green-100"
-                  iconColor="text-green-600"
+                  iconBgColor="bg-green-100 dark:bg-green-900/30"
+                  iconColor="text-green-600 dark:text-green-400"
                   title={project.name}
                   subtitle={project.course?.subject?.name || ""}
                   rightContent={

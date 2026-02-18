@@ -56,7 +56,7 @@ function CourseCardContent({
         {isStudent ? (
           /* Student View - Show only enrolled projects */
           <>
-            <div className="mb-2 text-sm font-medium text-gray-700">
+            <div className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               {tProjects("myProjects")}
             </div>
             {course.enrolledProjects && course.enrolledProjects.length > 0 ? (
@@ -65,7 +65,7 @@ function CourseCardContent({
                   <li key={project.id}>
                     <Link
                       href={`/dashboard/projects/${project.id}`}
-                      className="flex items-center gap-2 rounded-md p-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors"
+                      className="flex items-center gap-2 rounded-md p-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors dark:text-primary-400 dark:hover:bg-primary-900/30"
                     >
                       <FolderKanban className="h-4 w-4" />
                       <span className="truncate">{project.name}</span>
@@ -74,13 +74,13 @@ function CourseCardContent({
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">{tProjects("noProjects")}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{tProjects("noProjects")}</p>
             )}
           </>
         ) : (
           /* Professor/Admin View - Show full info */
           <>
-            <div className="mb-4 flex items-center gap-4 text-sm text-gray-600">
+            <div className="mb-4 flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center gap-1">
                 <FolderKanban className="h-4 w-4" />
                 <span>
@@ -95,7 +95,7 @@ function CourseCardContent({
 
             {/* GitHub Organization */}
             {course.githubOrganization && (
-              <p className="mb-4 truncate text-sm text-gray-500">
+              <p className="mb-4 truncate text-sm text-gray-500 dark:text-gray-400">
                 GitHub: {course.githubOrganization}
               </p>
             )}
@@ -103,7 +103,7 @@ function CourseCardContent({
             {/* View Details Button - only for professors/admins */}
             {showDetailsLink && (
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-primary-600 group-hover:text-primary-700">
+                <span className="font-medium text-primary-600 group-hover:text-primary-700 dark:text-primary-400 dark:group-hover:text-primary-300">
                   {t("viewDetails")}
                 </span>
                 <ArrowRight className="h-4 w-4 text-primary-600 transition-transform group-hover:translate-x-1" />
@@ -157,7 +157,7 @@ export default function CoursesPage() {
       {isLoading ? (
         <LoadingContainer />
       ) : error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
           {t("failedToLoad")}
         </div>
       ) : courses && courses.length > 0 ? (
