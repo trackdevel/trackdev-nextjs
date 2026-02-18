@@ -83,7 +83,7 @@ export function GitHubUsernameEditor({
             onChange={(e) => setGithubUsername(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={!isEditing || updateMutation.isLoading}
-            className="input w-full pl-10 disabled:bg-gray-50 disabled:text-gray-500"
+            className="input w-full pl-10 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
             placeholder={t("githubUsernamePlaceholder")}
           />
         </div>
@@ -102,7 +102,7 @@ export function GitHubUsernameEditor({
               type="button"
               onClick={handleCancel}
               disabled={updateMutation.isLoading}
-              className="rounded-md bg-gray-200 p-2 text-gray-700 hover:bg-gray-300"
+              className="rounded-md bg-gray-200 p-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
               title={t("cancel")}
             >
               <X className="h-4 w-4" />
@@ -112,14 +112,14 @@ export function GitHubUsernameEditor({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="rounded-md bg-gray-200 p-2 text-gray-700 hover:bg-gray-300"
+            className="rounded-md bg-gray-200 p-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
             title={t("edit")}
           >
             <Pencil className="h-4 w-4" />
           </button>
         )}
       </div>
-      <p className="mt-1 text-xs text-gray-500">{t("githubUsernameHint")}</p>
+      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("githubUsernameHint")}</p>
     </div>
   );
 }
