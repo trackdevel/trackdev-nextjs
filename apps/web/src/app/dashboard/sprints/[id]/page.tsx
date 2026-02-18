@@ -553,11 +553,23 @@ export default function SprintBoardPage() {
 
   const handleDragOver = useCallback(
     (e: React.DragEvent, storyId: number, columnId: BoardColumnId) => {
+      const isFromBacklog = dragState.source === "backlog";
+
+      // From backlog: only TODO column accepts drops
+      if (isFromBacklog && columnId !== "TODO") return;
+
+      // From sprint in DRAFT (future) or CLOSED sprint: no status changes allowed
+      if (
+        !isFromBacklog &&
+        (sprintMeta.status === "DRAFT" || sprintMeta.status === "CLOSED")
+      )
+        return;
+
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
       setDragOverTarget({ type: "column", storyId, columnId });
     },
-    [],
+    [dragState.source, sprintMeta.status],
   );
 
   const handleDragOverBacklog = useCallback((e: React.DragEvent) => {
@@ -766,8 +778,8 @@ export default function SprintBoardPage() {
       if (!task) return;
 
       if (source === "backlog") {
+        // Only TODO column accepts backlog drops (UI should prevent this)
         if (columnId !== "TODO") {
-          toast.error(t("backlogTaskMustGoToTodo"));
           setDragState({ taskId: null, source: null });
           return;
         }
@@ -779,20 +791,11 @@ export default function SprintBoardPage() {
           return;
         }
 
-        // Tasks in CLOSED (past) sprints cannot change status
-        if (sprintMeta.status === "CLOSED") {
-          toast.error(t("cannotChangeStatusInClosedSprint"));
-          setDragState({ taskId: null, source: null });
-          return;
-        }
-
-        // Tasks in FUTURE sprint (DRAFT) cannot change from TODO
+        // Tasks in CLOSED or DRAFT sprints cannot change status (UI should prevent this)
         if (
-          sprintMeta.status === "DRAFT" &&
-          task.status === "TODO" &&
-          columnId !== "TODO"
+          sprintMeta.status === "CLOSED" ||
+          sprintMeta.status === "DRAFT"
         ) {
-          toast.error(t("cannotChangeStatusInFutureSprint"));
           setDragState({ taskId: null, source: null });
           return;
         }
@@ -1183,6 +1186,7 @@ export default function SprintBoardPage() {
                     dragOverTarget={dragOverTarget}
                     isDragging={isDragging}
                     isDraggingFromSprint={isDraggingFromSprint}
+                    sprintStatus={sprintMeta.status}
                   />
                 ))}
               </div>
@@ -1294,6 +1298,7 @@ interface StoryRowProps {
   dragOverTarget: DragOverTarget | null;
   isDragging: boolean;
   isDraggingFromSprint: boolean;
+  sprintStatus: string;
 }
 
 const StoryRow = memo(function StoryRow({
@@ -1310,9 +1315,20 @@ const StoryRow = memo(function StoryRow({
   dragOverTarget,
   isDragging,
   isDraggingFromSprint,
+  sprintStatus,
 }: StoryRowProps) {
   const t = useTranslations("sprints");
   const [isDraggingThis, setIsDraggingThis] = useState(false);
+
+  const isColumnDropDisabled = (columnId: BoardColumnId) => {
+    if (!isDragging) return false;
+    // From backlog: only TODO accepts
+    if (!isDraggingFromSprint && columnId !== "TODO") return true;
+    // From sprint in DRAFT or CLOSED: no status changes
+    if (isDraggingFromSprint && (sprintStatus === "DRAFT" || sprintStatus === "CLOSED"))
+      return true;
+    return false;
+  };
 
   const tasksByColumn = useMemo(() => {
     const byColumn: Record<BoardColumnId, Task[]> = {
@@ -1365,6 +1381,7 @@ const StoryRow = memo(function StoryRow({
               }
               isDragging={isDragging}
               isDraggingFromSprint={isDraggingFromSprint}
+              dropDisabled={isColumnDropDisabled(col.id)}
             />
           ))}
         </div>
@@ -1479,6 +1496,7 @@ const StoryRow = memo(function StoryRow({
               }
               isDragging={isDragging}
               isDraggingFromSprint={isDraggingFromSprint}
+              dropDisabled={isColumnDropDisabled(col.id)}
             />
           ))}
         </div>
@@ -1507,6 +1525,7 @@ interface BoardColumnProps {
   isDropTarget: boolean;
   isDragging: boolean;
   isDraggingFromSprint: boolean;
+  dropDisabled?: boolean;
 }
 
 const BoardColumn = memo(function BoardColumn({
@@ -1521,15 +1540,18 @@ const BoardColumn = memo(function BoardColumn({
   isDropTarget,
   isDragging,
   isDraggingFromSprint,
+  dropDisabled,
 }: BoardColumnProps) {
   return (
     <div
       className={`min-h-[100px] rounded-lg border-2 border-dashed p-2 transition-colors ${
-        isDropTarget
-          ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
-          : isDragging && !isDraggingFromSprint
-            ? "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
-            : "border-transparent bg-gray-50 dark:bg-gray-700/50"
+        dropDisabled
+          ? "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50"
+          : isDropTarget
+            ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
+            : isDragging && !isDraggingFromSprint
+              ? "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
+              : "border-transparent bg-gray-50 dark:bg-gray-700/50"
       }`}
       onDragOver={(e) => onDragOver(e, storyId, columnId)}
       onDragLeave={onDragLeave}
