@@ -264,16 +264,16 @@ export function TimezoneSelector({
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full min-w-[320px] rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="absolute z-50 mt-1 w-full min-w-[320px] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800">
           {/* Search input */}
-          <div className="border-b border-gray-200 p-2">
+          <div className="border-b border-gray-200 p-2 dark:border-gray-600">
             <input
               ref={inputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t("timezoneSelectPlaceholder")}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
             />
           </div>
 
@@ -281,7 +281,7 @@ export function TimezoneSelector({
           <div className="max-h-[300px] overflow-y-auto">
             {Object.entries(filteredTimezones).map(([region, tzs]) => (
               <div key={region}>
-                <div className="sticky top-0 bg-gray-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <div className="sticky top-0 bg-gray-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:bg-gray-700 dark:text-gray-400">
                   {region}
                 </div>
                 {tzs.map((tz) => (
@@ -289,20 +289,20 @@ export function TimezoneSelector({
                     key={tz.value}
                     type="button"
                     onClick={() => handleTimezoneSelect(tz.value)}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100 ${
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
                       currentTimezone === tz.value
-                        ? "bg-primary-50 text-primary-700"
-                        : "text-gray-700"
+                        ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
+                        : "text-gray-700 dark:text-gray-200"
                     }`}
                   >
                     <span>{tz.label}</span>
-                    <span className="text-xs text-gray-500">{tz.offset}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{tz.offset}</span>
                   </button>
                 ))}
               </div>
             ))}
             {Object.keys(filteredTimezones).length === 0 && (
-              <div className="px-3 py-4 text-center text-sm text-gray-500">
+              <div className="px-3 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                 No timezones found
               </div>
             )}
