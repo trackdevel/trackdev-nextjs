@@ -8,12 +8,16 @@ interface MemberAvatarProps {
   /** Background color (defaults to blue if not provided) */
   color?: string;
   /** Size variant */
-  size?: "sm" | "md" | "lg";
+  size?: "xxs" | "xs" | "sm" | "md" | "lg";
+  /** Tooltip title */
+  title?: string;
   /** Additional className */
   className?: string;
 }
 
 const sizeClasses = {
+  xxs: "h-5 w-5 text-[10px]",
+  xs: "h-6 w-6 text-xs",
   sm: "h-8 w-8 text-xs",
   md: "h-10 w-10 text-sm",
   lg: "h-12 w-12 text-base",
@@ -28,6 +32,7 @@ export function MemberAvatar({
   capitalLetters,
   color = "#3b82f6",
   size = "md",
+  title,
   className = "",
 }: MemberAvatarProps) {
   const initials =
@@ -35,8 +40,9 @@ export function MemberAvatar({
 
   return (
     <div
-      className={`flex items-center justify-center rounded-full font-medium text-white ${sizeClasses[size]} ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-full font-medium text-white ${sizeClasses[size]} ${className}`}
       style={{ backgroundColor: color }}
+      title={title}
     >
       {initials}
     </div>
