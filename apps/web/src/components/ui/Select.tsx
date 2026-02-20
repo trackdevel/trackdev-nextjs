@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 export interface SelectOption {
   value: string;
   label: string;
+  description?: string;
   disabled?: boolean;
 }
 
@@ -15,7 +16,6 @@ interface SelectProps {
   options: SelectOption[];
   placeholder?: string;
   disabled?: boolean;
-  required?: boolean;
   className?: string;
   "aria-label"?: string;
 }
@@ -31,7 +31,6 @@ export function Select({
   options,
   placeholder = "Select an option",
   disabled = false,
-  required = false,
   className = "",
   "aria-label": ariaLabel,
 }: SelectProps) {
@@ -86,24 +85,6 @@ export function Select({
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      {/* Hidden native select for form submission and accessibility */}
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        disabled={disabled}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        {placeholder && <option value="">{placeholder}</option>}
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value} disabled={opt.disabled}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-
       {/* Custom styled trigger */}
       <button
         type="button"
@@ -141,9 +122,9 @@ export function Select({
           role="listbox"
           className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg focus:outline-hidden dark:border-gray-600 dark:bg-gray-800"
         >
-          {options.map((option) => (
+          {options.map((option, idx) => (
             <li
-              key={option.value}
+              key={idx}
               role="option"
               aria-selected={option.value === value}
               onClick={() => !option.disabled && handleSelect(option.value)}
@@ -162,6 +143,11 @@ export function Select({
               }`}
             >
               {option.label}
+              {option.description && (
+                <span className="block text-xs text-gray-500 dark:text-gray-400">
+                  {option.description}
+                </span>
+              )}
             </li>
           ))}
         </ul>

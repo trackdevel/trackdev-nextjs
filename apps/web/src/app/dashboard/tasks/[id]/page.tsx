@@ -635,6 +635,7 @@ export default function TaskDetailPage() {
             taskId={taskId}
             isProfessor={isProfessor}
             isAssignee={optimisticTask?.assignee?.id === user?.id}
+            isFrozen={optimisticTask?.frozen ?? false}
           />
         </div>
       </div>

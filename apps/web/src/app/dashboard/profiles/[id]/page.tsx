@@ -628,10 +628,15 @@ export default function ProfileDetailPage({
                         {profileEnum.values.map((entry, valueIndex) => (
                           <span
                             key={valueIndex}
-                            className="inline-flex rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-300"
-                            title={entry.description || undefined}
+                            className="relative group inline-flex rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-300 cursor-default"
                           >
                             {entry.value}
+                            {entry.description && (
+                              <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block whitespace-nowrap rounded-md bg-gray-900 dark:bg-gray-100 px-2.5 py-1 text-xs text-white dark:text-gray-900 shadow-lg z-10">
+                                {entry.description}
+                                <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100" />
+                              </span>
+                            )}
                           </span>
                         ))}
                       </div>
