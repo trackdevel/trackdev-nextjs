@@ -562,7 +562,6 @@ export default function UsersPage() {
                     value: workspace.id.toString(),
                     label: workspace.name,
                   }))}
-                  required
                 />
               </div>
             )}
@@ -584,7 +583,6 @@ export default function UsersPage() {
                     value: course.id.toString(),
                     label: `${course.subject?.name} - ${course.startYear}`,
                   }))}
-                  required
                 />
               </div>
             )}
