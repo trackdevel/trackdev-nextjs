@@ -456,13 +456,23 @@
       "selectEnum": "Selecciona un enum",
       "defaultValue": "Valor por Defecto",
       "defaultValuePlaceholder": "Introduce el valor por defecto",
-      "defaultValueHint": "Se usa como valor alternativo cuando las tareas no tienen un valor establecido para este atributo"
+      "defaultValueHint": "Se usa como valor alternativo cuando las tareas no tienen un valor establecido para este atributo",
+      "appliedBy": "Aplicado por",
+      "minValue": "Valor Mínimo",
+      "minValuePlaceholder": "Introduce el mínimo",
+      "maxValue": "Valor Máximo",
+      "maxValuePlaceholder": "Introduce el máximo",
+      "enumValuePlaceholder": "Valor (sin espacios)",
+      "enumDescriptionPlaceholder": "Descripción (opcional)",
+      "enumValuesNoSpaces": "Los valores no pueden contener espacios. Cada valor puede tener una descripción opcional.",
+      "addEnumValue": "Añadir valor"
     },
     "validation": {
       "nameRequired": "El nombre del perfil es obligatorio",
       "nameTooLong": "El nombre del perfil debe tener 100 caracteres o menos",
       "enumNameRequired": "El nombre del enum es obligatorio",
       "enumValuesRequired": "Se requiere al menos un valor de enum",
+      "enumValueNoSpaces": "Los valores de enum no pueden contener espacios",
       "attributeNameRequired": "El nombre del atributo es obligatorio",
       "enumRefRequired": "Debes seleccionar un enum para los atributos de tipo enum"
     },
@@ -508,6 +518,10 @@
       "student": "Estudiante",
       "task": "Tarea",
       "pullRequest": "Pull Request"
+    },
+    "appliedBy": {
+      "student": "Estudiante",
+      "professor": "Profesor"
     },
     "backToProfiles": "Volver a Perfiles",
     "enterValue": "Introduce un valor"

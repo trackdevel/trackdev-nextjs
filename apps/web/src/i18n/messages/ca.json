@@ -456,13 +456,23 @@
       "selectEnum": "Selecciona un enum",
       "defaultValue": "Valor per Defecte",
       "defaultValuePlaceholder": "Introdueix el valor per defecte",
-      "defaultValueHint": "S'utilitza com a valor alternatiu quan les tasques no tenen un valor establert per a aquest atribut"
+      "defaultValueHint": "S'utilitza com a valor alternatiu quan les tasques no tenen un valor establert per a aquest atribut",
+      "appliedBy": "Aplicat per",
+      "minValue": "Valor Mínim",
+      "minValuePlaceholder": "Introdueix el mínim",
+      "maxValue": "Valor Màxim",
+      "maxValuePlaceholder": "Introdueix el màxim",
+      "enumValuePlaceholder": "Valor (sense espais)",
+      "enumDescriptionPlaceholder": "Descripció (opcional)",
+      "enumValuesNoSpaces": "Els valors no poden contenir espais. Cada valor pot tenir una descripció opcional.",
+      "addEnumValue": "Afegir valor"
     },
     "validation": {
       "nameRequired": "El nom del perfil és obligatori",
       "nameTooLong": "El nom del perfil ha de tenir 100 caràcters o menys",
       "enumNameRequired": "El nom de l'enum és obligatori",
       "enumValuesRequired": "Es requereix almenys un valor d'enum",
+      "enumValueNoSpaces": "Els valors d'enum no poden contenir espais",
       "attributeNameRequired": "El nom de l'atribut és obligatori",
       "enumRefRequired": "Cal seleccionar un enum per als atributs de tipus enum"
     },
@@ -508,6 +518,10 @@
       "student": "Estudiant",
       "task": "Tasca",
       "pullRequest": "Pull Request"
+    },
+    "appliedBy": {
+      "student": "Estudiant",
+      "professor": "Professor"
     },
     "backToProfiles": "Tornar als Perfils",
     "enterValue": "Introdueix un valor"
