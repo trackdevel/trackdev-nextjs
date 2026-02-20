@@ -7,6 +7,7 @@ import {
   ItemCard,
   LoadingContainer,
   Modal,
+  Select,
   SimplePagination,
   StatusBadge,
 } from "@/components/ui";
@@ -156,21 +157,18 @@ export default function CourseProjectsPage() {
         <>
           {/* Page Size Selector */}
           <div className="mb-4 flex items-center justify-end gap-2">
-            <label htmlFor="pageSize" className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
               {t("itemsPerPage")}:
-            </label>
-            <select
-              id="pageSize"
-              value={pageSize}
-              onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
-            >
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+            </span>
+            <Select
+              value={pageSize.toString()}
+              onChange={(value) => handlePageSizeChange(Number(value))}
+              options={PAGE_SIZE_OPTIONS.map((size) => ({
+                value: size.toString(),
+                label: size.toString(),
+              }))}
+              className="w-20"
+            />
           </div>
 
           {/* Projects Item List */}
