@@ -234,7 +234,7 @@ export const tasksApi = {
     api.get<ProfileAttribute[]>(`/tasks/${taskId}/available-attributes`),
 
   /**
-   * Set or update an attribute value for a task (PROFESSOR only)
+   * Set or update an attribute value for a task
    */
   setAttributeValue: (
     taskId: number,
@@ -247,7 +247,7 @@ export const tasksApi = {
     ),
 
   /**
-   * Delete an attribute value from a task (PROFESSOR only)
+   * Delete an attribute value from a task
    */
   deleteAttributeValue: (taskId: number, attributeId: number) =>
     api.delete<void>(`/tasks/${taskId}/attributes/${attributeId}`),
