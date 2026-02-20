@@ -461,13 +461,23 @@
       "selectEnum": "Select an enum",
       "defaultValue": "Default Value",
       "defaultValuePlaceholder": "Enter default value",
-      "defaultValueHint": "Used as fallback when tasks don't have a value set for this attribute"
+      "defaultValueHint": "Used as fallback when tasks don't have a value set for this attribute",
+      "appliedBy": "Applied By",
+      "minValue": "Minimum Value",
+      "minValuePlaceholder": "Enter minimum",
+      "maxValue": "Maximum Value",
+      "maxValuePlaceholder": "Enter maximum",
+      "enumValuePlaceholder": "Value (no spaces)",
+      "enumDescriptionPlaceholder": "Description (optional)",
+      "enumValuesNoSpaces": "Values must not contain spaces. Each value can have an optional description.",
+      "addEnumValue": "Add value"
     },
     "validation": {
       "nameRequired": "Profile name is required",
       "nameTooLong": "Profile name must be 100 characters or less",
       "enumNameRequired": "Enum name is required",
       "enumValuesRequired": "At least one enum value is required",
+      "enumValueNoSpaces": "Enum values must not contain spaces",
       "attributeNameRequired": "Attribute name is required",
       "enumRefRequired": "An enum must be selected for enum type attributes"
     },
@@ -513,6 +523,10 @@
       "student": "Student",
       "task": "Task",
       "pullRequest": "Pull Request"
+    },
+    "appliedBy": {
+      "student": "Student",
+      "professor": "Professor"
     },
     "backToProfiles": "Back to Profiles",
     "enterValue": "Enter a value"
