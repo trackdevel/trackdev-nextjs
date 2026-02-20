@@ -16,6 +16,7 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type {
+  AttributeAppliedBy,
   AttributeTarget,
   AttributeType,
   ProfileComplete,
@@ -57,7 +58,9 @@ export default function ProfileDetailPage({
   const [showEnumModal, setShowEnumModal] = useState(false);
   const [editingEnumIndex, setEditingEnumIndex] = useState<number | null>(null);
   const [enumName, setEnumName] = useState("");
-  const [enumValues, setEnumValues] = useState("");
+  const [enumValueEntries, setEnumValueEntries] = useState<
+    { value: string; description: string }[]
+  >([{ value: "", description: "" }]);
   const [enumValidationError, setEnumValidationError] = useState<string | null>(
     null,
   );
@@ -74,6 +77,10 @@ export default function ProfileDetailPage({
   const [attributeEnumRef, setAttributeEnumRef] = useState<string>("");
   const [attributeDefaultValue, setAttributeDefaultValue] =
     useState<string>("");
+  const [attributeAppliedBy, setAttributeAppliedBy] =
+    useState<AttributeAppliedBy>("PROFESSOR");
+  const [attributeMinValue, setAttributeMinValue] = useState<string>("");
+  const [attributeMaxValue, setAttributeMaxValue] = useState<string>("");
   const [attributeValidationError, setAttributeValidationError] = useState<
     string | null
   >(null);
@@ -105,15 +112,21 @@ export default function ProfileDetailPage({
     enums: profile.enums?.map((e) => ({
       id: e.id,
       name: e.name,
-      values: e.values,
+      values: e.values.map((v) => ({
+        value: v.value,
+        description: v.description,
+      })),
     })),
     attributes: profile.attributes?.map((a) => ({
       id: a.id,
       name: a.name,
       type: a.type,
       target: a.target,
+      appliedBy: a.appliedBy,
       enumRefName: a.enumRefName,
       defaultValue: a.defaultValue,
+      minValue: a.minValue,
+      maxValue: a.maxValue,
     })),
   });
 
@@ -138,7 +151,7 @@ export default function ProfileDetailPage({
   const resetEnumForm = () => {
     setEditingEnumIndex(null);
     setEnumName("");
-    setEnumValues("");
+    setEnumValueEntries([{ value: "", description: "" }]);
     setEnumValidationError(null);
   };
 
@@ -149,6 +162,9 @@ export default function ProfileDetailPage({
     setAttributeTarget("STUDENT");
     setAttributeEnumRef("");
     setAttributeDefaultValue("");
+    setAttributeAppliedBy("PROFESSOR");
+    setAttributeMinValue("");
+    setAttributeMaxValue("");
     setAttributeValidationError(null);
   };
 
@@ -195,7 +211,12 @@ export default function ProfileDetailPage({
       const profileEnum = profile.enums[index];
       setEditingEnumIndex(index);
       setEnumName(profileEnum.name);
-      setEnumValues(profileEnum.values.join(", "));
+      setEnumValueEntries(
+        profileEnum.values.map((v) => ({
+          value: v.value,
+          description: v.description || "",
+        })),
+      );
     } else {
       resetEnumForm();
     }
@@ -212,15 +233,28 @@ export default function ProfileDetailPage({
       return;
     }
 
-    const valuesArray = enumValues
-      .split(",")
-      .map((v) => v.trim())
-      .filter((v) => v.length > 0);
+    const validEntries = enumValueEntries.filter(
+      (entry) => entry.value.trim().length > 0,
+    );
 
-    if (valuesArray.length === 0) {
+    if (validEntries.length === 0) {
       setEnumValidationError(t("validation.enumValuesRequired"));
       return;
     }
+
+    // Validate no spaces in values
+    const hasSpaces = validEntries.some((entry) =>
+      entry.value.trim().includes(" "),
+    );
+    if (hasSpaces) {
+      setEnumValidationError(t("validation.enumValueNoSpaces"));
+      return;
+    }
+
+    const valuesForRequest = validEntries.map((entry) => ({
+      value: entry.value.trim(),
+      description: entry.description.trim() || undefined,
+    }));
 
     const currentEnums = profile.enums || [];
     let newEnums;
@@ -229,7 +263,7 @@ export default function ProfileDetailPage({
       // Update existing enum
       newEnums = currentEnums.map((e, i) =>
         i === editingEnumIndex
-          ? { ...e, name: enumName.trim(), values: valuesArray }
+          ? { ...e, name: enumName.trim(), values: valuesForRequest }
           : e,
       );
     } else {
@@ -238,9 +272,12 @@ export default function ProfileDetailPage({
         ...currentEnums.map((e) => ({
           id: e.id,
           name: e.name,
-          values: e.values,
+          values: e.values.map((v) => ({
+            value: v.value,
+            description: v.description,
+          })),
         })),
-        { name: enumName.trim(), values: valuesArray },
+        { name: enumName.trim(), values: valuesForRequest },
       ];
     }
 
@@ -272,7 +309,14 @@ export default function ProfileDetailPage({
     const currentEnums = profile.enums || [];
     const newEnums = currentEnums
       .filter((_, i) => i !== enumToDeleteIndex)
-      .map((e) => ({ id: e.id, name: e.name, values: e.values }));
+      .map((e) => ({
+        id: e.id,
+        name: e.name,
+        values: e.values.map((v) => ({
+          value: v.value,
+          description: v.description,
+        })),
+      }));
 
     try {
       await updateProfileMutation.mutateAsync({
@@ -296,6 +340,9 @@ export default function ProfileDetailPage({
       setAttributeType(attribute.type);
       setAttributeTarget(attribute.target);
       setAttributeEnumRef(attribute.enumRefName || "");
+      setAttributeAppliedBy(attribute.appliedBy || "PROFESSOR");
+      setAttributeMinValue(attribute.minValue || "");
+      setAttributeMaxValue(attribute.maxValue || "");
       // Use existing value or type-based default
       if (attribute.defaultValue) {
         setAttributeDefaultValue(attribute.defaultValue);
@@ -330,15 +377,19 @@ export default function ProfileDetailPage({
     const currentAttributes = profile.attributes || [];
     let newAttributes;
 
+    const isNumeric =
+      attributeType === "INTEGER" || attributeType === "FLOAT";
     const newAttr = {
       name: attributeName.trim(),
       type: attributeType,
       target: attributeTarget,
+      appliedBy: attributeAppliedBy,
       enumRefName: attributeType === "ENUM" ? attributeEnumRef : undefined,
-      defaultValue:
-        attributeType === "INTEGER" || attributeType === "FLOAT"
-          ? attributeDefaultValue.trim() || undefined
-          : undefined,
+      defaultValue: isNumeric
+        ? attributeDefaultValue.trim() || undefined
+        : undefined,
+      minValue: isNumeric ? attributeMinValue.trim() || undefined : undefined,
+      maxValue: isNumeric ? attributeMaxValue.trim() || undefined : undefined,
     };
 
     if (editingAttributeIndex !== null) {
@@ -354,8 +405,11 @@ export default function ProfileDetailPage({
           name: a.name,
           type: a.type,
           target: a.target,
+          appliedBy: a.appliedBy,
           enumRefName: a.enumRefName,
           defaultValue: a.defaultValue,
+          minValue: a.minValue,
+          maxValue: a.maxValue,
         })),
         newAttr,
       ];
@@ -394,8 +448,11 @@ export default function ProfileDetailPage({
         name: a.name,
         type: a.type,
         target: a.target,
+        appliedBy: a.appliedBy,
         enumRefName: a.enumRefName,
         defaultValue: a.defaultValue,
+        minValue: a.minValue,
+        maxValue: a.maxValue,
       }));
 
     try {
@@ -429,6 +486,14 @@ export default function ProfileDetailPage({
       PULL_REQUEST: t("targets.pullRequest"),
     };
     return labels[target];
+  };
+
+  const getAppliedByLabel = (appliedBy: AttributeAppliedBy) => {
+    const labels: Record<AttributeAppliedBy, string> = {
+      STUDENT: t("appliedBy.student"),
+      PROFESSOR: t("appliedBy.professor"),
+    };
+    return labels[appliedBy];
   };
 
   const getEnumToDeleteName = () => {
@@ -560,12 +625,13 @@ export default function ProfileDetailPage({
                         {profileEnum.name}
                       </h3>
                       <div className="mt-1 flex flex-wrap gap-1">
-                        {profileEnum.values.map((value, valueIndex) => (
+                        {profileEnum.values.map((entry, valueIndex) => (
                           <span
                             key={valueIndex}
                             className="inline-flex rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-300"
+                            title={entry.description || undefined}
                           >
-                            {value}
+                            {entry.value}
                           </span>
                         ))}
                       </div>
@@ -633,7 +699,10 @@ export default function ProfileDetailPage({
                             `: ${attribute.enumRefName}`}
                         </span>
                         <span className="inline-flex rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs text-green-700 dark:text-green-400">
-                          {getTargetLabel(attribute.target)}
+                          {t("form.attributeTarget")}: {getTargetLabel(attribute.target)}
+                        </span>
+                        <span className="inline-flex rounded-full bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 text-xs text-purple-700 dark:text-purple-400">
+                          {t("form.appliedBy")}: {getAppliedByLabel(attribute.appliedBy)}
                         </span>
                       </div>
                     </div>
@@ -700,23 +769,69 @@ export default function ProfileDetailPage({
             />
           </div>
           <div>
-            <label
-              htmlFor="enumValues"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {t("form.enumValues")} *
             </label>
-            <input
-              type="text"
-              id="enumValues"
-              value={enumValues}
-              onChange={(e) => setEnumValues(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white shadow-xs focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-              placeholder={t("form.enumValuesPlaceholder")}
-            />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              {t("form.enumValuesHelp")}
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 mb-2">
+              {t("form.enumValuesNoSpaces")}
             </p>
+            <div className="space-y-2">
+              {enumValueEntries.map((entry, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <input
+                    type="text"
+                    value={entry.value}
+                    onChange={(e) => {
+                      const updated = [...enumValueEntries];
+                      updated[idx] = { ...updated[idx], value: e.target.value };
+                      setEnumValueEntries(updated);
+                    }}
+                    className="block w-1/2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-xs focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                    placeholder={t("form.enumValuePlaceholder")}
+                  />
+                  <input
+                    type="text"
+                    value={entry.description}
+                    onChange={(e) => {
+                      const updated = [...enumValueEntries];
+                      updated[idx] = {
+                        ...updated[idx],
+                        description: e.target.value,
+                      };
+                      setEnumValueEntries(updated);
+                    }}
+                    className="block w-1/2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-xs focus:border-indigo-500 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                    placeholder={t("form.enumDescriptionPlaceholder")}
+                  />
+                  {enumValueEntries.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEnumValueEntries(
+                          enumValueEntries.filter((_, i) => i !== idx),
+                        );
+                      }}
+                      className="rounded-md p-2 text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setEnumValueEntries([
+                  ...enumValueEntries,
+                  { value: "", description: "" },
+                ])
+              }
+              className="mt-2 inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
+            >
+              <Plus className="h-3 w-3" />
+              {t("form.addEnumValue")}
+            </button>
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <button
@@ -853,27 +968,85 @@ export default function ProfileDetailPage({
               aria-label={t("form.attributeTarget")}
             />
           </div>
+          <div>
+            <label
+              htmlFor="attributeAppliedBy"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              {t("form.appliedBy")} *
+            </label>
+            <Select
+              value={attributeAppliedBy}
+              onChange={(value) =>
+                setAttributeAppliedBy(value as AttributeAppliedBy)
+              }
+              options={[
+                { value: "PROFESSOR", label: t("appliedBy.professor") },
+                { value: "STUDENT", label: t("appliedBy.student") },
+              ]}
+              className="mt-1"
+              aria-label={t("form.appliedBy")}
+            />
+          </div>
           {(attributeType === "INTEGER" || attributeType === "FLOAT") && (
-            <div>
-              <label
-                htmlFor="attributeDefaultValue"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                {t("form.defaultValue")}
-              </label>
-              <input
-                type="number"
-                id="attributeDefaultValue"
-                value={attributeDefaultValue}
-                onChange={(e) => setAttributeDefaultValue(e.target.value)}
-                placeholder={t("form.defaultValuePlaceholder")}
-                step={attributeType === "INTEGER" ? "1" : "0.01"}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {t("form.defaultValueHint")}
-              </p>
-            </div>
+            <>
+              <div>
+                <label
+                  htmlFor="attributeDefaultValue"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {t("form.defaultValue")}
+                </label>
+                <input
+                  type="number"
+                  id="attributeDefaultValue"
+                  value={attributeDefaultValue}
+                  onChange={(e) => setAttributeDefaultValue(e.target.value)}
+                  placeholder={t("form.defaultValuePlaceholder")}
+                  step={attributeType === "INTEGER" ? "1" : "0.01"}
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {t("form.defaultValueHint")}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="attributeMinValue"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("form.minValue")}
+                  </label>
+                  <input
+                    type="number"
+                    id="attributeMinValue"
+                    value={attributeMinValue}
+                    onChange={(e) => setAttributeMinValue(e.target.value)}
+                    placeholder={t("form.minValuePlaceholder")}
+                    step={attributeType === "INTEGER" ? "1" : "0.01"}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="attributeMaxValue"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("form.maxValue")}
+                  </label>
+                  <input
+                    type="number"
+                    id="attributeMaxValue"
+                    value={attributeMaxValue}
+                    onChange={(e) => setAttributeMaxValue(e.target.value)}
+                    placeholder={t("form.maxValuePlaceholder")}
+                    step={attributeType === "INTEGER" ? "1" : "0.01"}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+            </>
           )}
           <div className="flex justify-end gap-3 pt-4">
             <button
