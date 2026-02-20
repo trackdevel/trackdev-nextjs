@@ -26,7 +26,7 @@ export interface ProfileAttribute {
   appliedBy: AttributeAppliedBy;
   enumRefId?: number;
   enumRefName?: string;
-  enumValues?: string[];
+  enumValues?: EnumValueEntry[];
   defaultValue?: string;
   minValue?: string;
   maxValue?: string;
