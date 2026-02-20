@@ -183,6 +183,35 @@ export interface TaskAttributeValue {
   attributeId: number;
   attributeName: string;
   attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
+  attributeAppliedBy: "STUDENT" | "PROFESSOR";
+  value: string | null;
+  enumValues?: string[];
+}
+
+/**
+ * Student attribute value - stores the value of a profile attribute for a student
+ */
+export interface StudentAttributeValue {
+  id: number;
+  userId: string;
+  attributeId: number;
+  attributeName: string;
+  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
+  attributeAppliedBy: "STUDENT" | "PROFESSOR";
+  value: string | null;
+  enumValues?: string[];
+}
+
+/**
+ * Pull request attribute value - stores the value of a profile attribute for a PR
+ */
+export interface PullRequestAttributeValue {
+  id: number;
+  pullRequestId: string;
+  attributeId: number;
+  attributeName: string;
+  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
+  attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
   enumValues?: string[];
 }
