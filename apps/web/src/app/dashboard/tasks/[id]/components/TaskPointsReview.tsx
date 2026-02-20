@@ -1,5 +1,6 @@
 "use client";
 
+import { Select } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import { useDateFormat } from "@/utils/useDateFormat";
@@ -828,19 +829,19 @@ function ConversationItem({
               {showAddParticipant &&
                 expandedConversation.canAddParticipant && (
                   <div className="flex items-center gap-2">
-                    <select
+                    <Select
                       value={selectedParticipantId}
-                      onChange={(e) => onSelectParticipant(e.target.value)}
-                      className="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      onChange={(value) => onSelectParticipant(value)}
+                      options={[
+                        { value: "", label: t("selectParticipant") },
+                        ...(availableParticipants?.map((member) => ({
+                          value: member.id,
+                          label: member.fullName || member.username,
+                        })) || []),
+                      ]}
                       disabled={isAddingParticipant}
-                    >
-                      <option value="">{t("selectParticipant")}</option>
-                      {availableParticipants?.map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.fullName || member.username}
-                        </option>
-                      ))}
-                    </select>
+                      className="flex-1"
+                    />
                     <button
                       onClick={onAddParticipant}
                       disabled={!selectedParticipantId || isAddingParticipant}
