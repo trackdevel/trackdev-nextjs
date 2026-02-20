@@ -630,8 +630,12 @@ export default function TaskDetailPage() {
             onUnassign={handleUnassign}
           />
 
-          {/* Profile Attributes - Only visible to professors */}
-          <TaskAttributes taskId={taskId} isProfessor={isProfessor} />
+          {/* Profile Attributes */}
+          <TaskAttributes
+            taskId={taskId}
+            isProfessor={isProfessor}
+            isAssignee={optimisticTask?.assignee?.id === user?.id}
+          />
         </div>
       </div>
 
