@@ -4,6 +4,7 @@
 // ============================================
 
 import { Comment } from "./comment";
+import { EnumValueEntry } from "./profile";
 import { Sprint } from "./sprint";
 import { UserPublic } from "./user";
 
@@ -185,7 +186,7 @@ export interface TaskAttributeValue {
   attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
-  enumValues?: string[];
+  enumValues?: EnumValueEntry[];
 }
 
 /**
@@ -199,7 +200,7 @@ export interface StudentAttributeValue {
   attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
-  enumValues?: string[];
+  enumValues?: EnumValueEntry[];
 }
 
 /**
@@ -213,7 +214,7 @@ export interface PullRequestAttributeValue {
   attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
-  enumValues?: string[];
+  enumValues?: EnumValueEntry[];
 }
 
 /**
