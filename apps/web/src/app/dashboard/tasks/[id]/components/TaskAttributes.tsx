@@ -16,11 +16,13 @@ import { memo, useState } from "react";
 interface TaskAttributesProps {
   taskId: number;
   isProfessor: boolean;
+  isAssignee: boolean;
 }
 
 export const TaskAttributes = memo(function TaskAttributes({
   taskId,
   isProfessor,
+  isAssignee,
 }: TaskAttributesProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
@@ -47,7 +49,7 @@ export const TaskAttributes = memo(function TaskAttributes({
   // Fetch available attributes from the course profile
   const { data: availableAttributes, isLoading: isLoadingAttributes } =
     useQuery(() => tasksApi.getAvailableAttributes(taskId), [taskId], {
-      enabled: !!taskId && isProfessor,
+      enabled: !!taskId,
     });
 
   // Mutation to set/update attribute value
@@ -96,6 +98,20 @@ export const TaskAttributes = memo(function TaskAttributes({
     availableAttributes?.filter(
       (attr) => !attributeValues?.some((val) => val.attributeId === attr.id),
     ) || [];
+
+  // Determine if user can edit a specific attribute based on appliedBy
+  const canEditAttribute = (
+    appliedBy: "STUDENT" | "PROFESSOR" | undefined,
+  ): boolean => {
+    if (isProfessor) return true;
+    if (appliedBy === "STUDENT" && isAssignee) return true;
+    return false;
+  };
+
+  // Get editable unset attributes (filtered by permissions)
+  const editableUnsetAttributes = unsetAttributes.filter((attr) =>
+    canEditAttribute(attr.appliedBy),
+  );
 
   const handleStartEdit = (attrValue: TaskAttributeValue) => {
     setEditingAttributeId(attrValue.attributeId);
@@ -277,7 +293,7 @@ export const TaskAttributes = memo(function TaskAttributes({
                       </span>
                     )}
                   </span>
-                  {isProfessor && (
+                  {canEditAttribute(attrValue.attributeAppliedBy) && (
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleStartEdit(attrValue)}
@@ -346,15 +362,15 @@ export const TaskAttributes = memo(function TaskAttributes({
           </div>
         )}
 
-        {/* Add attribute dropdown (only for professors, and only if there are unset attributes) */}
-        {isProfessor && unsetAttributes.length > 0 && !addingAttributeId && (
+        {/* Add attribute dropdown (for users who can edit, only if there are editable unset attributes) */}
+        {editableUnsetAttributes.length > 0 && !addingAttributeId && (
           <div className="px-6 py-3">
             <div className="flex items-center gap-2">
               <Plus className="h-4 w-4 text-gray-400" />
               <Select
                 value=""
                 onChange={(value) => {
-                  const attr = unsetAttributes.find(
+                  const attr = editableUnsetAttributes.find(
                     (a) => a.id === parseInt(value),
                   );
                   if (attr) {
@@ -363,7 +379,7 @@ export const TaskAttributes = memo(function TaskAttributes({
                 }}
                 options={[
                   { value: "", label: t("addAttribute") },
-                  ...unsetAttributes.map((attr) => ({
+                  ...editableUnsetAttributes.map((attr) => ({
                     value: attr.id.toString(),
                     label: attr.name,
                   })),
@@ -374,9 +390,9 @@ export const TaskAttributes = memo(function TaskAttributes({
           </div>
         )}
 
-        {/* Empty state - all attributes are set */}
-        {isProfessor &&
-          unsetAttributes.length === 0 &&
+        {/* Empty state - no attributes available */}
+        {(isProfessor || isAssignee) &&
+          editableUnsetAttributes.length === 0 &&
           (!attributeValues || attributeValues.length === 0) && (
             <div className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
               {t("noAttributesAvailable")}
