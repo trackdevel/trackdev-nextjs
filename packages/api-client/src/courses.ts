@@ -9,8 +9,11 @@ import type {
   CourseUpdateRequest,
   IdObject,
   InviteStudentsRequest,
+  ProfileAttribute,
   Project,
   ProjectCreateRequest,
+  SetAttributeValueRequest,
+  StudentAttributeValue,
   UserPublic,
 } from "@trackdev/types";
 import { api } from "./client";
@@ -128,4 +131,48 @@ export const coursesApi = {
    */
   applyProfile: (courseId: number, profileId: number) =>
     api.post<Course>(`/courses/${courseId}/apply-profile/${profileId}`, {}),
+
+  // ==================== Student Attribute Values ====================
+
+  /**
+   * Get attribute values for a student in a course
+   */
+  getStudentAttributeValues: (courseId: number, userId: string) =>
+    api.get<StudentAttributeValue[]>(
+      `/courses/${courseId}/students/${userId}/attributes`,
+    ),
+
+  /**
+   * Get available student-targeted attributes for a course
+   */
+  getAvailableStudentAttributes: (courseId: number) =>
+    api.get<ProfileAttribute[]>(
+      `/courses/${courseId}/student-attributes`,
+    ),
+
+  /**
+   * Set or update an attribute value for a student
+   */
+  setStudentAttributeValue: (
+    courseId: number,
+    userId: string,
+    attributeId: number,
+    data: SetAttributeValueRequest,
+  ) =>
+    api.put<StudentAttributeValue>(
+      `/courses/${courseId}/students/${userId}/attributes/${attributeId}`,
+      data,
+    ),
+
+  /**
+   * Delete an attribute value from a student
+   */
+  deleteStudentAttributeValue: (
+    courseId: number,
+    userId: string,
+    attributeId: number,
+  ) =>
+    api.delete<void>(
+      `/courses/${courseId}/students/${userId}/attributes/${attributeId}`,
+    ),
 };
