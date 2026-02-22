@@ -473,7 +473,9 @@
       "enumValuePlaceholder": "Value (no spaces)",
       "enumDescriptionPlaceholder": "Description (optional)",
       "enumValuesNoSpaces": "Values must not contain spaces. Each value can have an optional description.",
-      "addEnumValue": "Add value"
+      "addEnumValue": "Add value",
+      "listEnumRefHint": "Optional: select an enum to create a categorized list (enum + text pairs). Leave empty for a plain text list.",
+      "listConstraintsHint": "List attributes are always applied by professors, targeted to students, and visible only to professors."
     },
     "validation": {
       "nameRequired": "Profile name is required",
@@ -520,7 +522,8 @@
       "string": "Text",
       "integer": "Integer",
       "float": "Decimal",
-      "enum": "Enum"
+      "enum": "Enum",
+      "list": "List"
     },
     "targets": {
       "student": "Student",
@@ -530,6 +533,12 @@
     "appliedBy": {
       "student": "Student",
       "professor": "Professor"
+    },
+    "visibility": {
+      "label": "Visibility",
+      "professorOnly": "Professor only",
+      "projectStudents": "All project students",
+      "assignedStudent": "Assigned student only"
     },
     "backToProfiles": "Back to Profiles",
     "enterValue": "Enter a value"
@@ -823,6 +832,35 @@
     "en": "English",
     "es": "Spanish",
     "ca": "Catalan"
+  },
+  "studentProfile": {
+    "title": "Student Profile",
+    "errorLoading": "Failed to load student information",
+    "projects": "Projects",
+    "noProjects": "Not enrolled in any project",
+    "assignedTasks": "Assigned Tasks",
+    "noTasks": "No tasks assigned",
+    "taskName": "Task",
+    "project": "Project",
+    "sprint": "Sprint",
+    "status": "Status",
+    "noSprint": "No sprint",
+    "attributes": "Student Attributes",
+    "noAttributes": "No attributes available",
+    "attributeValueSaved": "Attribute value saved",
+    "attributeValueDeleted": "Attribute value deleted",
+    "attributeValueError": "Failed to save attribute value",
+    "attributeValueDeleteError": "Failed to delete attribute value",
+    "notSet": "Not set",
+    "listValueSaved": "List updated successfully",
+    "listValueError": "Failed to update list",
+    "listValueDeleted": "List cleared",
+    "listValueDeleteError": "Failed to clear list",
+    "noListItems": "No items",
+    "addListItem": "Add item",
+    "clearList": "Clear list",
+    "selectCategory": "Select category",
+    "enterValue": "Enter a value"
   },
   "userTypes": {
     "admin": "Administrator",
