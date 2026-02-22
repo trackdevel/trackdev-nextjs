@@ -13,6 +13,8 @@ import type {
   Project,
   ProjectCreateRequest,
   SetAttributeValueRequest,
+  SetListAttributeValuesRequest,
+  StudentAttributeListValue,
   StudentAttributeValue,
   UserPublic,
 } from "@trackdev/types";
@@ -174,5 +176,45 @@ export const coursesApi = {
   ) =>
     api.delete<void>(
       `/courses/${courseId}/students/${userId}/attributes/${attributeId}`,
+    ),
+
+  // ==================== Student LIST Attribute Values ====================
+
+  /**
+   * Get list items for a LIST-type attribute for a student
+   */
+  getStudentListAttributeValues: (
+    courseId: number,
+    userId: string,
+    attributeId: number,
+  ) =>
+    api.get<StudentAttributeListValue>(
+      `/courses/${courseId}/students/${userId}/list-attributes/${attributeId}`,
+    ),
+
+  /**
+   * Replace all list items for a LIST-type attribute for a student
+   */
+  setStudentListAttributeValues: (
+    courseId: number,
+    userId: string,
+    attributeId: number,
+    data: SetListAttributeValuesRequest,
+  ) =>
+    api.put<StudentAttributeListValue>(
+      `/courses/${courseId}/students/${userId}/list-attributes/${attributeId}`,
+      data,
+    ),
+
+  /**
+   * Delete all list items for a LIST-type attribute from a student
+   */
+  deleteStudentListAttributeValues: (
+    courseId: number,
+    userId: string,
+    attributeId: number,
+  ) =>
+    api.delete<void>(
+      `/courses/${courseId}/students/${userId}/list-attributes/${attributeId}`,
     ),
 };

@@ -468,7 +468,9 @@
       "enumValuePlaceholder": "Valor (sin espacios)",
       "enumDescriptionPlaceholder": "Descripción (opcional)",
       "enumValuesNoSpaces": "Los valores no pueden contener espacios. Cada valor puede tener una descripción opcional.",
-      "addEnumValue": "Añadir valor"
+      "addEnumValue": "Añadir valor",
+      "listEnumRefHint": "Opcional: selecciona un enum para crear una lista categorizada (enum + texto). Déjalo vacío para una lista de texto simple.",
+      "listConstraintsHint": "Los atributos de tipo lista siempre son aplicados por profesores, dirigidos a estudiantes y visibles solo para profesores."
     },
     "validation": {
       "nameRequired": "El nombre del perfil es obligatorio",
@@ -515,7 +517,8 @@
       "string": "Texto",
       "integer": "Entero",
       "float": "Decimal",
-      "enum": "Enum"
+      "enum": "Enum",
+      "list": "Lista"
     },
     "targets": {
       "student": "Estudiante",
@@ -525,6 +528,12 @@
     "appliedBy": {
       "student": "Estudiante",
       "professor": "Profesor"
+    },
+    "visibility": {
+      "label": "Visibilidad",
+      "professorOnly": "Solo profesor",
+      "projectStudents": "Todos los estudiantes del proyecto",
+      "assignedStudent": "Solo el estudiante asignado"
     },
     "backToProfiles": "Volver a Perfiles",
     "enterValue": "Introduce un valor"
@@ -818,6 +827,35 @@
     "en": "Inglés",
     "es": "Español",
     "ca": "Catalán"
+  },
+  "studentProfile": {
+    "title": "Perfil del Estudiante",
+    "errorLoading": "No se pudo cargar la información del estudiante",
+    "projects": "Proyectos",
+    "noProjects": "No está inscrito en ningún proyecto",
+    "assignedTasks": "Tareas Asignadas",
+    "noTasks": "No hay tareas asignadas",
+    "taskName": "Tarea",
+    "project": "Proyecto",
+    "sprint": "Sprint",
+    "status": "Estado",
+    "noSprint": "Sin sprint",
+    "attributes": "Atributos del Estudiante",
+    "noAttributes": "No hay atributos disponibles",
+    "attributeValueSaved": "Valor del atributo guardado",
+    "attributeValueDeleted": "Valor del atributo eliminado",
+    "attributeValueError": "No se pudo guardar el valor del atributo",
+    "attributeValueDeleteError": "No se pudo eliminar el valor del atributo",
+    "notSet": "No definido",
+    "listValueSaved": "Lista actualizada correctamente",
+    "listValueError": "No se pudo actualizar la lista",
+    "listValueDeleted": "Lista borrada",
+    "listValueDeleteError": "No se pudo borrar la lista",
+    "noListItems": "Sin elementos",
+    "addListItem": "Añadir elemento",
+    "clearList": "Borrar lista",
+    "selectCategory": "Seleccionar categoría",
+    "enterValue": "Introduce un valor"
   },
   "userTypes": {
     "admin": "Administrador",

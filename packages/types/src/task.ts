@@ -233,6 +233,9 @@ export interface TaskDetail extends Task {
     id: number;
     name: string;
     members?: UserPublic[];
+    course?: {
+      id: number;
+    };
   };
   pointsReview: PointsReview[];
 

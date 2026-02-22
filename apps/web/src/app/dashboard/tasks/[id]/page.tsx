@@ -619,6 +619,7 @@ export default function TaskDetailPage() {
             availableSprints={availableSprints}
             canSelfAssign={canSelfAssign}
             canUnassign={canUnassign}
+            isProfessor={isProfessor}
             onStartEdit={handleStartEdit}
             onSave={handleSave}
             onCancel={handleCancel}

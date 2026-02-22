@@ -468,7 +468,9 @@
       "enumValuePlaceholder": "Valor (sense espais)",
       "enumDescriptionPlaceholder": "Descripció (opcional)",
       "enumValuesNoSpaces": "Els valors no poden contenir espais. Cada valor pot tenir una descripció opcional.",
-      "addEnumValue": "Afegir valor"
+      "addEnumValue": "Afegir valor",
+      "listEnumRefHint": "Opcional: selecciona un enum per crear una llista categoritzada (enum + text). Deixa-ho buit per una llista de text simple.",
+      "listConstraintsHint": "Els atributs de tipus llista sempre són aplicats per professors, dirigits a estudiants i visibles només per a professors."
     },
     "validation": {
       "nameRequired": "El nom del perfil és obligatori",
@@ -515,7 +517,8 @@
       "string": "Text",
       "integer": "Enter",
       "float": "Decimal",
-      "enum": "Enum"
+      "enum": "Enum",
+      "list": "Llista"
     },
     "targets": {
       "student": "Estudiant",
@@ -525,6 +528,12 @@
     "appliedBy": {
       "student": "Estudiant",
       "professor": "Professor"
+    },
+    "visibility": {
+      "label": "Visibilitat",
+      "professorOnly": "Només professor",
+      "projectStudents": "Tots els estudiants del projecte",
+      "assignedStudent": "Només l'estudiant assignat"
     },
     "backToProfiles": "Tornar als Perfils",
     "enterValue": "Introdueix un valor"
@@ -818,6 +827,35 @@
     "en": "Anglès",
     "es": "Espanyol",
     "ca": "Català"
+  },
+  "studentProfile": {
+    "title": "Perfil de l'Estudiant",
+    "errorLoading": "No s'ha pogut carregar la informació de l'estudiant",
+    "projects": "Projectes",
+    "noProjects": "No està inscrit en cap projecte",
+    "assignedTasks": "Tasques Assignades",
+    "noTasks": "No hi ha tasques assignades",
+    "taskName": "Tasca",
+    "project": "Projecte",
+    "sprint": "Sprint",
+    "status": "Estat",
+    "noSprint": "Sense sprint",
+    "attributes": "Atributs de l'Estudiant",
+    "noAttributes": "No hi ha atributs disponibles",
+    "attributeValueSaved": "Valor de l'atribut desat",
+    "attributeValueDeleted": "Valor de l'atribut eliminat",
+    "attributeValueError": "No s'ha pogut desar el valor de l'atribut",
+    "attributeValueDeleteError": "No s'ha pogut eliminar el valor de l'atribut",
+    "notSet": "No definit",
+    "listValueSaved": "Llista actualitzada correctament",
+    "listValueError": "No s'ha pogut actualitzar la llista",
+    "listValueDeleted": "Llista esborrada",
+    "listValueDeleteError": "No s'ha pogut esborrar la llista",
+    "noListItems": "Sense elements",
+    "addListItem": "Afegir element",
+    "clearList": "Esborrar llista",
+    "selectCategory": "Seleccionar categoria",
+    "enterValue": "Introdueix un valor"
   },
   "userTypes": {
     "admin": "Administrador",
