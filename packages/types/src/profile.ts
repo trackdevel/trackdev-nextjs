@@ -3,9 +3,13 @@
 // Based on Profile.java entity
 // ============================================
 
-export type AttributeType = "STRING" | "ENUM" | "INTEGER" | "FLOAT";
+export type AttributeType = "STRING" | "ENUM" | "INTEGER" | "FLOAT" | "LIST";
 export type AttributeTarget = "STUDENT" | "TASK" | "PULL_REQUEST";
 export type AttributeAppliedBy = "STUDENT" | "PROFESSOR";
+export type AttributeVisibility =
+  | "PROFESSOR_ONLY"
+  | "PROJECT_STUDENTS"
+  | "ASSIGNED_STUDENT";
 
 export interface EnumValueEntry {
   value: string;
@@ -24,6 +28,7 @@ export interface ProfileAttribute {
   type: AttributeType;
   target: AttributeTarget;
   appliedBy: AttributeAppliedBy;
+  visibility: AttributeVisibility;
   enumRefId?: number;
   enumRefName?: string;
   enumValues?: EnumValueEntry[];
@@ -65,6 +70,7 @@ export interface ProfileAttributeRequest {
   type: AttributeType;
   target: AttributeTarget;
   appliedBy?: AttributeAppliedBy;
+  visibility?: AttributeVisibility;
   enumRefName?: string;
   defaultValue?: string;
   minValue?: string;
@@ -76,4 +82,26 @@ export interface ProfileRequest {
   description?: string;
   enums?: ProfileEnumRequest[];
   attributes?: ProfileAttributeRequest[];
+}
+
+// ============================================
+// LIST Attribute Types
+// ============================================
+
+export interface ListItem {
+  orderIndex: number;
+  enumValue?: string;
+  stringValue: string;
+}
+
+export interface StudentAttributeListValue {
+  attributeId: number;
+  attributeName: string;
+  attributeType: "LIST";
+  items: ListItem[];
+  enumValues?: EnumValueEntry[];
+}
+
+export interface SetListAttributeValuesRequest {
+  items: { enumValue?: string; stringValue: string }[];
 }
