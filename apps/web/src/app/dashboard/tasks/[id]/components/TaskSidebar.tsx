@@ -19,6 +19,7 @@ interface TaskSidebarProps {
   availableSprints: SprintSummary[];
   canSelfAssign: boolean;
   canUnassign: boolean;
+  isProfessor: boolean;
   onStartEdit: (field: EditField) => void;
   onSave: () => void;
   onCancel: () => void;
@@ -39,6 +40,7 @@ export const TaskSidebar = memo(function TaskSidebar({
   availableSprints,
   canSelfAssign,
   canUnassign,
+  isProfessor,
   onStartEdit,
   onSave,
   onCancel,
@@ -55,6 +57,10 @@ export const TaskSidebar = memo(function TaskSidebar({
   const typeConfig = TYPE_CONFIG[task.type] || TYPE_CONFIG.TASK;
   const [isAssigning, setIsAssigning] = useState(false);
   const [isUnassigning, setIsUnassigning] = useState(false);
+
+  // Course ID for student profile links (professor only)
+  const courseId = (task.project as { course?: { id: number } } | undefined)
+    ?.course?.id;
 
   // Determine which types are available based on entity constraints:
   // - USER_STORY cannot change type at all
@@ -144,9 +150,18 @@ export const TaskSidebar = memo(function TaskSidebar({
                     {task.assignee.capitalLetters ||
                       task.assignee.username?.slice(0, 2).toUpperCase()}
                   </div>
-                  <span className="text-gray-900 dark:text-white">
-                    {task.assignee.fullName || task.assignee.username}
-                  </span>
+                  {isProfessor && courseId ? (
+                    <Link
+                      href={`/dashboard/courses/${courseId}/students/${task.assignee.id}`}
+                      className="text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
+                    >
+                      {task.assignee.fullName || task.assignee.username}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-900 dark:text-white">
+                      {task.assignee.fullName || task.assignee.username}
+                    </span>
+                  )}
                 </div>
                 {canUnassign && (
                   <button
@@ -218,9 +233,18 @@ export const TaskSidebar = memo(function TaskSidebar({
                   {task.reporter.capitalLetters ||
                     task.reporter.username?.slice(0, 2).toUpperCase()}
                 </div>
-                <span className="text-gray-900 dark:text-white">
-                  {task.reporter.fullName || task.reporter.username}
-                </span>
+                {isProfessor && courseId ? (
+                  <Link
+                    href={`/dashboard/courses/${courseId}/students/${task.reporter.id}`}
+                    className="text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
+                  >
+                    {task.reporter.fullName || task.reporter.username}
+                  </Link>
+                ) : (
+                  <span className="text-gray-900 dark:text-white">
+                    {task.reporter.fullName || task.reporter.username}
+                  </span>
+                )}
               </div>
             ) : (
               <span className="text-gray-500 dark:text-gray-400">
