@@ -19,6 +19,7 @@ import type {
   AttributeAppliedBy,
   AttributeTarget,
   AttributeType,
+  AttributeVisibility,
   ProfileComplete,
   ProfileRequest,
 } from "@trackdev/types";
@@ -79,6 +80,8 @@ export default function ProfileDetailPage({
     useState<string>("");
   const [attributeAppliedBy, setAttributeAppliedBy] =
     useState<AttributeAppliedBy>("PROFESSOR");
+  const [attributeVisibility, setAttributeVisibility] =
+    useState<AttributeVisibility>("PROFESSOR_ONLY");
   const [attributeMinValue, setAttributeMinValue] = useState<string>("");
   const [attributeMaxValue, setAttributeMaxValue] = useState<string>("");
   const [attributeValidationError, setAttributeValidationError] = useState<
@@ -123,6 +126,7 @@ export default function ProfileDetailPage({
       type: a.type,
       target: a.target,
       appliedBy: a.appliedBy,
+      visibility: a.visibility,
       enumRefName: a.enumRefName,
       defaultValue: a.defaultValue,
       minValue: a.minValue,
@@ -163,6 +167,7 @@ export default function ProfileDetailPage({
     setAttributeEnumRef("");
     setAttributeDefaultValue("");
     setAttributeAppliedBy("PROFESSOR");
+    setAttributeVisibility("PROFESSOR_ONLY");
     setAttributeMinValue("");
     setAttributeMaxValue("");
     setAttributeValidationError(null);
@@ -341,6 +346,7 @@ export default function ProfileDetailPage({
       setAttributeTarget(attribute.target);
       setAttributeEnumRef(attribute.enumRefName || "");
       setAttributeAppliedBy(attribute.appliedBy || "PROFESSOR");
+      setAttributeVisibility(attribute.visibility || "PROFESSOR_ONLY");
       setAttributeMinValue(attribute.minValue || "");
       setAttributeMaxValue(attribute.maxValue || "");
       // Use existing value or type-based default
@@ -379,12 +385,25 @@ export default function ProfileDetailPage({
 
     const isNumeric =
       attributeType === "INTEGER" || attributeType === "FLOAT";
+    const isList = attributeType === "LIST";
     const newAttr = {
       name: attributeName.trim(),
       type: attributeType,
-      target: attributeTarget,
-      appliedBy: attributeAppliedBy,
-      enumRefName: attributeType === "ENUM" ? attributeEnumRef : undefined,
+      target: isList ? ("STUDENT" as AttributeTarget) : attributeTarget,
+      appliedBy: isList
+        ? ("PROFESSOR" as AttributeAppliedBy)
+        : attributeTarget === "TASK"
+          ? attributeAppliedBy
+          : "PROFESSOR",
+      visibility: isList
+        ? ("PROFESSOR_ONLY" as AttributeVisibility)
+        : attributeVisibility,
+      enumRefName:
+        attributeType === "ENUM"
+          ? attributeEnumRef
+          : isList && attributeEnumRef
+            ? attributeEnumRef
+            : undefined,
       defaultValue: isNumeric
         ? attributeDefaultValue.trim() || undefined
         : undefined,
@@ -406,6 +425,7 @@ export default function ProfileDetailPage({
           type: a.type,
           target: a.target,
           appliedBy: a.appliedBy,
+          visibility: a.visibility,
           enumRefName: a.enumRefName,
           defaultValue: a.defaultValue,
           minValue: a.minValue,
@@ -449,6 +469,7 @@ export default function ProfileDetailPage({
         type: a.type,
         target: a.target,
         appliedBy: a.appliedBy,
+        visibility: a.visibility,
         enumRefName: a.enumRefName,
         defaultValue: a.defaultValue,
         minValue: a.minValue,
@@ -475,6 +496,7 @@ export default function ProfileDetailPage({
       INTEGER: t("types.integer"),
       FLOAT: t("types.float"),
       ENUM: t("types.enum"),
+      LIST: t("types.list"),
     };
     return labels[type];
   };
@@ -494,6 +516,15 @@ export default function ProfileDetailPage({
       PROFESSOR: t("appliedBy.professor"),
     };
     return labels[appliedBy];
+  };
+
+  const getVisibilityLabel = (visibility: AttributeVisibility) => {
+    const labels: Record<AttributeVisibility, string> = {
+      PROFESSOR_ONLY: t("visibility.professorOnly"),
+      PROJECT_STUDENTS: t("visibility.projectStudents"),
+      ASSIGNED_STUDENT: t("visibility.assignedStudent"),
+    };
+    return labels[visibility];
   };
 
   const getEnumToDeleteName = () => {
@@ -709,6 +740,9 @@ export default function ProfileDetailPage({
                         <span className="inline-flex rounded-full bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 text-xs text-purple-700 dark:text-purple-400">
                           {t("form.appliedBy")}: {getAppliedByLabel(attribute.appliedBy)}
                         </span>
+                        <span className="inline-flex rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">
+                          {t("visibility.label")}: {getVisibilityLabel(attribute.visibility)}
+                        </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -919,25 +953,39 @@ export default function ProfileDetailPage({
                 } else {
                   setAttributeDefaultValue("");
                 }
+                // LIST forces target=STUDENT, appliedBy=PROFESSOR, visibility=PROFESSOR_ONLY
+                if (newType === "LIST") {
+                  setAttributeTarget("STUDENT");
+                  setAttributeAppliedBy("PROFESSOR");
+                  setAttributeVisibility("PROFESSOR_ONLY");
+                  setAttributeMinValue("");
+                  setAttributeMaxValue("");
+                }
               }}
               options={[
                 { value: "STRING", label: t("types.string") },
                 { value: "INTEGER", label: t("types.integer") },
                 { value: "FLOAT", label: t("types.float") },
                 { value: "ENUM", label: t("types.enum") },
+                { value: "LIST", label: t("types.list") },
               ]}
               className="mt-1"
               aria-label={t("form.attributeType")}
             />
           </div>
-          {attributeType === "ENUM" && (
+          {(attributeType === "ENUM" || attributeType === "LIST") && (
             <div>
               <label
                 htmlFor="attributeEnumRef"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                {t("form.enumRef")} *
+                {t("form.enumRef")} {attributeType === "ENUM" ? "*" : ""}
               </label>
+              {attributeType === "LIST" && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {t("form.listEnumRefHint")}
+                </p>
+              )}
               <Select
                 value={attributeEnumRef}
                 onChange={(value) => setAttributeEnumRef(value)}
@@ -954,45 +1002,86 @@ export default function ProfileDetailPage({
               />
             </div>
           )}
-          <div>
-            <label
-              htmlFor="attributeTarget"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t("form.attributeTarget")} *
-            </label>
-            <Select
-              value={attributeTarget}
-              onChange={(value) => setAttributeTarget(value as AttributeTarget)}
-              options={[
-                { value: "STUDENT", label: t("targets.student") },
-                { value: "TASK", label: t("targets.task") },
-                { value: "PULL_REQUEST", label: t("targets.pullRequest") },
-              ]}
-              className="mt-1"
-              aria-label={t("form.attributeTarget")}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="attributeAppliedBy"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t("form.appliedBy")} *
-            </label>
-            <Select
-              value={attributeAppliedBy}
-              onChange={(value) =>
-                setAttributeAppliedBy(value as AttributeAppliedBy)
-              }
-              options={[
-                { value: "PROFESSOR", label: t("appliedBy.professor") },
-                { value: "STUDENT", label: t("appliedBy.student") },
-              ]}
-              className="mt-1"
-              aria-label={t("form.appliedBy")}
-            />
-          </div>
+          {attributeType !== "LIST" && (
+            <div>
+              <label
+                htmlFor="attributeTarget"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                {t("form.attributeTarget")} *
+              </label>
+              <Select
+                value={attributeTarget}
+                onChange={(value) => setAttributeTarget(value as AttributeTarget)}
+                options={[
+                  { value: "STUDENT", label: t("targets.student") },
+                  { value: "TASK", label: t("targets.task") },
+                  { value: "PULL_REQUEST", label: t("targets.pullRequest") },
+                ]}
+                className="mt-1"
+                aria-label={t("form.attributeTarget")}
+              />
+            </div>
+          )}
+          {attributeType === "LIST" && (
+            <div className="rounded-md bg-blue-50 dark:bg-blue-900/20 p-3 text-sm text-blue-700 dark:text-blue-400">
+              {t("form.listConstraintsHint")}
+            </div>
+          )}
+          {attributeTarget === "TASK" && attributeType !== "LIST" && (
+            <div>
+              <label
+                htmlFor="attributeAppliedBy"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                {t("form.appliedBy")} *
+              </label>
+              <Select
+                value={attributeAppliedBy}
+                onChange={(value) =>
+                  setAttributeAppliedBy(value as AttributeAppliedBy)
+                }
+                options={[
+                  { value: "PROFESSOR", label: t("appliedBy.professor") },
+                  { value: "STUDENT", label: t("appliedBy.student") },
+                ]}
+                className="mt-1"
+                aria-label={t("form.appliedBy")}
+              />
+            </div>
+          )}
+          {attributeType !== "LIST" && (
+            <div>
+              <label
+                htmlFor="attributeVisibility"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                {t("visibility.label")} *
+              </label>
+              <Select
+                value={attributeVisibility}
+                onChange={(value) =>
+                  setAttributeVisibility(value as AttributeVisibility)
+                }
+                options={[
+                  {
+                    value: "PROFESSOR_ONLY",
+                    label: t("visibility.professorOnly"),
+                  },
+                  {
+                    value: "PROJECT_STUDENTS",
+                    label: t("visibility.projectStudents"),
+                  },
+                  {
+                    value: "ASSIGNED_STUDENT",
+                    label: t("visibility.assignedStudent"),
+                  },
+                ]}
+                className="mt-1"
+                aria-label={t("visibility.label")}
+              />
+            </div>
+          )}
           {(attributeType === "INTEGER" || attributeType === "FLOAT") && (
             <>
               <div>
