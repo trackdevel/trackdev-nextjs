@@ -104,7 +104,7 @@ export default function CourseProjectsPage() {
   if (error || !course) {
     return (
       <div className="p-8">
-        <div className="card px-6 py-12 text-center text-red-600">
+        <div className="card px-6 py-12 text-center text-red-600 dark:text-red-400">
           Failed to load course details. Please try again.
         </div>
       </div>
@@ -123,12 +123,12 @@ export default function CourseProjectsPage() {
 
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
-              <FolderKanban className="h-8 w-8 text-blue-600" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
+              <FolderKanban className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-              <div className="mt-1 text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h1>
+              <div className="mt-1 text-gray-600 dark:text-gray-400">
                 {course.subject?.name || "Course"} - {course.startYear} -{" "}
                 {(course.startYear || 0) + 1}
               </div>
@@ -173,11 +173,11 @@ export default function CourseProjectsPage() {
           </div>
 
           {/* Projects Item List */}
-          <div className="card divide-y divide-gray-200">
+          <div className="card divide-y divide-gray-200 dark:divide-gray-700">
             {paginatedProjects.map((project) => (
               <div
                 key={project.id}
-                className="flex items-center transition-colors hover:bg-gray-50"
+                className="flex items-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
               >
                 <Link
                   href={`/dashboard/projects/${project.id}`}
@@ -185,15 +185,15 @@ export default function CourseProjectsPage() {
                 >
                   <ItemCard
                     icon={FolderKanban}
-                    iconBgColor="bg-blue-100"
-                    iconColor="text-blue-600"
+                    iconBgColor="bg-blue-100 dark:bg-blue-900/30"
+                    iconColor="text-blue-600 dark:text-blue-400"
                     title={project.name}
                     subtitle={tProjects("memberCount", {
                       count: project.members?.length || 0,
                     })}
                     rightContent={
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                           <Users className="h-4 w-4" />
                           <span>{project.members?.length || 0}</span>
                         </div>
@@ -210,7 +210,7 @@ export default function CourseProjectsPage() {
                 {canManage && (
                   <button
                     onClick={() => setProjectToDelete(project)}
-                    className="mr-4 rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                    className="mr-4 rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                     title="Delete project"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -242,11 +242,11 @@ export default function CourseProjectsPage() {
           maxWidth="sm"
         >
           <div className="mb-6">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Are you sure you want to delete the project{" "}
-              <strong className="text-gray-900">{projectToDelete.name}</strong>?
+              <strong className="text-gray-900 dark:text-white">{projectToDelete.name}</strong>?
             </p>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               This action cannot be undone. All sprints associated with this
               project will also be deleted.
             </p>
@@ -385,16 +385,16 @@ function CreateProjectModal({
         </FormField>
 
         <FormField label="Team Members (Optional)" className="mb-4">
-          <div className="max-h-48 overflow-y-auto rounded-md border border-gray-300 p-2">
+          <div className="max-h-48 overflow-y-auto rounded-md border border-gray-300 p-2 dark:border-gray-600">
             {students.length === 0 ? (
-              <p className="py-2 text-center text-sm text-gray-500">
+              <p className="py-2 text-center text-sm text-gray-500 dark:text-gray-400">
                 No students enrolled in this course
               </p>
             ) : (
               students.map((student) => (
                 <label
                   key={student.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-sm p-2 hover:bg-gray-50"
+                  className="flex cursor-pointer items-center gap-3 rounded-sm p-2 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <input
                     type="checkbox"
@@ -403,17 +403,17 @@ function CreateProjectModal({
                     className="h-4 w-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {student.fullName || student.username}
                     </div>
-                    <div className="text-xs text-gray-500">{student.email}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{student.email}</div>
                   </div>
                 </label>
               ))
             )}
           </div>
           {selectedMembers.length > 0 && (
-            <p className="mt-2 text-xs text-gray-600">
+            <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
               {selectedMembers.length} member
               {selectedMembers.length !== 1 ? "s" : ""} selected
             </p>
@@ -421,7 +421,7 @@ function CreateProjectModal({
         </FormField>
 
         {validationError && (
-          <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+          <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
             {validationError}
           </div>
         )}
