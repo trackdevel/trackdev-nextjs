@@ -80,8 +80,9 @@ export default function CourseProjectsPage() {
   const isProfessor = userRoles.includes("PROFESSOR");
   const canManage = isAdmin || (isProfessor && course?.ownerId === user?.id);
 
-  // Projects are already sorted alphabetically from the backend
-  const projects = course?.projects || [];
+  const projects = [...(course?.projects || [])].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
 
   // Pagination
   const totalPages = Math.ceil(projects.length / pageSize);
