@@ -422,29 +422,41 @@ export default function ProjectDetailPage() {
         >
           <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {githubRepos.map((repo: GitHubRepoSummary) => (
-              <ItemCard
-                key={repo.id}
-                icon={Github}
-                title={repo.name}
-                subtitle={repo.fullName}
-                rightContent={
-                  <>
-                    <StatusBadge
-                      label={
-                        repo.webhookActive ? t("webhookActive") : t("noWebhook")
-                      }
-                      variant={repo.webhookActive ? "success" : "neutral"}
-                    />
-                    <button
-                      onClick={() => handleDeleteRepo(repo.id)}
-                      className="rounded-sm p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                      title={t("removeRepository")}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </>
-                }
-              />
+              <li key={repo.id}>
+                <a
+                  href={`https://github.com/${repo.fullName}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <ItemCard
+                    icon={Github}
+                    title={repo.name}
+                    subtitle={repo.fullName}
+                    rightContent={
+                      <>
+                        <StatusBadge
+                          label={
+                            repo.webhookActive ? t("webhookActive") : t("noWebhook")
+                          }
+                          variant={repo.webhookActive ? "success" : "neutral"}
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteRepo(repo.id);
+                          }}
+                          className="rounded-sm p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                          title={t("removeRepository")}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    }
+                  />
+                </a>
+              </li>
             ))}
           </ul>
         </CardSection>
@@ -625,7 +637,7 @@ export default function ProjectDetailPage() {
         }}
         title={t("addGithubRepository")}
       >
-        <form onSubmit={handleAddRepo} className="space-y-4">
+        <form onSubmit={handleAddRepo} className="space-y-4" autoComplete="off">
           {validationError && (
             <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
               {validationError}
@@ -671,6 +683,7 @@ export default function ProjectDetailPage() {
               <input
                 type={showTokenFor === -1 ? "text" : "password"}
                 id="accessToken"
+                autoComplete="new-password"
                 value={repoForm.accessToken}
                 onChange={(e) =>
                   setRepoForm({ ...repoForm, accessToken: e.target.value })
