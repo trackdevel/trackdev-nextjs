@@ -542,6 +542,11 @@ export default function ProjectDetailPage() {
                 email={member.email}
                 capitalLetters={member.capitalLetters}
                 color={member.color}
+                href={
+                  canEditMembers && project.course?.id
+                    ? `/dashboard/courses/${project.course.id}/students/${member.id}`
+                    : undefined
+                }
               />
             ))}
           </ul>

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 interface MemberAvatarProps {
   /** Username to display initials from */
   username?: string;
@@ -62,6 +64,8 @@ interface MemberItemProps {
   rightContent?: React.ReactNode;
   /** Click handler */
   onClick?: () => void;
+  /** Link URL (renders as Next.js Link) */
+  href?: string;
   /** Additional className */
   className?: string;
 }
@@ -76,20 +80,16 @@ export function MemberItem({
   color,
   rightContent,
   onClick,
+  href,
   className = "",
 }: MemberItemProps) {
-  const Component = onClick ? "button" : "div";
+  const interactiveClass =
+    onClick || href
+      ? "cursor-pointer text-left hover:bg-gray-50 dark:hover:bg-gray-700"
+      : "";
 
-  return (
-    <Component
-      className={`flex w-full items-center gap-3 px-6 py-3 ${
-        onClick
-          ? "cursor-pointer text-left hover:bg-gray-50 dark:hover:bg-gray-700"
-          : ""
-      } ${className}`}
-      onClick={onClick}
-      type={onClick ? "button" : undefined}
-    >
+  const content = (
+    <>
       <MemberAvatar
         username={name}
         capitalLetters={capitalLetters}
@@ -102,6 +102,29 @@ export function MemberItem({
         )}
       </div>
       {rightContent}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={`flex w-full items-center gap-3 px-6 py-3 ${interactiveClass} ${className}`}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  const Component = onClick ? "button" : "div";
+
+  return (
+    <Component
+      className={`flex w-full items-center gap-3 px-6 py-3 ${interactiveClass} ${className}`}
+      onClick={onClick}
+      type={onClick ? "button" : undefined}
+    >
+      {content}
     </Component>
   );
 }
