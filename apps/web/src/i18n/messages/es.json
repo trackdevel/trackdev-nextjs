@@ -858,7 +858,10 @@
     "addListItem": "Añadir elemento",
     "clearList": "Borrar lista",
     "selectCategory": "Seleccionar categoría",
-    "enterValue": "Introduce un valor"
+    "enterTitle": "Introduce un título",
+    "enterDescription": "Introduce una descripción (Markdown)",
+    "viewDescription": "Ver descripción",
+    "description": "Descripción"
   },
   "userTypes": {
     "admin": "Administrador",
