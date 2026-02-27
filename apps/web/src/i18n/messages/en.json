@@ -863,7 +863,10 @@
     "addListItem": "Add item",
     "clearList": "Clear list",
     "selectCategory": "Select category",
-    "enterValue": "Enter a value"
+    "enterTitle": "Enter a title",
+    "enterDescription": "Enter a description (Markdown)",
+    "viewDescription": "View description",
+    "description": "Description"
   },
   "userTypes": {
     "admin": "Administrator",
