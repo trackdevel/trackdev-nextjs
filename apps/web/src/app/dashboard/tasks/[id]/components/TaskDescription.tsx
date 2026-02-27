@@ -1,5 +1,6 @@
 "use client";
 
+import { MarkdownEditor, MarkdownPreview } from "@/components/ui";
 import { Check, FileText, Loader2, Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo } from "react";
@@ -47,11 +48,10 @@ export const TaskDescription = memo(function TaskDescription({
       <div className="px-6 py-4">
         {editState.field === "description" ? (
           <div className="space-y-3">
-            <textarea
+            <MarkdownEditor
               value={editState.description}
-              onChange={(e) => onDescriptionChange(e.target.value)}
-              className="w-full min-h-[150px] text-gray-700 border border-gray-300 rounded-lg px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-primary-500 resize-y dark:text-white dark:border-gray-600 dark:bg-gray-800"
-              autoFocus
+              onChange={onDescriptionChange}
+              height={250}
               placeholder={t("addDescription")}
             />
             <div className="flex gap-2">
@@ -80,9 +80,9 @@ export const TaskDescription = memo(function TaskDescription({
             </div>
           </div>
         ) : description ? (
-          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-            {description}
-          </p>
+          <div className="prose prose-sm dark:prose-invert max-w-none">
+            <MarkdownPreview source={description} />
+          </div>
         ) : (
           <p className="text-gray-500 dark:text-gray-400 italic">
             {t("noDescriptionProvided")}

@@ -953,9 +953,12 @@ export default function ProfileDetailPage({
                 } else {
                   setAttributeDefaultValue("");
                 }
-                // LIST forces target=STUDENT, appliedBy=PROFESSOR, visibility=PROFESSOR_ONLY
+                // LIST forces appliedBy=PROFESSOR, visibility=PROFESSOR_ONLY
+                // Target can be STUDENT or PULL_REQUEST
                 if (newType === "LIST") {
-                  setAttributeTarget("STUDENT");
+                  if (attributeTarget !== "STUDENT" && attributeTarget !== "PULL_REQUEST") {
+                    setAttributeTarget("STUDENT");
+                  }
                   setAttributeAppliedBy("PROFESSOR");
                   setAttributeVisibility("PROFESSOR_ONLY");
                   setAttributeMinValue("");
@@ -1002,27 +1005,32 @@ export default function ProfileDetailPage({
               />
             </div>
           )}
-          {attributeType !== "LIST" && (
-            <div>
-              <label
-                htmlFor="attributeTarget"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                {t("form.attributeTarget")} *
-              </label>
-              <Select
-                value={attributeTarget}
-                onChange={(value) => setAttributeTarget(value as AttributeTarget)}
-                options={[
-                  { value: "STUDENT", label: t("targets.student") },
-                  { value: "TASK", label: t("targets.task") },
-                  { value: "PULL_REQUEST", label: t("targets.pullRequest") },
-                ]}
-                className="mt-1"
-                aria-label={t("form.attributeTarget")}
-              />
-            </div>
-          )}
+          <div>
+            <label
+              htmlFor="attributeTarget"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              {t("form.attributeTarget")} *
+            </label>
+            <Select
+              value={attributeTarget}
+              onChange={(value) => setAttributeTarget(value as AttributeTarget)}
+              options={
+                attributeType === "LIST"
+                  ? [
+                      { value: "STUDENT", label: t("targets.student") },
+                      { value: "PULL_REQUEST", label: t("targets.pullRequest") },
+                    ]
+                  : [
+                      { value: "STUDENT", label: t("targets.student") },
+                      { value: "TASK", label: t("targets.task") },
+                      { value: "PULL_REQUEST", label: t("targets.pullRequest") },
+                    ]
+              }
+              className="mt-1"
+              aria-label={t("form.attributeTarget")}
+            />
+          </div>
           {attributeType === "LIST" && (
             <div className="rounded-md bg-blue-50 dark:bg-blue-900/20 p-3 text-sm text-blue-700 dark:text-blue-400">
               {t("form.listConstraintsHint")}

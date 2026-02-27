@@ -1,6 +1,6 @@
 "use client";
 
-import { Select } from "@/components/ui";
+import { MarkdownEditor, MarkdownPreview, Select } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import { useDateFormat } from "@/utils/useDateFormat";
@@ -421,15 +421,11 @@ export const TaskPointsReview = memo(function TaskPointsReview({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t("message")} *
               </label>
-              <textarea
+              <MarkdownEditor
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={setNewMessage}
+                height={120}
                 placeholder={t("messagePlaceholder")}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500 resize-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                rows={3}
-                autoFocus
-                disabled={isCreating}
-                maxLength={2000}
               />
             </div>
           </div>
@@ -915,16 +911,10 @@ function ConversationItem({
                         </div>
                         {isEditing ? (
                           <div className="mt-1">
-                            <textarea
+                            <MarkdownEditor
                               value={editContent}
-                              onChange={(e) =>
-                                onEditContentChange(e.target.value)
-                              }
-                              className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm resize-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                              rows={2}
-                              autoFocus
-                              disabled={isEditingMessage}
-                              maxLength={2000}
+                              onChange={onEditContentChange}
+                              height={100}
                             />
                             <div className="mt-1 flex items-center justify-end gap-2">
                               <button
@@ -951,9 +941,9 @@ function ConversationItem({
                             </div>
                           </div>
                         ) : (
-                          <p className="mt-0.5 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                            {msg.content}
-                          </p>
+                          <div className="mt-0.5 text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none">
+                            <MarkdownPreview source={msg.content} />
+                          </div>
                         )}
                       </div>
                     </div>
@@ -964,28 +954,27 @@ function ConversationItem({
               {/* Reply Form */}
               <form
                 onSubmit={onReplySubmit}
-                className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-600"
+                className="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2"
               >
-                <textarea
+                <MarkdownEditor
                   value={replyContent}
-                  onChange={(e) => onReplyContentChange(e.target.value)}
+                  onChange={onReplyContentChange}
+                  height={100}
                   placeholder={t("writeReply")}
-                  className="flex-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-sm resize-none focus:border-amber-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  rows={2}
-                  disabled={isSendingReply}
-                  maxLength={2000}
                 />
-                <button
-                  type="submit"
-                  disabled={!replyContent.trim() || isSendingReply}
-                  className="shrink-0 flex items-center gap-1 rounded-md bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isSendingReply ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </button>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={!replyContent.trim() || isSendingReply}
+                    className="shrink-0 flex items-center gap-1 rounded-md bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isSendingReply ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </form>
             </div>
           ) : null}
