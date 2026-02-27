@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal } from "@/components/ui";
+import { MarkdownEditor, MarkdownPreview, Modal } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
@@ -10,11 +10,12 @@ import {
 } from "@trackdev/api-client";
 import type {
   EnumValueEntry,
+  ListItem,
   ProfileAttribute,
   StudentAttributeListValue,
   StudentAttributeValue,
 } from "@trackdev/types";
-import { Check, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Check, Eye, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useState } from "react";
 
@@ -30,7 +31,8 @@ interface AttributeRow {
 
 interface ListEditItem {
   enumValue: string;
-  stringValue: string;
+  title: string;
+  description: string;
 }
 
 export const StudentAttributes = memo(function StudentAttributes({
@@ -45,12 +47,15 @@ export const StudentAttributes = memo(function StudentAttributes({
   const [modalValue, setModalValue] = useState("");
 
   // LIST attribute state
-  const [editingListAttr, setEditingListAttr] =
-    useState<ProfileAttribute | null>(null);
-  const [listItems, setListItems] = useState<ListEditItem[]>([]);
   const [listDataCache, setListDataCache] = useState<
     Record<number, StudentAttributeListValue>
   >({});
+  const [editingSingleItem, setEditingSingleItem] = useState<{
+    attr: ProfileAttribute;
+    index: number; // -1 for new item
+    item: ListEditItem;
+  } | null>(null);
+  const [previewingItem, setPreviewingItem] = useState<ListItem | null>(null);
 
   // Fetch current attribute values for the student
   const {
@@ -152,7 +157,7 @@ export const StudentAttributes = memo(function StudentAttributes({
       items,
     }: {
       attributeId: number;
-      items: { enumValue?: string; stringValue: string }[];
+      items: { enumValue?: string; title: string; description?: string }[];
     }) =>
       coursesApi.setStudentListAttributeValues(courseId, userId, attributeId, {
         items,
@@ -160,8 +165,7 @@ export const StudentAttributes = memo(function StudentAttributes({
     {
       onSuccess: (data) => {
         setListDataCache((prev) => ({ ...prev, [data.attributeId]: data }));
-        setEditingListAttr(null);
-        setListItems([]);
+        setEditingSingleItem(null);
         toast.success(t("listValueSaved"));
       },
       onError: (err) => {
@@ -179,15 +183,14 @@ export const StudentAttributes = memo(function StudentAttributes({
       coursesApi.deleteStudentListAttributeValues(courseId, userId, attributeId),
     {
       onSuccess: () => {
-        if (editingListAttr) {
+        if (editingSingleItem) {
           setListDataCache((prev) => {
             const next = { ...prev };
-            delete next[editingListAttr.id];
+            delete next[editingSingleItem.attr.id];
             return next;
           });
         }
-        setEditingListAttr(null);
-        setListItems([]);
+        setEditingSingleItem(null);
         toast.success(t("listValueDeleted"));
       },
       onError: (err) => {
@@ -235,45 +238,98 @@ export const StudentAttributes = memo(function StudentAttributes({
     setModalValue("");
   };
 
-  // LIST handlers
-  const handleOpenListEdit = (attr: ProfileAttribute) => {
-    const cached = listDataCache[attr.id];
-    if (cached && cached.items.length > 0) {
-      setListItems(
-        cached.items.map((item) => ({
-          enumValue: item.enumValue || "",
-          stringValue: item.stringValue || "",
-        })),
-      );
-    } else {
-      setListItems([{ enumValue: "", stringValue: "" }]);
-    }
-    setEditingListAttr(attr);
-  };
-
-  const handleSaveList = () => {
-    if (!editingListAttr) return;
-    const validItems = listItems.filter(
-      (item) => item.stringValue.trim() || item.enumValue.trim(),
-    );
-    setListValueMutation.mutate({
-      attributeId: editingListAttr.id,
-      items: validItems.map((item) => ({
-        enumValue: item.enumValue || undefined,
-        stringValue: item.stringValue,
-      })),
+  // LIST handlers — single-item editing
+  const handleOpenItemEdit = (
+    attr: ProfileAttribute,
+    item: ListItem,
+    index: number,
+  ) => {
+    setEditingSingleItem({
+      attr,
+      index,
+      item: {
+        enumValue: item.enumValue || "",
+        title: item.title || "",
+        description: item.description || "",
+      },
     });
   };
 
-  const handleDeleteList = () => {
-    if (editingListAttr) {
-      deleteListValueMutation.mutate(editingListAttr.id);
-    }
+  const handleAddItem = (attr: ProfileAttribute) => {
+    setEditingSingleItem({
+      attr,
+      index: -1,
+      item: { enumValue: "", title: "", description: "" },
+    });
   };
 
-  const handleCloseListModal = () => {
-    setEditingListAttr(null);
-    setListItems([]);
+  const handleSaveItem = () => {
+    if (!editingSingleItem) return;
+    const { attr, index, item } = editingSingleItem;
+    if (!item.title.trim() && !item.enumValue.trim()) return;
+
+    const cached = listDataCache[attr.id];
+    const currentItems = cached?.items || [];
+
+    const mapItem = (i: ListItem) => ({
+      enumValue: i.enumValue || undefined,
+      title: i.title,
+      description: i.description || undefined,
+    });
+
+    let updatedItems;
+    if (index === -1) {
+      updatedItems = [
+        ...currentItems.map(mapItem),
+        {
+          enumValue: item.enumValue || undefined,
+          title: item.title,
+          description: item.description || undefined,
+        },
+      ];
+    } else {
+      updatedItems = currentItems.map((i, idx) =>
+        idx === index
+          ? {
+              enumValue: item.enumValue || undefined,
+              title: item.title,
+              description: item.description || undefined,
+            }
+          : mapItem(i),
+      );
+    }
+
+    setListValueMutation.mutate({
+      attributeId: attr.id,
+      items: updatedItems,
+    });
+  };
+
+  const handleDeleteItem = () => {
+    if (!editingSingleItem) return;
+    const { attr, index } = editingSingleItem;
+
+    if (index === -1) {
+      setEditingSingleItem(null);
+      return;
+    }
+
+    const cached = listDataCache[attr.id];
+    const currentItems = cached?.items || [];
+    const remaining = currentItems.filter((_, idx) => idx !== index);
+
+    if (remaining.length === 0) {
+      deleteListValueMutation.mutate(attr.id);
+    } else {
+      setListValueMutation.mutate({
+        attributeId: attr.id,
+        items: remaining.map((i) => ({
+          enumValue: i.enumValue || undefined,
+          title: i.title,
+          description: i.description || undefined,
+        })),
+      });
+    }
   };
 
   // Get enum values: prefer from the current value (if set), otherwise from the attribute definition
@@ -450,11 +506,11 @@ export const StudentAttributes = memo(function StudentAttributes({
                 {attr.name}
               </h2>
               <button
-                onClick={() => handleOpenListEdit(attr)}
+                onClick={() => handleAddItem(attr)}
                 className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
-                title={tCommon("edit")}
+                title={t("addListItem")}
               >
-                <Pencil className="h-4 w-4" />
+                <Plus className="h-4 w-4" />
               </button>
             </div>
             {items.length === 0 ? (
@@ -470,9 +526,25 @@ export const StudentAttributes = memo(function StudentAttributes({
                         {item.enumValue}
                       </span>
                     )}
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {item.stringValue}
+                    <span className="text-sm text-gray-900 dark:text-white flex-1">
+                      {item.title}
                     </span>
+                    {item.description && (
+                      <button
+                        onClick={() => setPreviewingItem(item)}
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
+                        title={t("viewDescription")}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleOpenItemEdit(attr, item, idx)}
+                      className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
+                      title={tCommon("edit")}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -552,116 +624,110 @@ export const StudentAttributes = memo(function StudentAttributes({
         </Modal>
       )}
 
-      {/* LIST edit modal */}
-      {editingListAttr && (
+      {/* Single item edit modal */}
+      {editingSingleItem && (
         <Modal
           isOpen={true}
-          onClose={handleCloseListModal}
-          title={editingListAttr.name}
-          maxWidth="md"
+          onClose={() => setEditingSingleItem(null)}
+          title={
+            editingSingleItem.index === -1
+              ? t("addListItem")
+              : editingSingleItem.attr.name
+          }
+          maxWidth="2xl"
+          resizable
         >
           <div className="space-y-4">
-            {/* List items editor */}
-            <div className="space-y-2">
-              {listItems.map((item, idx) => {
-                const isEnumList = hasEnumRef(editingListAttr);
-                const enumValues =
-                  listDataCache[editingListAttr.id]?.enumValues ||
-                  editingListAttr.enumValues ||
-                  [];
-
-                return (
-                  <div key={idx} className="flex items-center gap-2">
-                    {isEnumList && (
-                      <select
-                        value={item.enumValue}
-                        onChange={(e) => {
-                          const updated = [...listItems];
-                          updated[idx] = {
-                            ...updated[idx],
-                            enumValue: e.target.value,
-                          };
-                          setListItems(updated);
-                        }}
-                        className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500 w-1/3"
-                      >
-                        <option value="">{t("selectCategory")}</option>
-                        {enumValues.map((ev) => (
-                          <option key={ev.value} value={ev.value}>
-                            {ev.value}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    <input
-                      type="text"
-                      value={item.stringValue}
-                      onChange={(e) => {
-                        const updated = [...listItems];
-                        updated[idx] = {
-                          ...updated[idx],
-                          stringValue: e.target.value,
-                        };
-                        setListItems(updated);
-                      }}
-                      placeholder={t("enterValue")}
-                      className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
-                    />
-                    {listItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setListItems(listItems.filter((_, i) => i !== idx))
+            <div className="flex items-center gap-2">
+              {hasEnumRef(editingSingleItem.attr) && (
+                <select
+                  value={editingSingleItem.item.enumValue}
+                  onChange={(e) =>
+                    setEditingSingleItem((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            item: { ...prev.item, enumValue: e.target.value },
+                          }
+                        : null,
+                    )
+                  }
+                  className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500 w-1/3"
+                >
+                  <option value="">{t("selectCategory")}</option>
+                  {(
+                    listDataCache[editingSingleItem.attr.id]?.enumValues ||
+                    editingSingleItem.attr.enumValues ||
+                    []
+                  ).map((ev) => (
+                    <option key={ev.value} value={ev.value}>
+                      {ev.value}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <input
+                type="text"
+                value={editingSingleItem.item.title}
+                onChange={(e) =>
+                  setEditingSingleItem((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          item: { ...prev.item, title: e.target.value },
                         }
-                        className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+                      : null,
+                  )
+                }
+                placeholder={t("enterTitle")}
+                className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
+              />
             </div>
-
-            <button
-              type="button"
-              onClick={() =>
-                setListItems([...listItems, { enumValue: "", stringValue: "" }])
+            <MarkdownEditor
+              value={editingSingleItem.item.description}
+              onChange={(val) =>
+                setEditingSingleItem((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        item: { ...prev.item, description: val },
+                      }
+                    : null,
+                )
               }
-              className="inline-flex items-center gap-1 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-            >
-              <Plus className="h-3 w-3" />
-              {t("addListItem")}
-            </button>
-
+              height={200}
+              placeholder={t("enterDescription")}
+            />
             <div className="flex items-center justify-between pt-2">
-              {/* Delete all button (only if items exist) */}
-              {listDataCache[editingListAttr.id]?.items?.length > 0 ? (
+              {editingSingleItem.index !== -1 ? (
                 <button
-                  onClick={handleDeleteList}
-                  disabled={deleteListValueMutation.isLoading}
+                  onClick={handleDeleteItem}
+                  disabled={
+                    deleteListValueMutation.isLoading ||
+                    setListValueMutation.isLoading
+                  }
                   className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                 >
-                  {deleteListValueMutation.isLoading ? (
+                  {deleteListValueMutation.isLoading ||
+                  setListValueMutation.isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Trash2 className="h-4 w-4" />
                   )}
-                  {t("clearList")}
+                  {tCommon("delete")}
                 </button>
               ) : (
                 <div />
               )}
-
               <div className="flex items-center gap-2">
                 <button
-                  onClick={handleCloseListModal}
+                  onClick={() => setEditingSingleItem(null)}
                   className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   {tCommon("cancel")}
                 </button>
                 <button
-                  onClick={handleSaveList}
+                  onClick={handleSaveItem}
                   disabled={setListValueMutation.isLoading}
                   className="flex items-center gap-1 rounded-md bg-primary-600 px-3 py-1.5 text-sm text-white hover:bg-primary-700 disabled:opacity-50"
                 >
@@ -675,6 +741,18 @@ export const StudentAttributes = memo(function StudentAttributes({
               </div>
             </div>
           </div>
+        </Modal>
+      )}
+
+      {/* Markdown preview modal */}
+      {previewingItem && (
+        <Modal
+          isOpen={true}
+          onClose={() => setPreviewingItem(null)}
+          title={previewingItem.title || t("description")}
+          maxWidth="lg"
+        >
+          <MarkdownPreview source={previewingItem.description || ""} />
         </Modal>
       )}
     </>
