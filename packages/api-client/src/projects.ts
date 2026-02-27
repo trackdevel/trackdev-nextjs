@@ -50,6 +50,22 @@ export interface ProjectPRStatsResponse {
   tasks: TaskWithPRStats[];
 }
 
+export interface PagedProjectsResponse {
+  projects: Project[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface ProjectsParams {
+  page?: number;
+  size?: number;
+  courseId?: number;
+}
+
 export interface ProjectQualificationResponse {
   projectId: number;
   qualifications: Record<string, UserQualification>;
@@ -64,9 +80,27 @@ export interface UserQualification {
 
 export const projectsApi = {
   /**
-   * Get all projects (Admin only)
+   * Get all projects (non-paginated)
    */
   getAll: () => api.get<ProjectsResponse>("/projects"),
+
+  /**
+   * Get projects paginated and sorted alphabetically
+   */
+  getPaginated: async (params?: ProjectsParams) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page !== undefined)
+      searchParams.append("page", String(params.page));
+    if (params?.size !== undefined)
+      searchParams.append("size", String(params.size));
+    if (params?.courseId !== undefined)
+      searchParams.append("courseId", String(params.courseId));
+    const queryString = searchParams.toString();
+    const url = queryString
+      ? `/projects/paged?${queryString}`
+      : "/projects/paged";
+    return api.get<PagedProjectsResponse>(url);
+  },
 
   /**
    * Get project by ID
