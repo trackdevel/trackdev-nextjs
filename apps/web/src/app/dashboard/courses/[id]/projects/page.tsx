@@ -1,15 +1,10 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { ProjectList } from "@/components/ProjectList";
 import {
-  EmptyState,
   FormField,
-  ItemCard,
-  LoadingContainer,
   Modal,
-  Select,
-  SimplePagination,
-  StatusBadge,
 } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -26,36 +21,47 @@ import type {
   ProjectWithMembers,
   UserPublic,
 } from "@trackdev/types";
-import { FolderKanban, Plus, Trash2, Users } from "lucide-react";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { FolderKanban, Plus, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const PAGE_SIZE_OPTIONS = [15, 30, 50];
-const DEFAULT_PAGE_SIZE = 15;
+const PAGE_SIZE = 15;
 
 export default function CourseProjectsPage() {
   const params = useParams();
   const courseId = Number(params.id);
   const { user } = useAuth();
-  const t = useTranslations("common");
-  const tProjects = useTranslations("projects");
   const toast = useToast();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [currentPage, setCurrentPage] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [projectToDelete, setProjectToDelete] =
     useState<ProjectWithMembers | null>(null);
 
+  // Fetch course details for header and create modal (students list)
   const {
     data: course,
-    isLoading,
-    error,
-    refetch,
+    isLoading: isCourseLoading,
+    error: courseError,
   } = useQuery(() => coursesApi.getDetails(courseId), [courseId], {
     enabled: !!courseId,
   });
+
+  // Fetch projects with server-side pagination
+  const {
+    data: projectsResponse,
+    isLoading: isProjectsLoading,
+    error: projectsError,
+    refetch: refetchProjects,
+  } = useQuery(
+    () =>
+      projectsApi.getPaginated({
+        page: currentPage,
+        size: PAGE_SIZE,
+        courseId,
+      }),
+    [currentPage, courseId],
+    { enabled: !!courseId },
+  );
 
   const deleteMutation = useMutation<void, number>(
     (projectId: number) => projectsApi.delete(projectId),
@@ -63,7 +69,7 @@ export default function CourseProjectsPage() {
       onSuccess: () => {
         toast.success("Project deleted successfully");
         setProjectToDelete(null);
-        refetch();
+        refetchProjects();
       },
       onError: (err: unknown) => {
         const errorMessage =
@@ -80,28 +86,17 @@ export default function CourseProjectsPage() {
   const isProfessor = userRoles.includes("PROFESSOR");
   const canManage = isAdmin || (isProfessor && course?.ownerId === user?.id);
 
-  const projects = [...(course?.projects || [])].sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
-
-  // Pagination
-  const totalPages = Math.ceil(projects.length / pageSize);
-  const paginatedProjects = projects.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
-
-  // Reset to page 1 when page size changes
-  const handlePageSizeChange = (newSize: number) => {
-    setPageSize(newSize);
-    setCurrentPage(1);
-  };
-
-  if (isLoading) {
-    return <LoadingContainer className="py-12" />;
+  if (isCourseLoading) {
+    return (
+      <div className="p-8">
+        <div className="card px-6 py-12 text-center text-gray-500">
+          Loading...
+        </div>
+      </div>
+    );
   }
 
-  if (error || !course) {
+  if (courseError || !course) {
     return (
       <div className="p-8">
         <div className="card px-6 py-12 text-center text-red-600 dark:text-red-400">
@@ -148,90 +143,32 @@ export default function CourseProjectsPage() {
       </div>
 
       {/* Projects List */}
-      {projects.length === 0 ? (
-        <EmptyState
-          icon={FolderKanban}
-          title="No projects yet"
-          description="Projects will appear here once students create them or you add them."
-        />
-      ) : (
-        <>
-          {/* Page Size Selector */}
-          <div className="mb-4 flex items-center justify-end gap-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t("itemsPerPage")}:
-            </span>
-            <Select
-              value={pageSize.toString()}
-              onChange={(value) => handlePageSizeChange(Number(value))}
-              options={PAGE_SIZE_OPTIONS.map((size) => ({
-                value: size.toString(),
-                label: size.toString(),
-              }))}
-              className="w-20"
-            />
-          </div>
-
-          {/* Projects Item List */}
-          <div className="card divide-y divide-gray-200 dark:divide-gray-700">
-            {paginatedProjects.map((project) => (
-              <div
-                key={project.id}
-                className="flex items-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
-              >
-                <Link
-                  href={`/dashboard/projects/${project.id}`}
-                  className="block flex-1"
+      <ProjectList
+        projects={projectsResponse?.projects || []}
+        totalElements={projectsResponse?.totalElements ?? 0}
+        totalPages={projectsResponse?.totalPages ?? 0}
+        currentPage={currentPage}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+        isLoading={isProjectsLoading}
+        error={projectsError}
+        emptyTitle="No projects yet"
+        emptyDescription="Projects will appear here once students create them or you add them."
+        showCourseInfo={false}
+        renderItemActions={
+          canManage
+            ? (project) => (
+                <button
+                  onClick={() => setProjectToDelete(project as ProjectWithMembers)}
+                  className="mr-4 rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                  title="Delete project"
                 >
-                  <ItemCard
-                    icon={FolderKanban}
-                    iconBgColor="bg-blue-100 dark:bg-blue-900/30"
-                    iconColor="text-blue-600 dark:text-blue-400"
-                    title={project.name}
-                    subtitle={tProjects("memberCount", {
-                      count: project.members?.length || 0,
-                    })}
-                    rightContent={
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                          <Users className="h-4 w-4" />
-                          <span>{project.members?.length || 0}</span>
-                        </div>
-                        {project.qualification != null && (
-                          <StatusBadge
-                            label={`${project.qualification.toFixed(1)}/10`}
-                            variant="primary"
-                          />
-                        )}
-                      </div>
-                    }
-                  />
-                </Link>
-                {canManage && (
-                  <button
-                    onClick={() => setProjectToDelete(project)}
-                    className="mr-4 rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                    title="Delete project"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <SimplePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={projects.length}
-              itemsPerPage={pageSize}
-              onPageChange={setCurrentPage}
-              itemLabel="projects"
-            />
-          )}
-        </>
-      )}
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )
+            : undefined
+        }
+      />
 
       {/* Delete Project Confirmation Modal */}
       {projectToDelete && (
@@ -284,7 +221,7 @@ export default function CourseProjectsPage() {
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
-            refetch();
+            refetchProjects();
           }}
         />
       )}
