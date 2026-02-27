@@ -307,7 +307,8 @@
     "attributeValueSaved": "Valor del atributo guardado",
     "attributeValueError": "Error al guardar el valor del atributo",
     "attributeValueDeleted": "Valor del atributo eliminado",
-    "attributeValueDeleteError": "Error al eliminar el valor del atributo"
+    "attributeValueDeleteError": "Error al eliminar el valor del atributo",
+    "viewPRDetails": "Ver detalles del PR"
   },
   "pointsReview": {
     "title": "Revisión de Puntos",
@@ -1079,5 +1080,44 @@
       "DONE": "Completado",
       "FAILED": "Fallido"
     }
+  },
+  "attributes": {
+    "title": "Atributos",
+    "notSet": "No establecido",
+    "valueSaved": "Valor del atributo guardado",
+    "valueError": "Error al guardar el valor del atributo",
+    "valueDeleted": "Valor del atributo eliminado",
+    "valueDeleteError": "Error al eliminar el valor del atributo",
+    "addListItem": "Añadir elemento",
+    "noListItems": "Aún no hay elementos",
+    "listValueSaved": "Valor de la lista guardado",
+    "listValueError": "Error al guardar el valor de la lista",
+    "listValueDeleted": "Valor de la lista eliminado",
+    "listValueDeleteError": "Error al eliminar el valor de la lista",
+    "viewDescription": "Ver descripción",
+    "selectCategory": "Seleccionar categoría...",
+    "enterTitle": "Introducir título",
+    "enterDescription": "Introducir descripción...",
+    "description": "Descripción"
+  },
+  "pullRequestDetails": {
+    "notFound": "Pull request no encontrado",
+    "viewOnGitHub": "Ver en GitHub",
+    "filesChanged": "Archivos modificados",
+    "additions": "Adiciones",
+    "deletions": "Eliminaciones",
+    "survivingLines": "Líneas supervivientes",
+    "survivalRate": "Tasa de supervivencia",
+    "activity": "Actividad",
+    "noActivity": "Aún no se ha registrado actividad",
+    "viewSummary": "Ver resumen",
+    "summary": "Resumen del PR",
+    "noData": "No hay datos disponibles",
+    "prStateOpen": "Abierto",
+    "prStateClosed": "Cerrado",
+    "prStateMerged": "Fusionado",
+    "prStateUnknown": "Desconocido",
+    "loadingPR": "Cargando detalles del pull request...",
+    "loadingPRHint": "Esto puede tardar varios minutos si los datos de análisis se están calculando por primera vez."
   }
 }

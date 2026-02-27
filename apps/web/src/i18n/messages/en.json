@@ -312,7 +312,8 @@
     "attributeValueSaved": "Attribute value saved",
     "attributeValueError": "Failed to save attribute value",
     "attributeValueDeleted": "Attribute value removed",
-    "attributeValueDeleteError": "Failed to remove attribute value"
+    "attributeValueDeleteError": "Failed to remove attribute value",
+    "viewPRDetails": "View PR Details"
   },
   "pointsReview": {
     "title": "Points Review",
@@ -1084,5 +1085,44 @@
       "DONE": "Completed",
       "FAILED": "Failed"
     }
+  },
+  "attributes": {
+    "title": "Attributes",
+    "notSet": "Not set",
+    "valueSaved": "Attribute value saved",
+    "valueError": "Failed to save attribute value",
+    "valueDeleted": "Attribute value removed",
+    "valueDeleteError": "Failed to remove attribute value",
+    "addListItem": "Add item",
+    "noListItems": "No items yet",
+    "listValueSaved": "List value saved",
+    "listValueError": "Failed to save list value",
+    "listValueDeleted": "List value removed",
+    "listValueDeleteError": "Failed to remove list value",
+    "viewDescription": "View description",
+    "selectCategory": "Select category...",
+    "enterTitle": "Enter title",
+    "enterDescription": "Enter description...",
+    "description": "Description"
+  },
+  "pullRequestDetails": {
+    "notFound": "Pull request not found",
+    "viewOnGitHub": "View on GitHub",
+    "filesChanged": "Files Changed",
+    "additions": "Additions",
+    "deletions": "Deletions",
+    "survivingLines": "Surviving Lines",
+    "survivalRate": "Survival Rate",
+    "activity": "Activity",
+    "noActivity": "No activity recorded yet",
+    "viewSummary": "View Summary",
+    "summary": "PR Summary",
+    "noData": "No data available",
+    "prStateOpen": "Open",
+    "prStateClosed": "Closed",
+    "prStateMerged": "Merged",
+    "prStateUnknown": "Unknown",
+    "loadingPR": "Loading pull request details...",
+    "loadingPRHint": "This may take several minutes if the analysis data is being computed for the first time."
   }
 }

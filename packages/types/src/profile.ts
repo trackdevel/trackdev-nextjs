@@ -103,6 +103,14 @@ export interface StudentAttributeListValue {
   enumValues?: EnumValueEntry[];
 }
 
+export interface PullRequestAttributeListValue {
+  attributeId: number;
+  attributeName: string;
+  attributeType: "LIST";
+  items: ListItem[];
+  enumValues?: EnumValueEntry[];
+}
+
 export interface SetListAttributeValuesRequest {
   items: { enumValue?: string; title: string; description?: string }[];
 }
