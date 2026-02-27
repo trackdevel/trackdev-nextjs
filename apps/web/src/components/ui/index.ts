@@ -14,6 +14,7 @@ export * from "./FormModalFooter";
 export * from "./ItemCard";
 export * from "./LinkCard";
 export * from "./LoadingSpinner";
+export * from "./MarkdownEditor";
 export * from "./MemberAvatar";
 export * from "./Modal";
 export * from "./PageContainer";
