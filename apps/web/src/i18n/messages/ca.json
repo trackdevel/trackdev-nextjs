@@ -307,7 +307,8 @@
     "attributeValueSaved": "Valor de l'atribut guardat",
     "attributeValueError": "Error en guardar el valor de l'atribut",
     "attributeValueDeleted": "Valor de l'atribut eliminat",
-    "attributeValueDeleteError": "Error en eliminar el valor de l'atribut"
+    "attributeValueDeleteError": "Error en eliminar el valor de l'atribut",
+    "viewPRDetails": "Veure detalls del PR"
   },
   "pointsReview": {
     "title": "Revisió de Punts",
@@ -1079,5 +1080,44 @@
       "DONE": "Completat",
       "FAILED": "Fallat"
     }
+  },
+  "attributes": {
+    "title": "Atributs",
+    "notSet": "No establert",
+    "valueSaved": "Valor de l'atribut desat",
+    "valueError": "Error en desar el valor de l'atribut",
+    "valueDeleted": "Valor de l'atribut eliminat",
+    "valueDeleteError": "Error en eliminar el valor de l'atribut",
+    "addListItem": "Afegir element",
+    "noListItems": "Encara no hi ha elements",
+    "listValueSaved": "Valor de la llista desat",
+    "listValueError": "Error en desar el valor de la llista",
+    "listValueDeleted": "Valor de la llista eliminat",
+    "listValueDeleteError": "Error en eliminar el valor de la llista",
+    "viewDescription": "Veure descripció",
+    "selectCategory": "Seleccionar categoria...",
+    "enterTitle": "Introduir títol",
+    "enterDescription": "Introduir descripció...",
+    "description": "Descripció"
+  },
+  "pullRequestDetails": {
+    "notFound": "Pull request no trobat",
+    "viewOnGitHub": "Veure a GitHub",
+    "filesChanged": "Arxius modificats",
+    "additions": "Addicions",
+    "deletions": "Eliminacions",
+    "survivingLines": "Línies supervivents",
+    "survivalRate": "Taxa de supervivència",
+    "activity": "Activitat",
+    "noActivity": "Encara no s'ha registrat activitat",
+    "viewSummary": "Veure resum",
+    "summary": "Resum del PR",
+    "noData": "No hi ha dades disponibles",
+    "prStateOpen": "Obert",
+    "prStateClosed": "Tancat",
+    "prStateMerged": "Fusionat",
+    "prStateUnknown": "Desconegut",
+    "loadingPR": "Carregant detalls del pull request...",
+    "loadingPRHint": "Això pot trigar diversos minuts si les dades d'anàlisi s'estan calculant per primera vegada."
   }
 }
