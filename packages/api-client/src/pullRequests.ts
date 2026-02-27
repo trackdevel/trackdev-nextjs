@@ -6,8 +6,11 @@ import type {
   PRDetailedAnalysis,
   PRFileDetail,
   ProfileAttribute,
+  PullRequestAttributeListValue,
   PullRequestAttributeValue,
+  PullRequestChange,
   SetAttributeValueRequest,
+  SetListAttributeValuesRequest,
 } from "@trackdev/types";
 import { api } from "./client";
 
@@ -64,5 +67,46 @@ export const pullRequestsApi = {
   deleteAttributeValue: (prId: string, attributeId: number) =>
     api.delete<void>(
       `/pull-requests/${prId}/attributes/${attributeId}`,
+    ),
+
+  // ==================== Pull Request LIST Attribute Values ====================
+
+  /**
+   * Get list items for a LIST-type attribute for a pull request
+   */
+  getListAttributeValues: (prId: string, attributeId: number) =>
+    api.get<PullRequestAttributeListValue>(
+      `/pull-requests/${prId}/list-attributes/${attributeId}`,
+    ),
+
+  /**
+   * Replace all list items for a LIST-type attribute for a pull request
+   */
+  setListAttributeValues: (
+    prId: string,
+    attributeId: number,
+    data: SetListAttributeValuesRequest,
+  ) =>
+    api.put<PullRequestAttributeListValue>(
+      `/pull-requests/${prId}/list-attributes/${attributeId}`,
+      data,
+    ),
+
+  /**
+   * Delete all list items for a LIST-type attribute from a pull request
+   */
+  deleteListAttributeValues: (prId: string, attributeId: number) =>
+    api.delete<void>(
+      `/pull-requests/${prId}/list-attributes/${attributeId}`,
+    ),
+
+  // ==================== Pull Request History ====================
+
+  /**
+   * Get change history for a pull request
+   */
+  getHistory: (prId: string) =>
+    api.get<{ history: PullRequestChange[]; entityId: string | null }>(
+      `/pull-requests/${prId}/history`,
     ),
 };
