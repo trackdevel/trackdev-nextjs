@@ -91,7 +91,8 @@ export interface ProfileRequest {
 export interface ListItem {
   orderIndex: number;
   enumValue?: string;
-  stringValue: string;
+  title: string;
+  description?: string;
 }
 
 export interface StudentAttributeListValue {
@@ -103,5 +104,5 @@ export interface StudentAttributeListValue {
 }
 
 export interface SetListAttributeValuesRequest {
-  items: { enumValue?: string; stringValue: string }[];
+  items: { enumValue?: string; title: string; description?: string }[];
 }
