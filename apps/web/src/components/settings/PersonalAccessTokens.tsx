@@ -8,7 +8,6 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type {
-  PersonalAccessToken,
   PersonalAccessTokenCreated,
   PersonalAccessTokensResponse,
   CreateTokenRequest,
