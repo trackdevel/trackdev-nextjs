@@ -2,6 +2,7 @@
 
 import { GitHubUsernameEditor } from "@/components/settings/GitHubUsernameEditor";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { PersonalAccessTokens } from "@/components/settings/PersonalAccessTokens";
 import { ThemeSelector } from "@/components/settings/ThemeSelector";
 import { TimezoneSelector } from "@/components/settings/TimezoneSelector";
 import { PageContainer, PageHeader } from "@/components/ui";
@@ -369,7 +370,12 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "security" && <SecuritySettings />}
+          {activeTab === "security" && (
+            <div className="space-y-6">
+              <SecuritySettings />
+              <PersonalAccessTokens />
+            </div>
+          )}
 
           {activeTab === "integrations" && (
             <div className="card">
