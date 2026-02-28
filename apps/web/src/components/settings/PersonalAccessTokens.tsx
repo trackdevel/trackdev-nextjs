@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
   tokensApi,
+  useAuth,
   useMutation,
   useQuery,
 } from "@trackdev/api-client";
@@ -24,8 +25,12 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 export function PersonalAccessTokens() {
+  const { user } = useAuth();
   const t = useTranslations("settings");
   const toast = useToast();
+  const isStudent = user?.roles?.includes("STUDENT") ?? false;
+
+  if (isStudent) return null;
 
   const [tokenName, setTokenName] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
