@@ -1149,5 +1149,12 @@
     "prStateUnknown": "Unknown",
     "loadingPR": "Loading pull request details...",
     "loadingPRHint": "This may take several minutes if the analysis data is being computed for the first time."
+  },
+  "markdown": {
+    "insertReference": "Insert reference",
+    "searchPlaceholder": "Search tasks or pull requests...",
+    "tasks": "Tasks",
+    "pullRequests": "Pull Requests",
+    "noResults": "No results found"
   }
 }
