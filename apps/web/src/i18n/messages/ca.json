@@ -1144,5 +1144,12 @@
     "prStateUnknown": "Desconegut",
     "loadingPR": "Carregant detalls del pull request...",
     "loadingPRHint": "Això pot trigar diversos minuts si les dades d'anàlisi s'estan calculant per primera vegada."
+  },
+  "markdown": {
+    "insertReference": "Inserir referència",
+    "searchPlaceholder": "Cercar tasques o pull requests...",
+    "tasks": "Tasques",
+    "pullRequests": "Pull Requests",
+    "noResults": "No s'han trobat resultats"
   }
 }

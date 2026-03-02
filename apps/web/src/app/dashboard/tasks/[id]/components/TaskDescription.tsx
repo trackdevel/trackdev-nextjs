@@ -10,6 +10,7 @@ interface TaskDescriptionProps {
   description: string | undefined;
   editState: EditState;
   canEdit: boolean;
+  projectId?: number;
   onStartEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
@@ -20,6 +21,7 @@ export const TaskDescription = memo(function TaskDescription({
   description,
   editState,
   canEdit,
+  projectId,
   onStartEdit,
   onSave,
   onCancel,
@@ -53,6 +55,7 @@ export const TaskDescription = memo(function TaskDescription({
               onChange={onDescriptionChange}
               height={250}
               placeholder={t("addDescription")}
+              projectId={projectId}
             />
             <div className="flex gap-2">
               <button

@@ -561,6 +561,7 @@ export default function TaskDetailPage() {
             description={optimisticTask.description}
             editState={editState}
             canEdit={canEdit}
+            projectId={optimisticTask.project?.id}
             onStartEdit={() => handleStartEdit("description")}
             onSave={handleSave}
             onCancel={handleCancel}
