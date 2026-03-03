@@ -200,7 +200,7 @@ export function CreateTaskModal({
     <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {validationError && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+          <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-400">
             {validationError}
           </div>
         )}
