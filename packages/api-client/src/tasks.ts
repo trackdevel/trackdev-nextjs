@@ -34,6 +34,7 @@ export interface TasksFilterParams {
   type?: string;
   status?: string;
   assigneeId?: string;
+  projectId?: number;
   sortOrder?: "asc" | "desc";
 }
 
@@ -191,6 +192,9 @@ export const tasksApi = {
     }
     if (filters?.assigneeId) {
       params.set("assigneeId", filters.assigneeId);
+    }
+    if (filters?.projectId) {
+      params.set("projectId", filters.projectId.toString());
     }
     if (filters?.sortOrder) {
       params.set("sortOrder", filters.sortOrder);
