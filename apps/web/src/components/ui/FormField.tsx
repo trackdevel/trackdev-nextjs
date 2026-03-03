@@ -36,16 +36,16 @@ export function FormField({
     <div className={className}>
       <label
         htmlFor={htmlFor}
-        className="block text-sm font-medium text-gray-700"
+        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
       >
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
       </label>
       <div className="mt-1">{children}</div>
       {helpText && !error && (
-        <p className="mt-1 text-xs text-gray-500">{helpText}</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{helpText}</p>
       )}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );
 }
@@ -91,7 +91,7 @@ export function FormError({ message, className = "" }: FormErrorProps) {
 
   return (
     <div
-      className={`rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ${className}`}
+      className={`rounded-lg bg-red-50 dark:bg-red-900/30 px-4 py-3 text-sm text-red-700 dark:text-red-400 ${className}`}
     >
       {message}
     </div>
