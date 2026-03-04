@@ -63,10 +63,30 @@ export interface DragState {
 }
 
 export interface DragOverTarget {
-  type: "column" | "backlog" | null;
+  type: "column" | "backlog" | "backlog-reorder" | null;
   storyId?: number;
   columnId?: BoardColumnId;
+  targetTaskId?: number;
+  position?: "before" | "after";
 }
+
+// @dnd-kit data types
+export interface DragItemData {
+  source: "sprint" | "backlog";
+  task: Task;
+}
+
+export interface DropTargetColumnData {
+  type: "column";
+  storyId: number;
+  columnId: BoardColumnId;
+}
+
+export interface DropTargetBacklogData {
+  type: "backlog";
+}
+
+export type DropTargetData = DropTargetColumnData | DropTargetBacklogData;
 
 // Optimistic update action types
 export type TaskOptimisticAction =
@@ -79,7 +99,8 @@ export type TaskOptimisticAction =
       sprintName: string;
     }
   | { type: "removeFromSprint"; taskIds: number[] }
-  | { type: "updateTasks"; tasks: Task[] };
+  | { type: "updateTasks"; tasks: Task[] }
+  | { type: "updateRank"; taskId: number; newRank: number };
 
 // =============================================================================
 // UTILITIES
