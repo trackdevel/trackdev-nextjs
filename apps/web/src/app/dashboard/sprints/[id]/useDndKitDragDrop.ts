@@ -428,8 +428,10 @@ export function useDndKitDragDrop({
           const index = source.index as number;
           if (initialIndex !== index) {
             reorderBacklogTask(sourceData.task.id, index);
+            return;
           }
-          return;
+          // If index didn't change, the item was dragged out of the sortable
+          // group (e.g. backlog → sprint column). Fall through to handle it.
         }
 
         const targetData = target.data as
