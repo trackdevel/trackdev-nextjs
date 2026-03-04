@@ -8,6 +8,7 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type { Task } from "@trackdev/types";
+import { DragDropProvider } from "@dnd-kit/react";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -22,16 +23,17 @@ import {
 } from "react";
 
 import {
-  BacklogPanel,
   EmptySprintState,
   SprintHeader,
   StoryRow,
 } from "./components";
+import { BacklogPanelDndKit } from "./components/BacklogPanelDndKit";
+import { TopDropZone } from "./components/TopDropZone";
 import {
   BOARD_COLUMNS,
   COLLAPSED_STORIES_STORAGE_KEY,
 } from "./types";
-import { useDragAndDrop } from "./useDragAndDrop";
+import { useDndKitDragDrop } from "./useDndKitDragDrop";
 import {
   mergeTasksFromServer,
   selectBacklogTasks,
@@ -72,7 +74,6 @@ export default function SprintBoardPage() {
   });
 
   // React 19: useOptimistic for optimistic UI updates
-  // When async action completes, setTasks updates the base state and optimistic state auto-syncs
   const [optimisticTasks, addOptimisticUpdate] = useOptimistic(
     tasks,
     tasksOptimisticReducer,
@@ -84,26 +85,13 @@ export default function SprintBoardPage() {
   const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useState<
     number | null
   >(null);
-  // Track collapsed stories (all stories are expanded by default)
   const [collapsedStories, setCollapsedStories] = useState<Set<number>>(
     new Set(),
   );
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Drag and drop
-  const {
-    dragOverTarget,
-    isDragging,
-    isDraggingFromSprint,
-    dragOverBacklog,
-    handleDragStart,
-    handleDragEnd,
-    handleDragOver,
-    handleDragOverBacklog,
-    handleDragLeave,
-    handleDropOnColumn,
-    handleDropOnBacklog,
-  } = useDragAndDrop({
+  // Drag and drop (@dnd-kit/react)
+  const { activeDragData, providerProps } = useDndKitDragDrop({
     optimisticTasks,
     addOptimisticUpdate,
     setTasks,
@@ -111,6 +99,7 @@ export default function SprintBoardPage() {
     sprintId,
     sprintMeta,
     t,
+    projectId: sprintMeta.project?.id ?? null,
   });
 
   // Data fetching
@@ -132,7 +121,6 @@ export default function SprintBoardPage() {
     { enabled: isAuthenticated && !!sprintBoard?.project?.id },
   );
 
-  // Fetch all sprints for the project to enable prev/next navigation
   const { data: projectSprints } = useQuery(
     () =>
       sprintBoard?.project?.id
@@ -142,7 +130,6 @@ export default function SprintBoardPage() {
     { enabled: isAuthenticated && !!sprintBoard?.project?.id },
   );
 
-  // Compute previous and next sprint IDs for navigation
   const { prevSprintId, nextSprintId } = useMemo(() => {
     if (!projectSprints?.sprints || projectSprints.sprints.length === 0) {
       return { prevSprintId: null, nextSprintId: null };
@@ -155,11 +142,12 @@ export default function SprintBoardPage() {
     return {
       prevSprintId: currentIndex > 0 ? sprints[currentIndex - 1].id : null,
       nextSprintId:
-        currentIndex < sprints.length - 1 ? sprints[currentIndex + 1].id : null,
+        currentIndex < sprints.length - 1
+          ? sprints[currentIndex + 1].id
+          : null,
     };
   }, [projectSprints, sprintId]);
 
-  // Refetch data when window gains focus (to catch changes made in other views)
   useEffect(() => {
     const handleFocus = () => {
       refetchBoard();
@@ -169,10 +157,12 @@ export default function SprintBoardPage() {
     return () => window.removeEventListener("focus", handleFocus);
   }, [refetchBoard, refetchProjectTasks]);
 
-  // Sync server data to local state
   useEffect(() => {
     if (sprintBoard && projectTasks) {
-      const mergedTasks = mergeTasksFromServer(sprintBoard, projectTasks.tasks);
+      const mergedTasks = mergeTasksFromServer(
+        sprintBoard,
+        projectTasks.tasks,
+      );
       setTasks(mergedTasks);
       setSprintMeta({
         name: sprintBoard.name,
@@ -183,9 +173,10 @@ export default function SprintBoardPage() {
         project: sprintBoard.project,
       });
       if (!isInitialized) {
-        // Load collapsed stories from localStorage (all stories expanded by default)
         try {
-          const stored = localStorage.getItem(COLLAPSED_STORIES_STORAGE_KEY(sprintId));
+          const stored = localStorage.getItem(
+            COLLAPSED_STORIES_STORAGE_KEY(sprintId),
+          );
           if (stored) {
             const collapsedIds = JSON.parse(stored) as number[];
             setCollapsedStories(new Set(collapsedIds));
@@ -198,7 +189,7 @@ export default function SprintBoardPage() {
     }
   }, [sprintBoard, projectTasks, isInitialized, sprintId]);
 
-  // Derived state using optimisticTasks (which includes pending optimistic updates)
+  // Derived state
   const sprintTasks = useMemo(
     () => selectSprintTasks(optimisticTasks, sprintId),
     [optimisticTasks, sprintId],
@@ -207,17 +198,14 @@ export default function SprintBoardPage() {
     () => selectBacklogTasks(optimisticTasks),
     [optimisticTasks],
   );
-  // Compute backlog subtasks from optimisticTasks Map (for USER_STORYs in backlog)
   const backlogSubtasksMap = useMemo(() => {
     const map = new Map<number, Task[]>();
-    // Find all subtasks in backlog (no activeSprints) that have a parentTaskId
     const subtasksInBacklog = Array.from(optimisticTasks.values()).filter(
       (task) =>
         (!task.activeSprints || task.activeSprints.length === 0) &&
         task.parentTaskId &&
         (task.type === "TASK" || task.type === "BUG"),
     );
-    // Group by parentTaskId
     for (const subtask of subtasksInBacklog) {
       const parentId = subtask.parentTaskId!;
       if (!map.has(parentId)) {
@@ -232,6 +220,13 @@ export default function SprintBoardPage() {
     [sprintTasks, optimisticTasks, sprintId],
   );
 
+  // Drag state for visual feedback
+  const draggedTaskId = activeDragData?.task.id ?? null;
+  const dragSource = activeDragData?.source ?? null;
+  const isDragging = activeDragData != null;
+  const isDraggingFromBacklog = isDragging && dragSource === "backlog";
+  const isDraggingFromSprint = isDragging && dragSource === "sprint";
+
   const isLoading = authLoading || boardLoading || !isInitialized;
 
   // =============================================================================
@@ -243,13 +238,15 @@ export default function SprintBoardPage() {
       setCollapsedStories((prev) => {
         const next = new Set(prev);
         if (next.has(storyId)) {
-          next.delete(storyId); // Expand (remove from collapsed)
+          next.delete(storyId);
         } else {
-          next.add(storyId); // Collapse (add to collapsed)
+          next.add(storyId);
         }
-        // Persist to localStorage
         try {
-          localStorage.setItem(COLLAPSED_STORIES_STORAGE_KEY(sprintId), JSON.stringify(Array.from(next)));
+          localStorage.setItem(
+            COLLAPSED_STORIES_STORAGE_KEY(sprintId),
+            JSON.stringify(Array.from(next)),
+          );
         } catch {
           // Ignore localStorage errors
         }
@@ -310,109 +307,62 @@ export default function SprintBoardPage() {
         onAddTask={() => setShowCreateTaskModal(true)}
       />
 
-      {/* Main content */}
-      <div className="flex flex-1 overflow-hidden">
-        <BacklogPanel
-          isOpen={isBacklogOpen}
-          onToggleOpen={() => setIsBacklogOpen(!isBacklogOpen)}
-          onAddTask={() => setShowCreateTaskModal(true)}
-          backlogTasks={backlogTasks}
-          backlogSubtasksMap={backlogSubtasksMap}
-          isDragging={isDragging}
-          isDraggingFromSprint={isDraggingFromSprint}
-          dragOverBacklog={dragOverBacklog}
-          onDragOverBacklog={handleDragOverBacklog}
-          onDragLeave={handleDragLeave}
-          onDropOnBacklog={handleDropOnBacklog}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        />
+      {/* Main content — wrapped in DragDropProvider */}
+      <DragDropProvider {...providerProps}>
+        <div className="flex flex-1 overflow-hidden">
+          <BacklogPanelDndKit
+            isOpen={isBacklogOpen}
+            onToggleOpen={() => setIsBacklogOpen(!isBacklogOpen)}
+            onAddTask={() => setShowCreateTaskModal(true)}
+            backlogTasks={backlogTasks}
+            backlogSubtasksMap={backlogSubtasksMap}
+            isDraggingFromSprint={isDraggingFromSprint}
+            draggedTaskId={draggedTaskId}
+          />
 
-        {/* Sprint Board */}
-        <div className="flex-1 overflow-x-auto p-6">
-          <div className="min-w-[800px]">
-            {/* Column Headers */}
-            <div className="mb-4 grid grid-cols-4 gap-4">
-              {BOARD_COLUMNS.map((col) => (
-                <div
-                  key={col.id}
-                  className={`rounded-lg px-4 py-2 text-center font-medium ${col.color} ${col.textColor}`}
-                >
-                  {col.label}
-                </div>
-              ))}
-            </div>
-
-            {/* Stories */}
-            {stories.length === 0 ? (
-              <EmptySprintState
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDropOnColumn}
-                dragOverTarget={dragOverTarget}
-                isDragging={isDragging}
-                isDraggingFromSprint={isDraggingFromSprint}
-              />
-            ) : (
-              <div className="space-y-4">
-                {/* Drop zone for backlog tasks when dragging from backlog */}
-                {isDragging && !isDraggingFromSprint && (
-                  <div className="grid grid-cols-4 gap-4">
-                    {BOARD_COLUMNS.map((col) => (
-                      <div
-                        key={col.id}
-                        className={`min-h-[60px] rounded-lg border-2 border-dashed p-4 transition-colors ${
-                          col.id === "TODO"
-                            ? dragOverTarget?.type === "column" &&
-                              dragOverTarget.storyId === -1 &&
-                              dragOverTarget.columnId === "TODO"
-                              ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
-                              : "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
-                            : "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50"
-                        }`}
-                        onDragOver={(e) => {
-                          if (col.id === "TODO") {
-                            handleDragOver(e, -1, col.id);
-                          }
-                        }}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => {
-                          if (col.id === "TODO") {
-                            handleDropOnColumn(e, -1, col.id);
-                          }
-                        }}
-                      >
-                        <div className="flex h-full items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
-                          {col.id === "TODO" ? t("dropHereToAdd") : ""}
-                        </div>
-                      </div>
-                    ))}
+          {/* Sprint Board */}
+          <div className="flex-1 overflow-x-auto p-6">
+            <div className="min-w-[800px]">
+              {/* Column Headers */}
+              <div className="mb-4 grid grid-cols-4 gap-4">
+                {BOARD_COLUMNS.map((col) => (
+                  <div
+                    key={col.id}
+                    className={`rounded-lg px-4 py-2 text-center font-medium ${col.color} ${col.textColor}`}
+                  >
+                    {col.label}
                   </div>
-                )}
-                {stories.map((story) => (
-                  <StoryRow
-                    key={story.id}
-                    story={story}
-                    sprintId={sprintId}
-                    expanded={!collapsedStories.has(story.id)}
-                    onToggleExpand={toggleStoryExpand}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDropOnColumn}
-                    onCreateSubtask={setCreateSubtaskForStoryId}
-                    dragOverTarget={dragOverTarget}
-                    isDragging={isDragging}
-                    isDraggingFromSprint={isDraggingFromSprint}
-                    sprintStatus={sprintMeta.status}
-                  />
                 ))}
               </div>
-            )}
+
+              {/* Stories */}
+              {stories.length === 0 ? (
+                <EmptySprintState isDraggingFromBacklog={isDraggingFromBacklog} />
+              ) : (
+                <div className="space-y-4">
+                  {/* Drop zone for backlog tasks when dragging from backlog */}
+                  {isDraggingFromBacklog && (
+                    <TopDropZone />
+                  )}
+                  {stories.map((story) => (
+                    <StoryRow
+                      key={story.id}
+                      story={story}
+                      sprintId={sprintId}
+                      expanded={!collapsedStories.has(story.id)}
+                      onToggleExpand={toggleStoryExpand}
+                      onCreateSubtask={setCreateSubtaskForStoryId}
+                      sprintStatus={sprintMeta.status}
+                      draggedTaskId={draggedTaskId}
+                      dragSource={dragSource}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </DragDropProvider>
 
       {/* Create Task Modal */}
       {showCreateTaskModal && sprintMeta.project && (
