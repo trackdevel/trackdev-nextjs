@@ -311,7 +311,7 @@ export default function ActivityPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <BackButton fallbackHref="/dashboard" />
+            <BackButton />
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {t("title")}
