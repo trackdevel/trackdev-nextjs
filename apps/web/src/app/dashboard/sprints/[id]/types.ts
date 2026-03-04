@@ -57,19 +57,6 @@ export interface Story {
   allSubtaskSprints: { id: number; name: string }[];
 }
 
-export interface DragState {
-  taskId: number | null;
-  source: "sprint" | "backlog" | null;
-}
-
-export interface DragOverTarget {
-  type: "column" | "backlog" | "backlog-reorder" | null;
-  storyId?: number;
-  columnId?: BoardColumnId;
-  targetTaskId?: number;
-  position?: "before" | "after";
-}
-
 // @dnd-kit data types
 export interface DragItemData {
   source: "sprint" | "backlog";
