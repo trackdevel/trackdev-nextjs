@@ -268,7 +268,7 @@ const RANK_GAP_SIZE = 65536;
  *
  * @param backlogTasks - The current ordered list of backlog tasks (sorted by rank)
  * @param draggedTaskId - The ID of the task being dragged
- * @param targetIndex - The index in the filtered list (excluding dragged) where the task should be placed
+ * @param targetIndex - The final position of the task in the full sorted list (from @dnd-kit source.index)
  * @returns The new rank value, or null if rebalancing is needed
  */
 export function calculateNewRank(
@@ -286,16 +286,9 @@ export function calculateNewRank(
     return RANK_GAP_SIZE;
   }
 
-  // Adjust targetIndex: getDropIndex returns index relative to the full list
-  // (including dragged task), but we need it relative to otherStories
-  const draggedIdx = stories.findIndex((t) => t.id === draggedTaskId);
-  const adjustedIndex =
-    draggedIdx >= 0 && targetIndex > draggedIdx
-      ? targetIndex - 1
-      : targetIndex;
-
-  // Clamp to valid range
-  const clampedIndex = Math.max(0, Math.min(adjustedIndex, otherStories.length));
+  // targetIndex is the final position in the full sorted list (from @dnd-kit's
+  // source.index). It maps directly to the insert position in otherStories.
+  const clampedIndex = Math.max(0, Math.min(targetIndex, otherStories.length));
 
   if (clampedIndex === 0) {
     // Moving to top: rank = first task's rank / 2
