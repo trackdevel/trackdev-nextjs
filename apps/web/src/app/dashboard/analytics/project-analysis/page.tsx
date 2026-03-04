@@ -48,7 +48,6 @@ export default function ProjectAnalysisSelectionPage() {
   return (
     <PageContainer>
       <BackButton
-        fallbackHref="/dashboard/analytics"
         label={tCommon("back")}
         className="mb-4"
       />
