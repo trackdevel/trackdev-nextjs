@@ -160,7 +160,6 @@ export default function StudentProfilePage() {
     return (
       <div className="p-8">
         <BackButton
-          fallbackHref={`/dashboard/courses/${courseId}`}
           className="mb-4"
         />
         <div className="card px-6 py-12 text-center">
@@ -181,7 +180,6 @@ export default function StudentProfilePage() {
     <div className="p-8">
       {/* Back button */}
       <BackButton
-        fallbackHref={`/dashboard/courses/${courseId}/students`}
         className="mb-6"
       />
 
