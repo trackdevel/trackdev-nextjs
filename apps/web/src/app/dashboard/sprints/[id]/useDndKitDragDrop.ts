@@ -5,6 +5,7 @@ import {
   tasksApi,
 } from "@trackdev/api-client";
 import type { Task, TaskStatus } from "@trackdev/types";
+import { isSortable } from "@dnd-kit/react/sortable";
 import { useCallback, useMemo, useState } from "react";
 
 import type {
@@ -395,13 +396,8 @@ export function useDndKitDragDrop({
   );
 
   const handleDragEnd = useCallback(
-    (event: {
-      operation: {
-        source: { id: unknown; data?: unknown } | null;
-        target: { id: unknown; data?: unknown } | null;
-      };
-      canceled: boolean;
-    }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (event: any) => {
       const { operation, canceled } = event;
 
       if (canceled) {
@@ -416,13 +412,7 @@ export function useDndKitDragDrop({
       }
 
       const sourceData = source.data as DragItemData | undefined;
-      const targetData = target.data as
-        | DropTargetColumnData
-        | { type: "backlog" }
-        | DragItemData
-        | undefined;
-
-      if (!sourceData || !targetData) {
+      if (!sourceData) {
         setActiveDragData(null);
         return;
       }
@@ -432,39 +422,32 @@ export function useDndKitDragDrop({
       // Defer to next microtask to avoid state updates during @dnd-kit's
       // internal lifecycle (its useLayoutEffect uses flushSync on signals).
       queueMicrotask(() => {
-        if ("type" in targetData) {
-          if (targetData.type === "column") {
-            handleDropOnColumn(
-              sourceData,
-              targetData as DropTargetColumnData,
-            );
-          } else if (targetData.type === "backlog") {
-            // Sprint → Backlog
-            if (sourceData.source === "sprint") {
-              handleDropOnBacklog(sourceData.task.id);
-            }
+        // Check for sortable backlog reorder first (source has index info)
+        if (isSortable(source) && "initialIndex" in source) {
+          const initialIndex = source.initialIndex as number;
+          const index = source.index as number;
+          if (initialIndex !== index) {
+            reorderBacklogTask(sourceData.task.id, index);
           }
-        } else if ("source" in targetData) {
-          // Both source and target are drag items (sortable backlog reorder)
-          if (
-            sourceData.source === "backlog" &&
-            targetData.source === "backlog"
-          ) {
-            const sourceId = sourceData.task.id;
-            const targetId = (targetData as DragItemData).task.id;
-            if (sourceId === targetId) return;
+          return;
+        }
 
-            const stories = backlogTasks.filter(
-              (t) => t.type === "USER_STORY",
-            );
-            const targetIndex = stories.findIndex((t) => t.id === targetId);
-            if (targetIndex === -1) return;
+        const targetData = target.data as
+          | DropTargetColumnData
+          | { type: "backlog" }
+          | undefined;
 
-            const sourceIndex = stories.findIndex((t) => t.id === sourceId);
-            const insertIndex =
-              sourceIndex < targetIndex ? targetIndex + 1 : targetIndex;
+        if (!targetData || !("type" in targetData)) return;
 
-            reorderBacklogTask(sourceId, insertIndex);
+        if (targetData.type === "column") {
+          handleDropOnColumn(
+            sourceData,
+            targetData as DropTargetColumnData,
+          );
+        } else if (targetData.type === "backlog") {
+          // Sprint → Backlog
+          if (sourceData.source === "sprint") {
+            handleDropOnBacklog(sourceData.task.id);
           }
         }
       });
@@ -472,7 +455,6 @@ export function useDndKitDragDrop({
     [
       handleDropOnColumn,
       handleDropOnBacklog,
-      backlogTasks,
       reorderBacklogTask,
     ],
   );
