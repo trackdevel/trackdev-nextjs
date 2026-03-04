@@ -246,8 +246,8 @@ export function canDropOnColumn(
   sprintStatus: string,
 ): boolean {
   if (!isDragging) return true;
-  // From backlog: only TODO accepts
-  if (!isDraggingFromSprint && columnId !== "TODO") return false;
+  // From backlog: drops go to the TopDropZone only, not story-row columns
+  if (!isDraggingFromSprint) return false;
   // From sprint in DRAFT or CLOSED: no status changes
   if (
     isDraggingFromSprint &&
