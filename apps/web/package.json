@@ -12,6 +12,8 @@
     "clean": "rimraf .next out"
   },
   "dependencies": {
+    "@dnd-kit/helpers": "^0.3.2",
+    "@dnd-kit/react": "^0.3.2",
     "@trackdev/api-client": "workspace:*",
     "@trackdev/types": "workspace:*",
     "@trackdev/ui": "workspace:*",
