@@ -137,7 +137,6 @@ export default function TasksListPage() {
       {/* Header */}
       <div className="mb-6">
         <BackButton
-          fallbackHref="/dashboard"
           label={t("backToDashboard")}
           className="mb-4"
         />

@@ -196,7 +196,6 @@ export default function PRAnalysisPage() {
   return (
     <PageContainer>
       <BackButton
-        fallbackHref="/dashboard/analytics"
         label={tCommon("back")}
         className="mb-4"
       />

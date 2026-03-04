@@ -84,7 +84,6 @@ export default function ReportViewPage() {
     return (
       <PageContainer>
         <BackButton
-          fallbackHref={`/dashboard/projects/${projectId}/reports`}
           label={tCommon("back")}
           className="mb-4"
         />
@@ -97,7 +96,6 @@ export default function ReportViewPage() {
     return (
       <PageContainer>
         <BackButton
-          fallbackHref={`/dashboard/projects/${projectId}/reports`}
           label={tCommon("back")}
           className="mb-4"
         />
@@ -111,7 +109,6 @@ export default function ReportViewPage() {
   return (
     <PageContainer>
       <BackButton
-        fallbackHref={`/dashboard/projects/${projectId}/reports`}
         label={tCommon("back")}
         className="mb-4"
       />

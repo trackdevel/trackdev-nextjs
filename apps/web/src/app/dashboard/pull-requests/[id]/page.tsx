@@ -11,7 +11,7 @@ import {
 import type { PullRequest } from "@trackdev/types";
 import { BarChart3, GitPullRequest } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { PRActivity, PRHeader, PRSummaryModal } from "./components";
@@ -20,10 +20,7 @@ export default function PullRequestDetailPage() {
   const { user, isAuthenticated } = useAuth();
   const t = useTranslations("pullRequestDetails");
   const params = useParams();
-  const searchParams = useSearchParams();
   const prId = params.id as string;
-  const fromSource = searchParams.get("from");
-  const taskIdParam = searchParams.get("taskId");
 
   const [showSummary, setShowSummary] = useState(false);
 
@@ -67,17 +64,9 @@ export default function PullRequestDetailPage() {
     } as PullRequest;
   }, [prDetails]);
 
-  // Back navigation
-  const backHref = useMemo(() => {
-    if (fromSource === "task" && taskIdParam) {
-      return `/dashboard/tasks/${taskIdParam}`;
-    }
-    return "/dashboard/analytics";
-  }, [fromSource, taskIdParam]);
-
   return (
     <PageContainer>
-      <BackButton fallbackHref={backHref} />
+      <BackButton />
 
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-16 gap-4">

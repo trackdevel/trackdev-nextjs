@@ -236,7 +236,6 @@ export default function SprintPatternsPage() {
       {/* Header */}
       <div className="mb-8">
         <BackButton
-          fallbackHref={`/dashboard/courses/${courseId}`}
           label="Back"
           className="mb-4"
         />

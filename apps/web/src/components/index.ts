@@ -1,4 +1,4 @@
-export { BackButton, useNavigationTracking } from "./BackButton";
+export { BackButton } from "./BackButton";
 export { ErrorBoundary } from "./ErrorBoundary";
 
 // UI Components

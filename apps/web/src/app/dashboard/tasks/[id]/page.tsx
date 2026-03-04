@@ -182,26 +182,6 @@ export default function TaskDetailPage() {
       ? [] // USER_STORY status is computed, not manually changeable
       : ["BACKLOG", "TODO", "INPROGRESS", "VERIFY", "DONE"];
 
-  // Compute back navigation
-  const backNavigation = useMemo(() => {
-    if (fromSource === "sprint" && sprintIdParam) {
-      return {
-        href: `/dashboard/sprints/${sprintIdParam}`,
-        label: t("backToSprint"),
-      };
-    }
-    if (optimisticTask?.project?.id) {
-      return {
-        href: `/dashboard/projects/${optimisticTask.project.id}`,
-        label: optimisticTask.project.name,
-      };
-    }
-    return {
-      href: "/dashboard/projects",
-      label: t("backToProjects"),
-    };
-  }, [fromSource, sprintIdParam, t, optimisticTask?.project]);
-
   // =============================================================================
   // EDIT HANDLERS
   // =============================================================================
@@ -531,7 +511,6 @@ export default function TaskDetailPage() {
     <div className="p-8">
       {/* Back Navigation */}
       <BackButton
-        fallbackHref={backNavigation.href}
         label={tCommon("back")}
         className="mb-6"
       />

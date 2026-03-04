@@ -1,6 +1,5 @@
 "use client";
 
-import { useNavigationTracking } from "@/components/BackButton";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { activitiesApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { RoleName } from "@trackdev/types";
@@ -134,9 +133,6 @@ export default function DashboardLayout({
     setIsCollapsed(newValue);
     localStorage.setItem("sidebar-collapsed", String(newValue));
   };
-
-  // Track navigation history for BackButton functionality
-  useNavigationTracking();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

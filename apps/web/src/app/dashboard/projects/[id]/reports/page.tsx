@@ -69,7 +69,6 @@ export default function ProjectReportsPage() {
   return (
     <PageContainer>
       <BackButton
-        fallbackHref={`/dashboard/projects/${projectId}`}
         label={tCommon("back")}
         className="mb-4"
       />

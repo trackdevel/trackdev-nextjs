@@ -160,7 +160,6 @@ export default function ProjectAnalysisPage() {
     return (
       <PageContainer>
         <BackButton
-          fallbackHref={`/dashboard/projects/${projectId}`}
           label={tCommon("back")}
           className="mb-4"
         />
@@ -184,7 +183,6 @@ export default function ProjectAnalysisPage() {
   return (
     <PageContainer>
       <BackButton
-        fallbackHref={`/dashboard/projects/${projectId}`}
         label={tCommon("back")}
         className="mb-4"
       />

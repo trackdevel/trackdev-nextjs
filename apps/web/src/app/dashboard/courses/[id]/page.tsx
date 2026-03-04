@@ -111,7 +111,6 @@ export default function CourseDetailsPage() {
       {/* Header */}
       <div className="mb-8">
         <BackButton
-          fallbackHref="/dashboard/courses"
           label="Back"
           className="mb-4"
         />

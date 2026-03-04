@@ -180,7 +180,6 @@ export default function EditReportPage() {
   return (
     <PageContainer>
       <BackButton
-        fallbackHref="/dashboard/reports"
         label={t("backToReports")}
         className="mb-4"
       />

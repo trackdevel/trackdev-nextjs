@@ -326,7 +326,6 @@ export default function ProjectDetailPage() {
     <div className="p-8">
       {/* Back Button */}
       <BackButton
-        fallbackHref="/dashboard/projects"
         label={tCommon("back")}
         className="mb-6"
       />
