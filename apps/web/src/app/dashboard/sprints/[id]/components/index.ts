@@ -1,5 +1,3 @@
-export { BacklogPanel } from "./BacklogPanel";
-export { BacklogTaskCard } from "./BacklogTaskCard";
 export { BoardColumn } from "./BoardColumn";
 export { EmptySprintState } from "./EmptySprintState";
 export { SprintHeader } from "./SprintHeader";
