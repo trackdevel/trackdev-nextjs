@@ -64,7 +64,7 @@ export const BoardColumn = memo(function BoardColumn({
                   : "grid-rows-[1fr] opacity-100"
               }`}
             >
-              <div className="overflow-hidden">
+              <div className="overflow-hidden p-0.5 -m-0.5">
                 <TaskCard task={task} isBeingDragged={isBeingDragged} />
               </div>
             </div>
