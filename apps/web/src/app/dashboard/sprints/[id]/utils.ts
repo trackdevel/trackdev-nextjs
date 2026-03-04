@@ -322,23 +322,3 @@ export function calculateNewRank(
   return newRank;
 }
 
-/**
- * Determine the target drop index from a drag event on a backlog task card.
- * Uses the vertical midpoint of the target element to decide "before" or "after".
- */
-export function getDropIndex(
-  e: React.DragEvent,
-  targetTask: Task,
-  backlogTasks: Task[],
-): { index: number; position: "before" | "after" } {
-  const stories = backlogTasks.filter((t) => t.type === "USER_STORY");
-  const targetIndex = stories.findIndex((t) => t.id === targetTask.id);
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-  const midpoint = rect.top + rect.height / 2;
-
-  if (e.clientY < midpoint) {
-    return { index: targetIndex, position: "before" };
-  } else {
-    return { index: targetIndex + 1, position: "after" };
-  }
-}
