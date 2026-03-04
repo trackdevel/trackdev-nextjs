@@ -87,7 +87,6 @@ export default function CourseStudentsPage() {
       {/* Header */}
       <div className="mb-8">
         <BackButton
-          fallbackHref={`/dashboard/courses/${courseId}`}
           label="Back to Course"
           className="mb-4"
         />
