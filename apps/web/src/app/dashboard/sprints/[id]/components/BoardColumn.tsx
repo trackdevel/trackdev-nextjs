@@ -34,10 +34,6 @@ export const BoardColumn = memo(function BoardColumn({
     disabled: dropDisabled,
   });
 
-  // Derive drag state from props (avoids useDragOperation's flushSync)
-  const isDragging = draggedTaskId != null;
-  const isDraggingFromSprint = isDragging && dragSource === "sprint";
-
   return (
     <div
       ref={ref}
@@ -46,9 +42,7 @@ export const BoardColumn = memo(function BoardColumn({
           ? "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50"
           : isDropTarget
             ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
-            : isDragging && !isDraggingFromSprint
-              ? "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
-              : "border-transparent bg-gray-50 dark:bg-gray-700/50"
+            : "border-transparent bg-gray-50 dark:bg-gray-700/50"
       }`}
     >
       <div className="space-y-2">
