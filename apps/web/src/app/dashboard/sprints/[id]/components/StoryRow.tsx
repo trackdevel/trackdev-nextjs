@@ -1,4 +1,5 @@
 import type { Task } from "@trackdev/types";
+import { useDraggable } from "@dnd-kit/react";
 import {
   ChevronDown,
   ChevronUp,
@@ -7,9 +8,14 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 
-import { BOARD_COLUMNS, type BoardColumnId, type DragOverTarget, type Story } from "../types";
+import {
+  BOARD_COLUMNS,
+  type BoardColumnId,
+  type DragItemData,
+  type Story,
+} from "../types";
 import { canDropOnColumn } from "../utils";
 import { BoardColumn } from "./BoardColumn";
 
@@ -18,24 +24,10 @@ interface StoryRowProps {
   sprintId: number;
   expanded: boolean;
   onToggleExpand: (storyId: number) => void;
-  onDragStart: (e: React.DragEvent, task: Task, source: "sprint") => void;
-  onDragEnd: (e: React.DragEvent) => void;
-  onDragOver: (
-    e: React.DragEvent,
-    storyId: number,
-    columnId: BoardColumnId,
-  ) => void;
-  onDragLeave: () => void;
-  onDrop: (
-    e: React.DragEvent,
-    storyId: number,
-    columnId: BoardColumnId,
-  ) => void;
   onCreateSubtask: (storyId: number) => void;
-  dragOverTarget: DragOverTarget | null;
-  isDragging: boolean;
-  isDraggingFromSprint: boolean;
   sprintStatus: string;
+  draggedTaskId: number | null;
+  dragSource: "sprint" | "backlog" | null;
 }
 
 export const StoryRow = memo(function StoryRow({
@@ -43,19 +35,12 @@ export const StoryRow = memo(function StoryRow({
   sprintId,
   expanded,
   onToggleExpand,
-  onDragStart,
-  onDragEnd,
-  onDragOver,
-  onDragLeave,
-  onDrop,
   onCreateSubtask,
-  dragOverTarget,
-  isDragging,
-  isDraggingFromSprint,
   sprintStatus,
+  draggedTaskId,
+  dragSource,
 }: StoryRowProps) {
   const t = useTranslations("sprints");
-  const [isDraggingThis, setIsDraggingThis] = useState(false);
 
   const tasksByColumn = useMemo(() => {
     const byColumn: Record<BoardColumnId, Task[]> = {
@@ -79,6 +64,10 @@ export const StoryRow = memo(function StoryRow({
     0,
   );
 
+  // Determine if dragging is active (for column drop validation)
+  const isDragging = draggedTaskId !== null;
+  const isDraggingFromSprint = dragSource === "sprint";
+
   if (story.id === -1) {
     // Orphan tasks (no parent story)
     return (
@@ -95,19 +84,16 @@ export const StoryRow = memo(function StoryRow({
               columnId={col.id}
               storyId={story.id}
               tasks={tasksByColumn[col.id]}
-              onDragStart={onDragStart}
-              onDragEnd={onDragEnd}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              isDropTarget={
-                dragOverTarget?.type === "column" &&
-                dragOverTarget.storyId === story.id &&
-                dragOverTarget.columnId === col.id
+              dropDisabled={
+                !canDropOnColumn(
+                  isDragging,
+                  isDraggingFromSprint,
+                  col.id,
+                  sprintStatus,
+                )
               }
-              isDragging={isDragging}
-              isDraggingFromSprint={isDraggingFromSprint}
-              dropDisabled={!canDropOnColumn(isDragging, isDraggingFromSprint, col.id, sprintStatus)}
+              draggedTaskId={draggedTaskId}
+              dragSource={dragSource}
             />
           ))}
         </div>
@@ -118,88 +104,16 @@ export const StoryRow = memo(function StoryRow({
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       {/* Story Header */}
-      <div
-        className="flex cursor-pointer items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
-        onClick={() => {
-          // Only toggle if not dragging
-          if (!isDraggingThis) {
-            onToggleExpand(story.id);
-          }
-        }}
-        draggable
-        onDragStart={(e) => {
-          setIsDraggingThis(true);
-          onDragStart(
-            e,
-            {
-              id: story.id,
-              name: story.name,
-              type: "USER_STORY",
-              activeSprints: [{ id: sprintId }],
-            } as Task,
-            "sprint",
-          );
-        }}
-        onDragEnd={(e) => {
-          // Reset dragging state after a short delay to prevent click from firing
-          setTimeout(() => setIsDraggingThis(false), 100);
-          onDragEnd(e);
-        }}
-      >
-        <div className="flex items-center gap-2">
-          <GripVertical className="h-4 w-4 cursor-grab text-gray-400" />
-          {expanded ? (
-            <ChevronUp className="h-4 w-4 text-gray-400" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
-          )}
-          <Link
-            href={`/dashboard/tasks/${story.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="font-medium text-gray-900 dark:text-white hover:text-primary-600 hover:underline"
-          >
-            {story.name}
-          </Link>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            ({story.subtasks.length} {t("tasks")})
-          </span>
-          {/* Sprint badges showing which sprints have subtasks */}
-          {story.allSubtaskSprints.length > 0 && (
-            <div className="flex items-center gap-1 ml-2">
-              {story.allSubtaskSprints.map((sprint) => (
-                <span
-                  key={sprint.id}
-                  className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${
-                    sprint.id === sprintId
-                      ? "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 ring-1 ring-primary-500"
-                      : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                  }`}
-                  title={sprint.name}
-                >
-                  {sprint.name}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          {totalPoints > 0 && (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {totalPoints} {t("points")}
-            </span>
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onCreateSubtask(story.id);
-            }}
-            className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
-            title={t("addSubtask")}
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
+      <StoryHeader
+        story={story}
+        sprintId={sprintId}
+        expanded={expanded}
+        onToggleExpand={onToggleExpand}
+        onCreateSubtask={onCreateSubtask}
+        totalPoints={totalPoints}
+        draggedTaskId={draggedTaskId}
+        t={t}
+      />
 
       {/* Story Tasks */}
       {expanded && (
@@ -210,23 +124,127 @@ export const StoryRow = memo(function StoryRow({
               columnId={col.id}
               storyId={story.id}
               tasks={tasksByColumn[col.id]}
-              onDragStart={onDragStart}
-              onDragEnd={onDragEnd}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              isDropTarget={
-                dragOverTarget?.type === "column" &&
-                dragOverTarget.storyId === story.id &&
-                dragOverTarget.columnId === col.id
+              dropDisabled={
+                !canDropOnColumn(
+                  isDragging,
+                  isDraggingFromSprint,
+                  col.id,
+                  sprintStatus,
+                )
               }
-              isDragging={isDragging}
-              isDraggingFromSprint={isDraggingFromSprint}
-              dropDisabled={!canDropOnColumn(isDragging, isDraggingFromSprint, col.id, sprintStatus)}
+              draggedTaskId={draggedTaskId}
+              dragSource={dragSource}
             />
           ))}
         </div>
       )}
+    </div>
+  );
+});
+
+// Extracted so the useDraggable hook is only called for real stories (not orphan id=-1)
+const StoryHeader = memo(function StoryHeader({
+  story,
+  sprintId,
+  expanded,
+  onToggleExpand,
+  onCreateSubtask,
+  totalPoints,
+  draggedTaskId,
+  t,
+}: {
+  story: Story;
+  sprintId: number;
+  expanded: boolean;
+  onToggleExpand: (storyId: number) => void;
+  onCreateSubtask: (storyId: number) => void;
+  totalPoints: number;
+  draggedTaskId: number | null;
+  t: (key: string) => string;
+}) {
+  const syntheticTask = useMemo(
+    () =>
+      ({
+        id: story.id,
+        name: story.name,
+        type: "USER_STORY",
+        activeSprints: [{ id: sprintId }],
+      }) as Task,
+    [story.id, story.name, sprintId],
+  );
+
+  const data: DragItemData = { source: "sprint", task: syntheticTask };
+  const { ref: handleRef } = useDraggable({
+    id: `story-${story.id}`,
+    data,
+  });
+
+  return (
+    <div
+      className={`flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+        draggedTaskId === story.id ? "opacity-50" : ""
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <div ref={handleRef} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-4 w-4 text-gray-400" />
+        </div>
+        <button
+          onClick={() => onToggleExpand(story.id)}
+          className="p-0.5 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600"
+        >
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-gray-400" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-gray-400" />
+          )}
+        </button>
+        <Link
+          href={`/dashboard/tasks/${story.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="font-medium text-gray-900 dark:text-white hover:text-primary-600 hover:underline"
+        >
+          {story.name}
+        </Link>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          ({story.subtasks.length} {t("tasks")})
+        </span>
+        {/* Sprint badges showing which sprints have subtasks */}
+        {story.allSubtaskSprints.length > 0 && (
+          <div className="flex items-center gap-1 ml-2">
+            {story.allSubtaskSprints.map((sprint) => (
+              <span
+                key={sprint.id}
+                className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${
+                  sprint.id === sprintId
+                    ? "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 ring-1 ring-primary-500"
+                    : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                }`}
+                title={sprint.name}
+              >
+                {sprint.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="flex items-center gap-4">
+        {totalPoints > 0 && (
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {totalPoints} {t("points")}
+          </span>
+        )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onCreateSubtask(story.id);
+          }}
+          className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
+          title={t("addSubtask")}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 });

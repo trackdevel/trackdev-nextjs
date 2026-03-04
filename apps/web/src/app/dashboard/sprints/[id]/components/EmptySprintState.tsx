@@ -1,71 +1,36 @@
+import { useDroppable } from "@dnd-kit/react";
 import { FolderKanban } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo } from "react";
 
-import { BOARD_COLUMNS, type BoardColumnId, type DragOverTarget } from "../types";
+import {
+  BOARD_COLUMNS,
+  type DropTargetColumnData,
+} from "../types";
 
 interface EmptySprintStateProps {
-  onDragOver: (
-    e: React.DragEvent,
-    storyId: number,
-    columnId: BoardColumnId,
-  ) => void;
-  onDragLeave: () => void;
-  onDrop: (
-    e: React.DragEvent,
-    storyId: number,
-    columnId: BoardColumnId,
-  ) => void;
-  dragOverTarget: DragOverTarget | null;
-  isDragging: boolean;
-  isDraggingFromSprint: boolean;
+  isDraggingFromBacklog: boolean;
 }
 
 export const EmptySprintState = memo(function EmptySprintState({
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  dragOverTarget,
-  isDragging,
-  isDraggingFromSprint,
+  isDraggingFromBacklog,
 }: EmptySprintStateProps) {
   const t = useTranslations("sprints");
 
-  // Only show drop zone for TODO column when dragging from backlog
-  const showDropZone = isDragging && !isDraggingFromSprint;
+  const showDropZone = isDraggingFromBacklog;
 
   return (
     <div className="rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-8">
       {showDropZone ? (
         <div className="grid grid-cols-4 gap-4">
           {BOARD_COLUMNS.map((col) => (
-            <div
+            <EmptyColumn
               key={col.id}
-              className={`min-h-[150px] rounded-lg border-2 border-dashed p-4 transition-colors ${
-                col.id === "TODO"
-                  ? dragOverTarget?.type === "column" &&
-                    dragOverTarget.storyId === -1 &&
-                    dragOverTarget.columnId === "TODO"
-                    ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
-                    : "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
-                  : "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50"
-              }`}
-              onDragOver={(e) => {
-                if (col.id === "TODO") {
-                  onDragOver(e, -1, col.id);
-                }
-              }}
-              onDragLeave={onDragLeave}
-              onDrop={(e) => {
-                if (col.id === "TODO") {
-                  onDrop(e, -1, col.id);
-                }
-              }}
-            >
-              <div className="flex h-full items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
-                {col.id === "TODO" ? t("dropHereToAdd") : col.label}
-              </div>
-            </div>
+              columnId={col.id}
+              label={col.label}
+              isTodo={col.id === "TODO"}
+              t={t}
+            />
           ))}
         </div>
       ) : (
@@ -82,3 +47,45 @@ export const EmptySprintState = memo(function EmptySprintState({
     </div>
   );
 });
+
+// Extracted so useDroppable is only called when the drop zone is visible
+function EmptyColumn({
+  columnId,
+  label,
+  isTodo,
+  t,
+}: {
+  columnId: string;
+  label: string;
+  isTodo: boolean;
+  t: (key: string) => string;
+}) {
+  const colData: DropTargetColumnData = {
+    type: "column",
+    storyId: -1,
+    columnId: columnId as DropTargetColumnData["columnId"],
+  };
+
+  const { ref, isDropTarget } = useDroppable({
+    id: `empty-${columnId}`,
+    data: colData,
+    disabled: !isTodo,
+  });
+
+  return (
+    <div
+      ref={ref}
+      className={`min-h-[150px] rounded-lg border-2 border-dashed p-4 transition-colors ${
+        isTodo
+          ? isDropTarget
+            ? "border-primary-400 bg-primary-50 dark:bg-primary-900/30"
+            : "border-primary-200 bg-primary-25 dark:bg-primary-900/20"
+          : "border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50"
+      }`}
+    >
+      <div className="flex h-full items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
+        {isTodo ? t("dropHereToAdd") : label}
+      </div>
+    </div>
+  );
+}

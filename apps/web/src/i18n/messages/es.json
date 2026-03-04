@@ -659,7 +659,9 @@
     "dropHereToAdd": "Suelta aquí para añadir al sprint",
     "dragTasksFromBacklog": "Arrastra tareas del backlog para añadirlas a este sprint",
     "cannotChangeStatusInFutureSprint": "El estado de la tarea no se puede cambiar mientras esté en un sprint que aún no ha comenzado",
-    "cannotChangeStatusInClosedSprint": "El estado de la tarea no se puede cambiar en un sprint cerrado"
+    "cannotChangeStatusInClosedSprint": "El estado de la tarea no se puede cambiar en un sprint cerrado",
+    "failedToReorder": "No se pudo reordenar la tarea",
+    "ranksRebalanced": "Prioridades de las tareas reequilibradas"
   },
   "courses": {
     "title": "Cursos",

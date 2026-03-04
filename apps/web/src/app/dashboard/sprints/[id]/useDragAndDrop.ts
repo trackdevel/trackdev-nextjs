@@ -1,13 +1,19 @@
 import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
+  projectsApi,
   tasksApi,
 } from "@trackdev/api-client";
 import type { Task, TaskStatus } from "@trackdev/types";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import type { BoardColumnId, DragOverTarget, DragState } from "./types";
-import { canDropOnColumn } from "./utils";
+import {
+  calculateNewRank,
+  canDropOnColumn,
+  getDropIndex,
+  selectBacklogTasks,
+} from "./utils";
 
 interface UseDragAndDropParams {
   optimisticTasks: Map<number, Task>;
@@ -20,6 +26,7 @@ interface UseDragAndDropParams {
     status: string;
   };
   t: (key: string) => string;
+  projectId: number | null;
 }
 
 function getErrorMessage(err: unknown, fallback: string): string {
@@ -29,6 +36,8 @@ function getErrorMessage(err: unknown, fallback: string): string {
   return fallback;
 }
 
+const NULL_DRAG: DragState = { taskId: null, source: null };
+
 export function useDragAndDrop({
   optimisticTasks,
   addOptimisticUpdate,
@@ -37,17 +46,35 @@ export function useDragAndDrop({
   sprintId,
   sprintMeta,
   t,
+  projectId,
 }: UseDragAndDropParams) {
   const toast = useToast();
 
-  // Drag state
-  const [dragState, setDragState] = useState<DragState>({
-    taskId: null,
-    source: null,
-  });
+  // Compute backlog tasks for reorder calculations
+  const backlogTasks = useMemo(
+    () => selectBacklogTasks(optimisticTasks),
+    [optimisticTasks],
+  );
+
+  // Drag state: useState for triggering re-renders (collapse animation, etc.)
+  // and useRef for synchronous access in event handlers (avoids stale closures).
+  const [dragState, setDragState] = useState<DragState>(NULL_DRAG);
+  const dragStateRef = useRef<DragState>(NULL_DRAG);
+
+  const updateDragState = useCallback((next: DragState) => {
+    dragStateRef.current = next;
+    setDragState(next);
+  }, []);
+
   const [dragOverTarget, setDragOverTarget] = useState<DragOverTarget | null>(
     null,
   );
+  const dragOverTargetRef = useRef<DragOverTarget | null>(null);
+
+  const updateDragOverTarget = useCallback((next: DragOverTarget | null) => {
+    dragOverTargetRef.current = next;
+    setDragOverTarget(next);
+  }, []);
 
   // =========================================================================
   // DRAG EVENT HANDLERS
@@ -55,42 +82,90 @@ export function useDragAndDrop({
 
   const handleDragStart = useCallback(
     (e: React.DragEvent, task: Task, source: "sprint" | "backlog") => {
-      setDragState({ taskId: task.id, source });
+      updateDragState({ taskId: task.id, source });
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", task.id.toString());
-      (e.target as HTMLElement).style.opacity = "0.5";
+      // The drag image is captured synchronously by the browser.
+      // React's batched state update triggers a re-render AFTER the event
+      // handler returns, so the collapse animation only starts after the
+      // drag image is already captured.
+      const el = e.target as HTMLElement;
+      // Native dragend listener: ensures cleanup even if React unmounts the element
+      const onNativeDragEnd = () => {
+        updateDragState(NULL_DRAG);
+        updateDragOverTarget(null);
+        el.removeEventListener("dragend", onNativeDragEnd);
+      };
+      el.addEventListener("dragend", onNativeDragEnd);
     },
-    [],
+    [updateDragState],
   );
 
-  const handleDragEnd = useCallback((e: React.DragEvent) => {
-    (e.target as HTMLElement).style.opacity = "1";
-    setDragState({ taskId: null, source: null });
-    setDragOverTarget(null);
-  }, []);
+  const handleDragEnd = useCallback(
+    (_e: React.DragEvent) => {
+      updateDragState(NULL_DRAG);
+      updateDragOverTarget(null);
+    },
+    [updateDragState],
+  );
 
   const handleDragOver = useCallback(
     (e: React.DragEvent, storyId: number, columnId: BoardColumnId) => {
-      const isDraggingFromSprint = dragState.source === "sprint";
+      const isDraggingFromSprint = dragStateRef.current.source === "sprint";
       if (!canDropOnColumn(true, isDraggingFromSprint, columnId, sprintMeta.status))
         return;
 
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
-      setDragOverTarget({ type: "column", storyId, columnId });
+      updateDragOverTarget({ type: "column", storyId, columnId });
     },
-    [dragState.source, sprintMeta.status],
+    [sprintMeta.status],
   );
 
   const handleDragOverBacklog = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    setDragOverTarget({ type: "backlog" });
+    // When dragging from backlog (reordering), don't override the
+    // backlog-reorder target — the cursor may be on a gap between cards
+    // or on a wrapper div, and resetting to "backlog" would make the
+    // reorder indicator flicker.
+    if (dragStateRef.current.source !== "backlog") {
+      updateDragOverTarget({ type: "backlog" });
+    }
   }, []);
 
-  const handleDragLeave = useCallback(() => {
-    setDragOverTarget(null);
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    const relatedTarget = e.relatedTarget as Node | null;
+    if (relatedTarget && e.currentTarget.contains(relatedTarget)) {
+      return; // Still within the same container, don't clear
+    }
+    updateDragOverTarget(null);
   }, []);
+
+  // Drag over a specific backlog task card (for reorder indicator)
+  const handleDragOverBacklogTask = useCallback(
+    (e: React.DragEvent, targetTask: Task) => {
+      const ds = dragStateRef.current;
+      // Only allow reordering USER_STORY tasks within the backlog
+      if (ds.source !== "backlog") return;
+      const draggedTask = ds.taskId ? optimisticTasks.get(ds.taskId) : null;
+      if (!draggedTask || draggedTask.type !== "USER_STORY") return;
+      if (targetTask.type !== "USER_STORY") return;
+      if (ds.taskId === targetTask.id) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "move";
+
+      const { position } = getDropIndex(e, targetTask, backlogTasks);
+      updateDragOverTarget({
+        type: "backlog-reorder",
+        targetTaskId: targetTask.id,
+        position,
+      });
+    },
+    [optimisticTasks, backlogTasks],
+  );
 
   // =========================================================================
   // ASYNC ACTIONS (using useTransition + useOptimistic)
@@ -266,6 +341,45 @@ export function useDragAndDrop({
     [addOptimisticUpdate, setTasks, startTransition, t, toast],
   );
 
+  // Reorder a USER_STORY within the backlog
+  const reorderBacklogTask = useCallback(
+    async (taskId: number, targetIndex: number) => {
+      const newRank = calculateNewRank(backlogTasks, taskId, targetIndex);
+
+      if (newRank === null) {
+        // Gap exhaustion: rebalance first, then notify user to retry
+        if (!projectId) return;
+        try {
+          await projectsApi.rebalanceRanks(projectId);
+          toast.info(t("ranksRebalanced"));
+        } catch (err) {
+          toast.error(getErrorMessage(err, t("failedToReorder")));
+        }
+        return;
+      }
+
+      startTransition(async () => {
+        addOptimisticUpdate({
+          type: "updateRank",
+          taskId,
+          newRank,
+        });
+
+        try {
+          const updatedTask = await tasksApi.update(taskId, { rank: newRank });
+          setTasks((prev) => {
+            const next = new Map(prev);
+            next.set(taskId, updatedTask);
+            return next;
+          });
+        } catch (err) {
+          toast.error(getErrorMessage(err, t("failedToReorder")));
+        }
+      });
+    },
+    [backlogTasks, projectId, addOptimisticUpdate, setTasks, startTransition, t, toast],
+  );
+
   // =========================================================================
   // DROP HANDLERS
   // =========================================================================
@@ -273,9 +387,11 @@ export function useDragAndDrop({
   const handleDropOnColumn = useCallback(
     (e: React.DragEvent, _storyId: number, columnId: BoardColumnId) => {
       e.preventDefault();
-      setDragOverTarget(null);
+      updateDragOverTarget(null);
 
-      const { taskId, source } = dragState;
+      // Read from ref to avoid stale closure — React may not have committed
+      // the re-render from handleDragStart yet when this handler fires.
+      const { taskId, source } = dragStateRef.current;
       if (!taskId) return;
 
       const task = optimisticTasks.get(taskId);
@@ -283,13 +399,13 @@ export function useDragAndDrop({
 
       if (source === "backlog") {
         if (columnId !== "TODO") {
-          setDragState({ taskId: null, source: null });
+          updateDragState(NULL_DRAG);
           return;
         }
         addTaskToSprint(taskId);
       } else {
         if (task.type === "USER_STORY") {
-          setDragState({ taskId: null, source: null });
+          updateDragState(NULL_DRAG);
           return;
         }
 
@@ -297,7 +413,7 @@ export function useDragAndDrop({
           sprintMeta.status === "CLOSED" ||
           sprintMeta.status === "DRAFT"
         ) {
-          setDragState({ taskId: null, source: null });
+          updateDragState(NULL_DRAG);
           return;
         }
 
@@ -305,31 +421,47 @@ export function useDragAndDrop({
           moveTaskToColumn(taskId, columnId);
         }
       }
-      setDragState({ taskId: null, source: null });
+      updateDragState(NULL_DRAG);
     },
     [
-      dragState,
       optimisticTasks,
       addTaskToSprint,
       moveTaskToColumn,
       sprintMeta.status,
+      updateDragState,
     ],
   );
 
   const handleDropOnBacklog = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      setDragOverTarget(null);
+      const reorderTarget = dragOverTargetRef.current;
+      updateDragOverTarget(null);
 
-      const { taskId, source } = dragState;
+      const { taskId, source } = dragStateRef.current;
+
+      // Handle backlog reorder drops — when the user drops on the reorder
+      // placeholder (pointer-events-none) or a gap between cards, the event
+      // lands here instead of on a BacklogTaskCard.
+      if (taskId && source === "backlog" && reorderTarget?.type === "backlog-reorder") {
+        const stories = backlogTasks.filter((t) => t.type === "USER_STORY");
+        const targetIndex = stories.findIndex((t) => t.id === reorderTarget.targetTaskId);
+        if (targetIndex >= 0) {
+          const index = reorderTarget.position === "before" ? targetIndex : targetIndex + 1;
+          reorderBacklogTask(taskId, index);
+        }
+        updateDragState(NULL_DRAG);
+        return;
+      }
+
       if (!taskId || source !== "sprint") {
-        setDragState({ taskId: null, source: null });
+        updateDragState(NULL_DRAG);
         return;
       }
 
       const task = optimisticTasks.get(taskId);
       if (!task) {
-        setDragState({ taskId: null, source: null });
+        updateDragState(NULL_DRAG);
         return;
       }
 
@@ -346,7 +478,7 @@ export function useDragAndDrop({
         );
         if (hasNonTodoChildren) {
           toast.error(t("userStoryChildrenMustBeTodo"));
-          setDragState({ taskId: null, source: null });
+          updateDragState(NULL_DRAG);
           return;
         }
 
@@ -363,27 +495,60 @@ export function useDragAndDrop({
         removeUserStoryFromSprint(taskId, childIdsInSprint);
       } else if (task.parentTaskId) {
         toast.error(t("subtaskCannotMoveToBacklog"));
-        setDragState({ taskId: null, source: null });
+        updateDragState(NULL_DRAG);
         return;
       } else {
         if (task.status !== "TODO") {
           toast.error(t("taskBegunCannotGoBacklog"));
-          setDragState({ taskId: null, source: null });
+          updateDragState(NULL_DRAG);
           return;
         }
         removeTasksFromSprint([taskId]);
       }
-      setDragState({ taskId: null, source: null });
+      updateDragState(NULL_DRAG);
     },
     [
-      dragState,
       optimisticTasks,
+      backlogTasks,
       sprintId,
       removeUserStoryFromSprint,
       removeTasksFromSprint,
+      reorderBacklogTask,
       t,
       toast,
+      updateDragState,
     ],
+  );
+
+  const handleDropOnBacklogTask = useCallback(
+    (e: React.DragEvent, targetTask: Task) => {
+      const { taskId, source } = dragStateRef.current;
+      // Only handle drops from backlog (reordering). For sprint→backlog drops,
+      // let the event bubble up to handleDropOnBacklog.
+      if (!taskId || source !== "backlog") {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+      updateDragOverTarget(null);
+
+      const draggedTask = optimisticTasks.get(taskId);
+      if (!draggedTask || draggedTask.type !== "USER_STORY") {
+        updateDragState(NULL_DRAG);
+        return;
+      }
+
+      if (targetTask.type !== "USER_STORY" || taskId === targetTask.id) {
+        updateDragState(NULL_DRAG);
+        return;
+      }
+
+      const { index } = getDropIndex(e, targetTask, backlogTasks);
+      reorderBacklogTask(taskId, index);
+      updateDragState(NULL_DRAG);
+    },
+    [optimisticTasks, backlogTasks, reorderBacklogTask, updateDragState],
   );
 
   // =========================================================================
@@ -407,5 +572,8 @@ export function useDragAndDrop({
     handleDragLeave,
     handleDropOnColumn,
     handleDropOnBacklog,
+    handleDragOverBacklogTask,
+    handleDropOnBacklogTask,
+    reorderBacklogTask,
   };
 }

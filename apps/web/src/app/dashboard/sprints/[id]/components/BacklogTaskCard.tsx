@@ -15,6 +15,8 @@ interface BacklogTaskCardProps {
   subtasks: Task[];
   onDragStart: (e: React.DragEvent, task: Task, source: "backlog") => void;
   onDragEnd: (e: React.DragEvent) => void;
+  onDragOverTask: (e: React.DragEvent, task: Task) => void;
+  onDropOnTask: (e: React.DragEvent, task: Task) => void;
 }
 
 export const BacklogTaskCard = memo(function BacklogTaskCard({
@@ -22,6 +24,8 @@ export const BacklogTaskCard = memo(function BacklogTaskCard({
   subtasks,
   onDragStart,
   onDragEnd,
+  onDragOverTask,
+  onDropOnTask,
 }: BacklogTaskCardProps) {
   const [expanded, setExpanded] = useState(false);
   const hasSubtasks = task.type === "USER_STORY" && subtasks.length > 0;
@@ -51,7 +55,19 @@ export const BacklogTaskCard = memo(function BacklogTaskCard({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs">
+    <div
+      className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs"
+      onDragOver={(e) => {
+        if (task.type === "USER_STORY") {
+          onDragOverTask(e, task);
+        }
+      }}
+      onDrop={(e) => {
+        if (task.type === "USER_STORY") {
+          onDropOnTask(e, task);
+        }
+      }}
+    >
       <div
         draggable
         onDragStart={(e) => onDragStart(e, task, "backlog")}

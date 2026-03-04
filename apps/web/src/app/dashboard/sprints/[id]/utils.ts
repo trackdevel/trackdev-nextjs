@@ -32,7 +32,16 @@ export function selectBacklogTasks(tasks: Map<number, Task>): Task[] {
         (!task.activeSprints || task.activeSprints.length === 0) &&
         (task.type === "USER_STORY" || !task.parentTaskId),
     )
-    .sort((a, b) => a.id - b.id);
+    .sort((a, b) => {
+      // USER_STORY tasks sorted by rank (lower rank = higher priority = displayed first)
+      // Non-USER_STORY tasks (standalone TASK/BUG) go after all stories, sorted by id
+      const aIsStory = a.type === "USER_STORY";
+      const bIsStory = b.type === "USER_STORY";
+      if (aIsStory && bIsStory) return a.rank - b.rank;
+      if (aIsStory && !bIsStory) return -1;
+      if (!aIsStory && bIsStory) return 1;
+      return a.id - b.id;
+    });
 }
 
 export function selectStories(
@@ -189,6 +198,14 @@ export function tasksOptimisticReducer(
       return newTasks;
     }
 
+    case "updateRank": {
+      const task = newTasks.get(action.taskId);
+      if (task) {
+        newTasks.set(action.taskId, { ...task, rank: action.newRank });
+      }
+      return newTasks;
+    }
+
     default:
       return newTasks;
   }
@@ -238,4 +255,90 @@ export function canDropOnColumn(
   )
     return false;
   return true;
+}
+
+// =============================================================================
+// RANK CALCULATION (for backlog drag-and-drop reordering)
+// =============================================================================
+
+const RANK_GAP_SIZE = 65536;
+
+/**
+ * Calculate the new rank for a task being moved within the backlog.
+ *
+ * @param backlogTasks - The current ordered list of backlog tasks (sorted by rank)
+ * @param draggedTaskId - The ID of the task being dragged
+ * @param targetIndex - The index in the filtered list (excluding dragged) where the task should be placed
+ * @returns The new rank value, or null if rebalancing is needed
+ */
+export function calculateNewRank(
+  backlogTasks: Task[],
+  draggedTaskId: number,
+  targetIndex: number,
+): number | null {
+  // Filter to only USER_STORY tasks (non-stories are not reorderable)
+  const stories = backlogTasks.filter((t) => t.type === "USER_STORY");
+
+  // Remove the dragged task from consideration
+  const otherStories = stories.filter((t) => t.id !== draggedTaskId);
+
+  if (otherStories.length === 0) {
+    return RANK_GAP_SIZE;
+  }
+
+  // Adjust targetIndex: getDropIndex returns index relative to the full list
+  // (including dragged task), but we need it relative to otherStories
+  const draggedIdx = stories.findIndex((t) => t.id === draggedTaskId);
+  const adjustedIndex =
+    draggedIdx >= 0 && targetIndex > draggedIdx
+      ? targetIndex - 1
+      : targetIndex;
+
+  // Clamp to valid range
+  const clampedIndex = Math.max(0, Math.min(adjustedIndex, otherStories.length));
+
+  if (clampedIndex === 0) {
+    // Moving to top: rank = first task's rank / 2
+    const firstRank = otherStories[0].rank;
+    const newRank = Math.floor(firstRank / 2);
+    return newRank > 0 ? newRank : null; // null means need rebalance
+  }
+
+  if (clampedIndex >= otherStories.length) {
+    // Moving to bottom: rank = last task's rank + GAP_SIZE
+    return otherStories[otherStories.length - 1].rank + RANK_GAP_SIZE;
+  }
+
+  // Moving between two tasks: rank = midpoint
+  const prevRank = otherStories[clampedIndex - 1].rank;
+  const nextRank = otherStories[clampedIndex].rank;
+  const newRank = Math.floor((prevRank + nextRank) / 2);
+
+  // Check for gap exhaustion (midpoint equals one of the neighbors)
+  if (newRank <= prevRank || newRank >= nextRank) {
+    return null; // Need rebalance
+  }
+
+  return newRank;
+}
+
+/**
+ * Determine the target drop index from a drag event on a backlog task card.
+ * Uses the vertical midpoint of the target element to decide "before" or "after".
+ */
+export function getDropIndex(
+  e: React.DragEvent,
+  targetTask: Task,
+  backlogTasks: Task[],
+): { index: number; position: "before" | "after" } {
+  const stories = backlogTasks.filter((t) => t.type === "USER_STORY");
+  const targetIndex = stories.findIndex((t) => t.id === targetTask.id);
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const midpoint = rect.top + rect.height / 2;
+
+  if (e.clientY < midpoint) {
+    return { index: targetIndex, position: "before" };
+  } else {
+    return { index: targetIndex + 1, position: "after" };
+  }
 }
