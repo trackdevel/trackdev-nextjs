@@ -161,6 +161,12 @@ export const projectsApi = {
     api.post<Project>(`/projects/${projectId}/apply-pattern/${patternId}`, {}),
 
   /**
+   * Rebalance task ranks in a project (when gap exhaustion detected)
+   */
+  rebalanceRanks: (projectId: number) =>
+    api.post<void>(`/projects/${projectId}/tasks/rebalance-ranks`, {}),
+
+  /**
    * Fetch PR statistics for all completed tasks in a project.
    * Fetches additions, deletions, and changed files from GitHub API.
    * @param projectId - The project ID
