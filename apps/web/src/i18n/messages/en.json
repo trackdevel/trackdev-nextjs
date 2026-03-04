@@ -664,7 +664,9 @@
     "dragTasksFromBacklog": "Drag tasks from the backlog to add them to this sprint",
     "dropHereToAdd": "Drop here to add to sprint",
     "cannotChangeStatusInFutureSprint": "Task status cannot be changed while in a sprint that has not started yet",
-    "cannotChangeStatusInClosedSprint": "Task status cannot be changed in a closed sprint"
+    "cannotChangeStatusInClosedSprint": "Task status cannot be changed in a closed sprint",
+    "failedToReorder": "Failed to reorder task",
+    "ranksRebalanced": "Task priorities rebalanced"
   },
   "courses": {
     "title": "Courses",
