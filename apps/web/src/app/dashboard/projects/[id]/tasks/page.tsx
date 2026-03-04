@@ -187,7 +187,7 @@ export default function ProjectTasksPage() {
   if (error) {
     return (
       <PageContainer>
-        <BackButton fallbackHref={`/dashboard/projects/${projectId}`} />
+        <BackButton />
         <EmptyState
           icon={ClipboardList}
           title={tTasks("noTasks")}
@@ -200,7 +200,6 @@ export default function ProjectTasksPage() {
   return (
     <PageContainer>
       <BackButton
-        fallbackHref={`/dashboard/projects/${projectId}`}
         className="mb-4"
       />
 
