@@ -59,7 +59,7 @@ function BacklogCardContent({
 
   return (
     <>
-      <div className="cursor-grab p-3 transition-shadow hover:shadow-md active:cursor-grabbing">
+      <div className="cursor-grab p-3 active:cursor-grabbing">
         <div className="flex items-start gap-2">
           {hasSubtasks && (
             <button
@@ -163,7 +163,7 @@ function SortableStoryCard({
   return (
     <div
       ref={ref}
-      className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs ${
+      className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-shadow hover:shadow-md ${
         draggedTaskId === task.id ? "opacity-50" : ""
       }`}
     >
@@ -191,7 +191,7 @@ function DraggableTaskCard({
   return (
     <div
       ref={ref}
-      className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs ${
+      className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-shadow hover:shadow-md ${
         draggedTaskId === task.id ? "opacity-50" : ""
       }`}
     >
