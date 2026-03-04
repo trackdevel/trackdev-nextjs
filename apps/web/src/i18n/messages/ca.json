@@ -659,7 +659,9 @@
     "dropHereToAdd": "Deixa aquí per afegir al sprint",
     "dragTasksFromBacklog": "Arrossega tasques del backlog per afegir-les a aquest sprint",
     "cannotChangeStatusInFutureSprint": "L'estat de la tasca no es pot canviar mentre estigui en un sprint que encara no ha començat",
-    "cannotChangeStatusInClosedSprint": "L'estat de la tasca no es pot canviar en un sprint tancat"
+    "cannotChangeStatusInClosedSprint": "L'estat de la tasca no es pot canviar en un sprint tancat",
+    "failedToReorder": "No s'ha pogut reordenar la tasca",
+    "ranksRebalanced": "Prioritats de les tasques reequilibrades"
   },
   "courses": {
     "title": "Cursos",
