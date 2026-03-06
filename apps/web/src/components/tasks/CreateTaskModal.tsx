@@ -10,6 +10,7 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type { TaskType } from "@trackdev/types";
+import { clearSessionState, useSessionState } from "@/utils/useSessionState";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -50,26 +51,23 @@ export function CreateTaskModal({
 
   const isSubtaskMode = !!parentTaskId;
 
-  const [form, setForm] = useState<TaskForm>({
+  const formStorageKey = `createTaskForm-${projectId}-${parentTaskId ?? "root"}`;
+  const defaultForm: TaskForm = {
     name: "",
     description: "",
-    type: "USER_STORY",
+    type: isSubtaskMode ? "TASK" : "USER_STORY",
     assigneeId: "",
-  });
+  };
+
+  const [form, setForm] = useSessionState<TaskForm>(formStorageKey, defaultForm);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Reset form completely when modal opens or mode changes
+  // Clear validation error when modal opens
   useEffect(() => {
     if (isOpen) {
-      setForm({
-        name: "",
-        description: "",
-        type: isSubtaskMode ? "TASK" : "USER_STORY",
-        assigneeId: "",
-      });
       setValidationError(null);
     }
-  }, [isOpen, isSubtaskMode]);
+  }, [isOpen]);
 
   // Fetch project details to get members for assignee dropdown
   const { data: project } = useQuery(
@@ -156,13 +154,9 @@ export function CreateTaskModal({
   );
 
   const resetForm = () => {
-    setForm({
-      name: "",
-      description: "",
-      type: isSubtaskMode ? "TASK" : "USER_STORY",
-      assigneeId: "",
-    });
+    setForm(defaultForm);
     setValidationError(null);
+    clearSessionState(formStorageKey);
   };
 
   const handleClose = () => {
