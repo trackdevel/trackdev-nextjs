@@ -14,7 +14,7 @@ import type { TaskDetail, TaskStatus, TaskType } from "@trackdev/types";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   useCallback,
   useMemo,
@@ -84,7 +84,6 @@ const initialEditState: EditState = {
 
 export default function TaskDetailPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const taskId = Number(params.id);
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const t = useTranslations("tasks");
@@ -94,9 +93,6 @@ export default function TaskDetailPage() {
   // React 19: useTransition for non-blocking async updates
   const [, startTransition] = useTransition();
 
-  // Get navigation source from query params
-  const fromSource = searchParams.get("from");
-  const sprintIdParam = searchParams.get("sprintId");
   const router = useRouter();
 
   // Core state: base task data from server
@@ -442,14 +438,8 @@ export default function TaskDetailPage() {
       await tasksApi.delete(taskId);
       toast.success(t("taskDeleted"));
 
-      // Navigate back after successful deletion
-      if (fromSource === "sprint" && sprintIdParam) {
-        router.push(`/dashboard/sprints/${sprintIdParam}`);
-      } else if (optimisticTask?.project?.id) {
-        router.push(`/dashboard/projects/${optimisticTask.project.id}`);
-      } else {
-        router.push("/dashboard/tasks");
-      }
+      // Navigate back to wherever the user came from
+      router.back();
     } catch (err) {
       const errorMessage =
         err instanceof ApiClientError && err.body?.message
@@ -461,9 +451,6 @@ export default function TaskDetailPage() {
     }
   }, [
     taskId,
-    fromSource,
-    sprintIdParam,
-    optimisticTask?.project?.id,
     router,
     t,
     toast,
