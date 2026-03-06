@@ -444,7 +444,7 @@ export default function TaskDetailPage() {
     if (optimisticTask.type === "USER_STORY") {
       const children = optimisticTask.childTasks ?? [];
       nonTodoChildren = children.filter((c) => c.status !== "TODO");
-      if (nonTodoChildren.length > 0) {
+      if (!isProfessor && nonTodoChildren.length > 0) {
         reasons.push(t("deleteBlockedSubtasksNotTodo"));
       }
       notAssignedChildren = children.filter(
@@ -453,7 +453,7 @@ export default function TaskDetailPage() {
       if (!isProfessor && notAssignedChildren.length > 0) {
         reasons.push(t("deleteBlockedSubtasksNotAssigned"));
       }
-    } else if (optimisticTask.status === "DONE") {
+    } else if (!isProfessor && optimisticTask.status === "DONE") {
       reasons.push(t("deleteBlockedDoneStatus"));
     }
     return { reasons, nonTodoChildren, notAssignedChildren };
