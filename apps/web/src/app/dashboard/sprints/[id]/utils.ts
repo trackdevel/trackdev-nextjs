@@ -242,7 +242,7 @@ export function mergeTasksFromServer(
 export function canDropOnColumn(
   isDragging: boolean,
   isDraggingFromSprint: boolean,
-  columnId: BoardColumnId,
+  _columnId: BoardColumnId,
   sprintStatus: string,
 ): boolean {
   if (!isDragging) return true;
