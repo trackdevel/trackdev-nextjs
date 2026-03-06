@@ -10,7 +10,8 @@ import {
   useAuth,
   useQuery,
 } from "@trackdev/api-client";
-import type { TaskDetail, TaskStatus, TaskType } from "@trackdev/types";
+import type { Task, TaskDetail, TaskStatus, TaskType } from "@trackdev/types";
+import { TaskListItem } from "@/components/tasks/TaskListItem";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -167,6 +168,7 @@ export default function TaskDetailPage() {
   const canSelfAssign = optimisticTask?.canSelfAssign ?? false;
   const canUnassign = optimisticTask?.canUnassign ?? false;
   const canDelete = optimisticTask?.canDelete ?? false;
+  const [showCannotDeleteDialog, setShowCannotDeleteDialog] = useState(false);
   const canFreeze = optimisticTask?.canFreeze ?? false;
   const canComment = optimisticTask?.canComment ?? false;
   // Additional permission flag available: canAddSubtask (in optimisticTask)
@@ -426,9 +428,44 @@ export default function TaskDetailPage() {
   // =============================================================================
   // Note: canDelete is now computed by the backend and received as a flag
 
+  const deleteBlockedInfo = useMemo(() => {
+    if (canDelete || !optimisticTask)
+      return { reasons: [] as string[], nonTodoChildren: [] as Task[], notAssignedChildren: [] as Task[] };
+    const reasons: string[] = [];
+    let nonTodoChildren: Task[] = [];
+    let notAssignedChildren: Task[] = [];
+    if (optimisticTask.frozen) {
+      reasons.push(t("deleteBlockedFrozen"));
+    }
+    const isAssignee = optimisticTask.assignee?.id === user?.id;
+    if (!isProfessor && !isAssignee) {
+      reasons.push(t("deleteBlockedNotAssignee"));
+    }
+    if (optimisticTask.type === "USER_STORY") {
+      const children = optimisticTask.childTasks ?? [];
+      nonTodoChildren = children.filter((c) => c.status !== "TODO");
+      if (nonTodoChildren.length > 0) {
+        reasons.push(t("deleteBlockedSubtasksNotTodo"));
+      }
+      notAssignedChildren = children.filter(
+        (c) => !c.assignee || c.assignee.id !== user?.id,
+      );
+      if (!isProfessor && notAssignedChildren.length > 0) {
+        reasons.push(t("deleteBlockedSubtasksNotAssigned"));
+      }
+    } else if (optimisticTask.status === "DONE") {
+      reasons.push(t("deleteBlockedDoneStatus"));
+    }
+    return { reasons, nonTodoChildren, notAssignedChildren };
+  }, [canDelete, optimisticTask, isProfessor, user?.id, t]);
+
   const handleDeleteClick = useCallback(() => {
-    setShowDeleteConfirm(true);
-  }, []);
+    if (canDelete) {
+      setShowDeleteConfirm(true);
+    } else {
+      setShowCannotDeleteDialog(true);
+    }
+  }, [canDelete]);
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!taskId || isNaN(taskId)) return;
@@ -507,7 +544,6 @@ export default function TaskDetailPage() {
         task={optimisticTask as TaskWithProject}
         editState={editState}
         canEdit={canEdit}
-        canDelete={canDelete}
         canFreeze={canFreeze}
         onStartEdit={handleStartEdit}
         onSave={handleSave}
@@ -608,17 +644,130 @@ export default function TaskDetailPage() {
         </div>
       </div>
 
+      {/* Cannot Delete Dialog */}
+      {showCannotDeleteDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setShowCannotDeleteDialog(false)}
+            aria-hidden="true"
+          />
+          <div className="relative z-10 w-full max-w-lg rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+                <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t("cannotDeleteTitle")}
+              </h2>
+            </div>
+            <p className="mb-3 text-gray-600 dark:text-gray-300">
+              {t("cannotDeleteMessage")}
+            </p>
+            <div className="mb-4 space-y-3">
+              {deleteBlockedInfo.reasons.map((reason, i) => {
+                const isNotTodoReason = reason === t("deleteBlockedSubtasksNotTodo");
+                const isNotAssignedReason = reason === t("deleteBlockedSubtasksNotAssigned");
+                const tasks = isNotTodoReason
+                  ? deleteBlockedInfo.nonTodoChildren
+                  : isNotAssignedReason
+                    ? deleteBlockedInfo.notAssignedChildren
+                    : [];
+                return (
+                  <div key={i}>
+                    <p className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <span className="mt-0.5 text-yellow-500">&#x2022;</span>
+                      {reason}
+                    </p>
+                    {tasks.length > 0 && (
+                      <div className="mt-2 max-h-48 overflow-y-auto rounded border border-gray-200 dark:border-gray-700">
+                        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                          {tasks.map((child) => (
+                            <TaskListItem key={child.id} task={child} />
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowCannotDeleteDialog(false)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                {tCommon("close")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={showDeleteConfirm}
-        onClose={handleDeleteCancel}
-        onConfirm={handleDeleteConfirm}
-        title={t("deleteTaskConfirmTitle")}
-        message={t("deleteTaskConfirmMessage")}
-        confirmLabel={t("deleteTask")}
-        isLoading={isDeleting}
-        variant="danger"
-      />
+      {optimisticTask.type === "USER_STORY" &&
+      (optimisticTask.childTasks?.length ?? 0) > 0 ? (
+        <ConfirmDialog
+          isOpen={showDeleteConfirm}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          title={t("deleteUserStoryConfirmTitle")}
+          message={t("deleteUserStoryConfirmMessage")}
+          confirmLabel={t("deleteTask")}
+          isLoading={isDeleting}
+          variant="danger"
+          maxWidth="lg"
+        >
+          <div className="max-h-48 overflow-y-auto rounded border border-gray-200 dark:border-gray-700">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium text-gray-600 dark:text-gray-300">
+                    {t("subtaskName")}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-600 dark:text-gray-300">
+                    {t("status")}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-600 dark:text-gray-300">
+                    {t("assignee")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {optimisticTask.childTasks?.map((child) => (
+                  <tr
+                    key={child.id}
+                    className="border-t border-gray-200 dark:border-gray-700"
+                  >
+                    <td className="px-3 py-2 text-gray-900 dark:text-gray-100">
+                      {child.name}
+                    </td>
+                    <td className="px-3 py-2 text-gray-600 dark:text-gray-300">
+                      {child.status}
+                    </td>
+                    <td className="px-3 py-2 text-gray-600 dark:text-gray-300">
+                      {child.assignee?.fullName ||
+                        child.assignee?.username ||
+                        t("unassigned")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </ConfirmDialog>
+      ) : (
+        <ConfirmDialog
+          isOpen={showDeleteConfirm}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          title={t("deleteTaskConfirmTitle")}
+          message={t("deleteTaskConfirmMessage")}
+          confirmLabel={t("deleteTask")}
+          isLoading={isDeleting}
+          variant="danger"
+        />
+      )}
     </div>
   );
 }
