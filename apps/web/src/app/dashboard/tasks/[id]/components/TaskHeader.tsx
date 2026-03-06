@@ -20,7 +20,6 @@ interface TaskHeaderProps {
   task: TaskWithProject;
   editState: EditState;
   canEdit: boolean;
-  canDelete: boolean;
   canFreeze: boolean;
   onStartEdit: (field: "name") => void;
   onSave: () => void;
@@ -35,7 +34,6 @@ export const TaskHeader = memo(function TaskHeader({
   task,
   editState,
   canEdit,
-  canDelete,
   canFreeze,
   onStartEdit,
   onSave,
@@ -192,17 +190,15 @@ export const TaskHeader = memo(function TaskHeader({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          {/* Delete Button */}
-          {canDelete && (
-            <button
-              onClick={onDelete}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
-              title={t("deleteTask")}
-            >
-              <Trash2 className="h-4 w-4" />
-              {t("deleteTask")}
-            </button>
-          )}
+          {/* Delete Button - always visible */}
+          <button
+            onClick={onDelete}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+            title={t("deleteTask")}
+          >
+            <Trash2 className="h-4 w-4" />
+            {t("deleteTask")}
+          </button>
 
           {/* Freeze/Unfreeze Button - Only if user can freeze */}
           {canFreeze && (

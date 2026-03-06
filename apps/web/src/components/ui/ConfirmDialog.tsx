@@ -7,11 +7,19 @@ interface ConfirmDialogProps {
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  message: string;
+  message?: string;
+  children?: React.ReactNode;
   confirmLabel?: string;
   isLoading?: boolean;
   variant?: "danger" | "warning";
+  maxWidth?: "sm" | "md" | "lg";
 }
+
+const maxWidthClasses = {
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+};
 
 export function ConfirmDialog({
   isOpen,
@@ -19,9 +27,11 @@ export function ConfirmDialog({
   onConfirm,
   title,
   message,
+  children,
   confirmLabel = "Delete",
   isLoading = false,
   variant = "danger",
+  maxWidth = "sm",
 }: ConfirmDialogProps) {
   if (!isOpen) return null;
 
@@ -47,10 +57,10 @@ export function ConfirmDialog({
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative z-10 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+      <div className={`relative z-10 w-full ${maxWidthClasses[maxWidth]} rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800`}>
         <div className="mb-4 flex items-center gap-3">
           <div
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${iconBgClass}`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconBgClass}`}
           >
             <AlertTriangle className={`h-5 w-5 ${iconClass}`} />
           </div>
@@ -58,7 +68,10 @@ export function ConfirmDialog({
             {title}
           </h2>
         </div>
-        <p className="mb-6 text-gray-600 dark:text-gray-300">{message}</p>
+        {message && (
+          <p className="mb-4 text-gray-600 dark:text-gray-300">{message}</p>
+        )}
+        {children && <div className="mb-4">{children}</div>}
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
