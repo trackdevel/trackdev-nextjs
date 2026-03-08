@@ -2,6 +2,7 @@
 
 import { projectsApi } from "@trackdev/api-client";
 import type { Task } from "@trackdev/types";
+import { useTheme } from "@/components/theme";
 import { Link2, Loader2, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
@@ -215,6 +216,7 @@ export function MarkdownEditor({
   projectId,
 }: MarkdownEditorProps) {
   const t = useTranslations("markdown");
+  const { resolvedTheme } = useTheme();
   const valueRef = useRef(value);
   valueRef.current = value;
 
@@ -271,7 +273,7 @@ export function MarkdownEditor({
   }, [projectId, cmds, t, handleInsertReference]);
 
   return (
-    <div data-color-mode="light">
+    <div data-color-mode={resolvedTheme}>
       <MDEditor
         value={value}
         onChange={(val) => onChange(val || "")}
@@ -289,8 +291,9 @@ interface MarkdownPreviewProps {
 }
 
 export function MarkdownPreview({ source }: MarkdownPreviewProps) {
+  const { resolvedTheme } = useTheme();
   return (
-    <div data-color-mode="light">
+    <div data-color-mode={resolvedTheme}>
       <MDPreview source={source} />
     </div>
   );
