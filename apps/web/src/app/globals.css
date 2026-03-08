@@ -244,3 +244,15 @@
     font-family: inherit;
   }
 }
+
+/* Override @uiw/react-md-editor dark mode colors to match app theme (gray-800 backgrounds) */
+[data-color-mode="dark"] .w-md-editor,
+[data-color-mode="dark"] .wmde-markdown,
+[data-color-mode="dark"] .wmde-markdown-var {
+  --color-canvas-default: #1f2937 !important;
+  --color-canvas-subtle: #374151 !important;
+  --color-border-default: #4b5563 !important;
+  --color-border-muted: #374151 !important;
+  --color-fg-default: #f9fafb !important;
+  --color-fg-muted: #9ca3af !important;
+}
