@@ -1,18 +1,19 @@
 "use client";
 
-import { FormField, Modal, Select } from "@/components/ui";
+import { FormField, MarkdownEditor, Modal, Select } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
   projectsApi,
   tasksApi,
+  useAuth,
   useMutation,
   useQuery,
 } from "@trackdev/api-client";
 import type { TaskType } from "@trackdev/types";
 import { clearSessionState, useSessionState } from "@/utils/useSessionState";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface CreateTaskModalProps {
   projectId: number;
@@ -48,8 +49,10 @@ export function CreateTaskModal({
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
   const toast = useToast();
+  const { user } = useAuth();
 
   const isSubtaskMode = !!parentTaskId;
+  const isStudent = user?.roles?.includes("STUDENT") && !user?.roles?.includes("PROFESSOR");
 
   const formStorageKey = `createTaskForm-${projectId}-${parentTaskId ?? "root"}`;
   const defaultForm: TaskForm = {
@@ -88,14 +91,22 @@ export function CreateTaskModal({
         { value: "BUG", label: t("typeBug") },
       ];
 
-  // Assignee options from project members
-  const assigneeOptions = [
-    { value: "", label: t("unassigned") },
-    ...(project?.members || []).map((member) => ({
-      value: member.id,
-      label: member.fullName || member.username,
-    })),
-  ];
+  // Assignee options: STUDENT can only assign to themselves, PROFESSOR can assign any member
+  const assigneeOptions = useMemo(() => {
+    if (isStudent && user) {
+      return [
+        { value: "", label: t("unassigned") },
+        { value: user.id, label: user.fullName || user.username },
+      ];
+    }
+    return [
+      { value: "", label: t("unassigned") },
+      ...(project?.members || []).map((member) => ({
+        value: member.id,
+        label: member.fullName || member.username,
+      })),
+    ];
+  }, [isStudent, user, project?.members, t]);
 
   // Mutation for creating a regular task
   const createTaskMutation = useMutation(
@@ -191,7 +202,7 @@ export function CreateTaskModal({
   const submitLabel = isSubtaskMode ? t("addSubtask") : t("createTask");
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle}>
+    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} maxWidth="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
         {validationError && (
           <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-400">
@@ -213,13 +224,12 @@ export function CreateTaskModal({
         </FormField>
 
         <FormField label={t("description")} htmlFor="taskDescription">
-          <textarea
-            id="taskDescription"
+          <MarkdownEditor
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="input min-h-[100px]"
+            onChange={(value) => setForm({ ...form, description: value })}
+            height={150}
             placeholder={t("taskDescriptionPlaceholder")}
-            rows={3}
+            projectId={projectId}
           />
         </FormField>
 
