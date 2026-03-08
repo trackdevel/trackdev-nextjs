@@ -50,7 +50,7 @@ import {
 export default function SprintBoardPage() {
   const params = useParams();
   const sprintId = Number(params.id);
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const t = useTranslations("sprints");
 
   // React 19: useTransition for async state updates
@@ -86,6 +86,7 @@ export default function SprintBoardPage() {
   const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useSessionState<
     number | null
   >(`createSubtaskModal-sprint-${sprintId}`, null);
+  const [showMyTasksOnly, setShowMyTasksOnly] = useState(false);
   const [collapsedStories, setCollapsedStories] = useState<Set<number>>(
     new Set(),
   );
@@ -216,10 +217,23 @@ export default function SprintBoardPage() {
     }
     return map;
   }, [optimisticTasks]);
-  const stories = useMemo(
+  const allStories = useMemo(
     () => selectStories(sprintTasks, optimisticTasks, sprintId),
     [sprintTasks, optimisticTasks, sprintId],
   );
+
+  // Filter stories to only show those with subtasks assigned to current user
+  const stories = useMemo(() => {
+    if (!showMyTasksOnly || !user) return allStories;
+    return allStories
+      .map((story) => ({
+        ...story,
+        subtasks: story.subtasks.filter(
+          (task) => task.assignee?.id === user.id,
+        ),
+      }))
+      .filter((story) => story.subtasks.length > 0);
+  }, [allStories, showMyTasksOnly, user]);
 
   // Drag state for visual feedback
   const draggedTaskId = activeDragData?.task.id ?? null;
@@ -306,6 +320,8 @@ export default function SprintBoardPage() {
         nextSprintId={nextSprintId}
         onRefresh={handleRefresh}
         onAddTask={() => setShowCreateTaskModal(true)}
+        showMyTasksOnly={showMyTasksOnly}
+        onToggleMyTasks={() => setShowMyTasksOnly((prev) => !prev)}
       />
 
       {/* Main content — wrapped in DragDropProvider */}
