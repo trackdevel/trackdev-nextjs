@@ -7,6 +7,7 @@ import {
   FolderKanban,
   Loader2,
   Plus,
+  User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -27,6 +28,8 @@ interface SprintHeaderProps {
   nextSprintId: number | null;
   onRefresh: () => void;
   onAddTask: () => void;
+  showMyTasksOnly: boolean;
+  onToggleMyTasks: () => void;
 }
 
 export function SprintHeader({
@@ -36,6 +39,8 @@ export function SprintHeader({
   nextSprintId,
   onRefresh,
   onAddTask,
+  showMyTasksOnly,
+  onToggleMyTasks,
 }: SprintHeaderProps) {
   const t = useTranslations("sprints");
   const { formatDateTimeRange } = useDateFormat();
@@ -110,6 +115,14 @@ export function SprintHeader({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={onToggleMyTasks}
+            className={`flex items-center gap-2 ${showMyTasksOnly ? "btn-primary" : "btn-secondary"}`}
+            title={t("myTasks")}
+          >
+            <User className="h-4 w-4" />
+            {t("myTasks")}
+          </button>
           <button
             onClick={onRefresh}
             className="btn-secondary flex items-center gap-2"
