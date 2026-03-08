@@ -13,6 +13,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useSessionState } from "@/utils/useSessionState";
 import {
   useCallback,
   useEffect,
@@ -81,10 +82,10 @@ export default function SprintBoardPage() {
 
   // UI state
   const [isBacklogOpen, setIsBacklogOpen] = useState(true);
-  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
-  const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useState<
+  const [showCreateTaskModal, setShowCreateTaskModal] = useSessionState(`createTaskModal-sprint-${sprintId}`, false);
+  const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useSessionState<
     number | null
-  >(null);
+  >(`createSubtaskModal-sprint-${sprintId}`, null);
   const [collapsedStories, setCollapsedStories] = useState<Set<number>>(
     new Set(),
   );
