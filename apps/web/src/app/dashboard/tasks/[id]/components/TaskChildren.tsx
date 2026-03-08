@@ -4,7 +4,8 @@ import { CreateTaskModal } from "@/components/tasks";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { memo, useState } from "react";
+import { useSessionState } from "@/utils/useSessionState";
+import { memo } from "react";
 import { STATUS_CONFIG } from "../constants";
 
 interface ChildTask {
@@ -34,7 +35,7 @@ export const TaskChildren = memo(function TaskChildren({
   onSubtaskCreated,
 }: TaskChildrenProps) {
   const t = useTranslations("tasks");
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useSessionState(`createSubtaskModal-task-${parentTaskId}`, false);
 
   return (
     <>

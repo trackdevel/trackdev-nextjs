@@ -10,6 +10,7 @@ import type { Task } from "@trackdev/types";
 import { ClipboardList, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
+import { useSessionState } from "@/utils/useSessionState";
 import { useMemo, useState } from "react";
 
 const BACKLOG_FILTER_VALUE = "backlog";
@@ -32,7 +33,7 @@ export default function ProjectTasksPage() {
   });
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useSessionState(`createTaskModal-project-${projectId}`, false);
 
   const { data: project } = useQuery(
     () => projectsApi.getById(projectId),
