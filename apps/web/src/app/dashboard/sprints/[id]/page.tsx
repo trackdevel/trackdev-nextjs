@@ -222,7 +222,8 @@ export default function SprintBoardPage() {
     [sprintTasks, optimisticTasks, sprintId],
   );
 
-  // Filter stories to only show those with subtasks assigned to current user
+  // Filter stories to only show those with subtasks assigned to current user,
+  // or user stories assigned to me with no subtasks
   const stories = useMemo(() => {
     if (!showMyTasksOnly || !user) return allStories;
     return allStories
@@ -232,8 +233,17 @@ export default function SprintBoardPage() {
           (task) => task.assignee?.id === user.id,
         ),
       }))
-      .filter((story) => story.subtasks.length > 0);
-  }, [allStories, showMyTasksOnly, user]);
+      .filter((story) => {
+        if (story.subtasks.length > 0) return true;
+        // Keep user stories assigned to me with no subtasks
+        // (id > 0 excludes the "Unassigned Tasks" pseudo-story)
+        if (story.id > 0) {
+          const storyTask = optimisticTasks.get(story.id);
+          return storyTask?.assignee?.id === user.id;
+        }
+        return false;
+      });
+  }, [allStories, showMyTasksOnly, user, optimisticTasks]);
 
   // Drag state for visual feedback
   const draggedTaskId = activeDragData?.task.id ?? null;
