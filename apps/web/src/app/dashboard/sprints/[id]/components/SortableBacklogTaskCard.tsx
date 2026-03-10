@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import type { DragItemData } from "../types";
+import { TaskHoverPreview } from "./TaskHoverPreview";
 
 interface SortableBacklogTaskCardProps {
   task: Task;
@@ -161,14 +162,16 @@ function SortableStoryCard({
   });
 
   return (
-    <div
-      ref={ref}
-      className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-shadow hover:shadow-md ${
-        draggedTaskId === task.id ? "opacity-50" : ""
-      }`}
-    >
-      <BacklogCardContent task={task} subtasks={subtasks} />
-    </div>
+    <TaskHoverPreview task={task} disabled={draggedTaskId === task.id}>
+      <div
+        ref={ref}
+        className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-shadow hover:shadow-md ${
+          draggedTaskId === task.id ? "opacity-50" : ""
+        }`}
+      >
+        <BacklogCardContent task={task} subtasks={subtasks} />
+      </div>
+    </TaskHoverPreview>
   );
 }
 
@@ -189,14 +192,16 @@ function DraggableTaskCard({
   });
 
   return (
-    <div
-      ref={ref}
-      className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-shadow hover:shadow-md ${
-        draggedTaskId === task.id ? "opacity-50" : ""
-      }`}
-    >
-      <BacklogCardContent task={task} subtasks={subtasks} />
-    </div>
+    <TaskHoverPreview task={task} disabled={draggedTaskId === task.id}>
+      <div
+        ref={ref}
+        className={`rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-shadow hover:shadow-md ${
+          draggedTaskId === task.id ? "opacity-50" : ""
+        }`}
+      >
+        <BacklogCardContent task={task} subtasks={subtasks} />
+      </div>
+    </TaskHoverPreview>
   );
 }
 
