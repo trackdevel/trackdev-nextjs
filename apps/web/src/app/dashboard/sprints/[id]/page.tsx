@@ -150,14 +150,6 @@ export default function SprintBoardPage() {
     };
   }, [projectSprints, sprintId]);
 
-  useEffect(() => {
-    const handleFocus = () => {
-      refetchBoard();
-      refetchProjectTasks();
-    };
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
-  }, [refetchBoard, refetchProjectTasks]);
 
   useEffect(() => {
     if (sprintBoard && projectTasks) {
