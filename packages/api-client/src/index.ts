@@ -20,6 +20,7 @@ export * from "./pullRequests";
 export * from "./reports";
 export * from "./sprintPatterns";
 export * from "./sprints";
+export * from "./sse";
 export * from "./subjects";
 export * from "./tasks";
 export * from "./tokens";
