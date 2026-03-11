@@ -75,6 +75,16 @@ export interface DropTargetBacklogData {
 
 export type DropTargetData = DropTargetColumnData | DropTargetBacklogData;
 
+// Drop intent — captured synchronously in handleDragEnd, processed in useEffect
+export type DropIntent =
+  | {
+      kind: "dropOnColumn";
+      sourceData: DragItemData;
+      targetData: DropTargetColumnData;
+    }
+  | { kind: "dropOnBacklog"; taskId: number }
+  | { kind: "reorderBacklog"; taskId: number; targetIndex: number };
+
 // Optimistic update action types
 export type TaskOptimisticAction =
   | { type: "updateStatus"; taskId: number; status: TaskStatus }
