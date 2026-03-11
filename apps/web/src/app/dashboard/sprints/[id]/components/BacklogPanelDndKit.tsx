@@ -17,6 +17,7 @@ interface BacklogPanelDndKitProps {
   draggedTaskId: number | null;
   showMyBacklogOnly: boolean;
   onToggleMyBacklog: () => void;
+  backlogSortableGroup: string;
 }
 
 export function BacklogPanelDndKit({
@@ -29,6 +30,7 @@ export function BacklogPanelDndKit({
   draggedTaskId,
   showMyBacklogOnly,
   onToggleMyBacklog,
+  backlogSortableGroup,
 }: BacklogPanelDndKitProps) {
   const t = useTranslations("sprints");
 
@@ -104,7 +106,7 @@ export function BacklogPanelDndKit({
                 )}
               </div>
             ) : (
-              <div className="space-y-2">
+              <div key={backlogSortableGroup} className="space-y-2">
                 {isDraggingFromSprint && (
                   <div className="rounded-lg border-2 border-dashed border-primary-300 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/30 p-4 text-center text-sm text-primary-600 dark:text-primary-400">
                     {t("dropToBacklog")}
@@ -117,6 +119,7 @@ export function BacklogPanelDndKit({
                     index={index}
                     subtasks={backlogSubtasksMap.get(task.id) || []}
                     draggedTaskId={draggedTaskId}
+                    backlogSortableGroup={backlogSortableGroup}
                   />
                 ))}
               </div>

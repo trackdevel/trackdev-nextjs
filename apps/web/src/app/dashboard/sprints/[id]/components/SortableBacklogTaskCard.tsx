@@ -22,6 +22,7 @@ interface SortableBacklogTaskCardProps {
   index: number;
   subtasks: Task[];
   draggedTaskId: number | null;
+  backlogSortableGroup: string;
 }
 
 function BacklogCardContent({
@@ -150,6 +151,7 @@ function SortableStoryCard({
   index,
   subtasks,
   draggedTaskId,
+  backlogSortableGroup,
 }: SortableBacklogTaskCardProps) {
   const data: DragItemData = { source: "backlog", task };
   // Not reading isDragSource — its Proxy tracking triggers flushSync
@@ -157,7 +159,7 @@ function SortableStoryCard({
   const { ref } = useSortable({
     id: task.id,
     index,
-    group: "backlog",
+    group: backlogSortableGroup,
     data,
   });
 
@@ -210,10 +212,11 @@ export function SortableBacklogTaskCard({
   index,
   subtasks,
   draggedTaskId,
+  backlogSortableGroup,
 }: SortableBacklogTaskCardProps) {
   if (task.type === "USER_STORY") {
     return (
-      <SortableStoryCard task={task} index={index} subtasks={subtasks} draggedTaskId={draggedTaskId} />
+      <SortableStoryCard task={task} index={index} subtasks={subtasks} draggedTaskId={draggedTaskId} backlogSortableGroup={backlogSortableGroup} />
     );
   }
 
