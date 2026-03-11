@@ -96,10 +96,11 @@ export default function SprintBoardPage() {
   const [isInitialized, setIsInitialized] = useState(false);
   const toast = useToast();
 
-  // Real-time SSE updates
+  // Real-time SSE updates (temporarily disabled — async dispatch causes
+  // AuthorizationDeniedException on committed responses)
   useSprintSSE({
     sprintId,
-    enabled: isAuthenticated && isInitialized && !isNaN(sprintId),
+    enabled: false,
     setTasks,
     currentUserId: user?.id ?? null,
     toast,
