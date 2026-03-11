@@ -417,40 +417,61 @@ export function useDndKitDragDrop({
         return;
       }
 
+      // Snapshot all Proxy-backed values NOW, before @dnd-kit's
+      // useLayoutEffect + flushSync cleanup can invalidate them.
+      const sortable = isSortable(source);
+      const initialIndex =
+        sortable && "initialIndex" in source
+          ? (source.initialIndex as number)
+          : null;
+      const currentIndex =
+        sortable && "index" in source ? (source.index as number) : null;
+      const targetData = target.data as
+        | DropTargetColumnData
+        | { type: "backlog" }
+        | undefined;
+
       setActiveDragData(null);
 
       // Defer to next microtask to avoid state updates during @dnd-kit's
       // internal lifecycle (its useLayoutEffect uses flushSync on signals).
       queueMicrotask(() => {
-        // Check for sortable backlog reorder first (source has index info)
-        if (isSortable(source) && "initialIndex" in source) {
-          const initialIndex = source.initialIndex as number;
-          const index = source.index as number;
-          if (initialIndex !== index) {
-            reorderBacklogTask(sourceData.task.id, index);
+        // Cross-container drops take priority over sortable reorder,
+        // because @dnd-kit updates source.index even when the item is
+        // dragged OUT of its sortable group (e.g. backlog → sprint).
+        if (targetData && "type" in targetData) {
+          if (targetData.type === "column") {
+            handleDropOnColumn(
+              sourceData,
+              targetData as DropTargetColumnData,
+            );
             return;
           }
-          // If index didn't change, the item was dragged out of the sortable
-          // group (e.g. backlog → sprint column). Fall through to handle it.
+          if (targetData.type === "backlog") {
+            if (sourceData.source === "sprint") {
+              handleDropOnBacklog(sourceData.task.id);
+            }
+            // backlog → backlog: fall through to sortable reorder check
+            else if (
+              sortable &&
+              initialIndex !== null &&
+              currentIndex !== null &&
+              initialIndex !== currentIndex
+            ) {
+              reorderBacklogTask(sourceData.task.id, currentIndex);
+            }
+            return;
+          }
         }
 
-        const targetData = target.data as
-          | DropTargetColumnData
-          | { type: "backlog" }
-          | undefined;
-
-        if (!targetData || !("type" in targetData)) return;
-
-        if (targetData.type === "column") {
-          handleDropOnColumn(
-            sourceData,
-            targetData as DropTargetColumnData,
-          );
-        } else if (targetData.type === "backlog") {
-          // Sprint → Backlog
-          if (sourceData.source === "sprint") {
-            handleDropOnBacklog(sourceData.task.id);
-          }
+        // Sortable backlog reorder (target is another sortable item, no type)
+        if (
+          sortable &&
+          initialIndex !== null &&
+          currentIndex !== null &&
+          initialIndex !== currentIndex
+        ) {
+          reorderBacklogTask(sourceData.task.id, currentIndex);
         }
       });
     },
