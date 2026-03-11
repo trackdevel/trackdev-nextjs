@@ -2,6 +2,7 @@
 
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import type { Task } from "@trackdev/types";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -18,6 +19,7 @@ export function TaskHoverPreview({
   children,
   disabled,
 }: TaskHoverPreviewProps) {
+  const t = useTranslations("tasks");
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -79,21 +81,27 @@ export function TaskHoverPreview({
                 <p className="mb-1 text-xs text-gray-400">{task.taskKey}</p>
               )}
               <p className="text-sm font-medium leading-snug">{task.name}</p>
-              {task.assignee && (
-                <div className="mt-2 flex items-center gap-2 border-t border-gray-700 pt-2">
-                  <MemberAvatar
-                    size="xxs"
-                    username={
-                      task.assignee.fullName || task.assignee.username
-                    }
-                    capitalLetters={task.assignee.capitalLetters}
-                    color={task.assignee.color}
-                  />
-                  <span className="text-xs text-gray-300">
-                    {task.assignee.fullName || task.assignee.username}
-                  </span>
-                </div>
-              )}
+              {(() => {
+                const user = task.assignee ?? task.reporter;
+                if (!user) return null;
+                const role = task.assignee ? t("assignee") : t("reporter");
+                return (
+                  <div className="mt-2 flex items-center gap-2 border-t border-gray-700 pt-2">
+                    <MemberAvatar
+                      size="xxs"
+                      username={user.fullName || user.username}
+                      capitalLetters={user.capitalLetters}
+                      color={user.color}
+                    />
+                    <span className="text-xs text-gray-300">
+                      {user.fullName || user.username}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      ({role})
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
           </div>,
           document.body,
