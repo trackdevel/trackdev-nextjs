@@ -672,7 +672,11 @@
     "cannotChangeStatusInFutureSprint": "El estado de la tarea no se puede cambiar mientras esté en un sprint que aún no ha comenzado",
     "cannotChangeStatusInClosedSprint": "El estado de la tarea no se puede cambiar en un sprint cerrado",
     "failedToReorder": "No se pudo reordenar la tarea",
-    "ranksRebalanced": "Prioridades de las tareas reequilibradas"
+    "ranksRebalanced": "Prioridades de las tareas reequilibradas",
+    "sse": {
+      "taskUpdated": "{user} ha actualizado {task}",
+      "taskDeleted": "{user} ha eliminado una tarea"
+    }
   },
   "courses": {
     "title": "Cursos",
