@@ -2,7 +2,7 @@
 
 import type { Task } from "@trackdev/types";
 import { useDroppable } from "@dnd-kit/react";
-import { ChevronLeft, ChevronRight, FolderKanban, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, FolderKanban, Plus, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { SortableBacklogTaskCard } from "./SortableBacklogTaskCard";
@@ -15,6 +15,8 @@ interface BacklogPanelDndKitProps {
   backlogSubtasksMap: Map<number, Task[]>;
   isDraggingFromSprint: boolean;
   draggedTaskId: number | null;
+  showMyBacklogOnly: boolean;
+  onToggleMyBacklog: () => void;
 }
 
 export function BacklogPanelDndKit({
@@ -25,6 +27,8 @@ export function BacklogPanelDndKit({
   backlogSubtasksMap,
   isDraggingFromSprint,
   draggedTaskId,
+  showMyBacklogOnly,
+  onToggleMyBacklog,
 }: BacklogPanelDndKitProps) {
   const t = useTranslations("sprints");
 
@@ -47,13 +51,22 @@ export function BacklogPanelDndKit({
               <h2 className="font-semibold text-gray-900 dark:text-white">
                 {t("backlog")}
               </h2>
-              <button
-                onClick={onAddTask}
-                className="mr-2 rounded-sm p-1 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30"
-                title={t("addTask")}
-              >
-                <Plus className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={onToggleMyBacklog}
+                  className={`rounded-sm p-1 ${showMyBacklogOnly ? "text-primary-600 bg-primary-50 dark:bg-primary-900/30" : "text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700"}`}
+                  title={t("myStories")}
+                >
+                  <User className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={onAddTask}
+                  className="rounded-sm p-1 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30"
+                  title={t("addTask")}
+                >
+                  <Plus className="h-5 w-5" />
+                </button>
+              </div>
             </>
           )}
           <button
