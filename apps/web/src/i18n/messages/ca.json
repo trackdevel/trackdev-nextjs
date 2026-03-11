@@ -656,6 +656,7 @@
     "cannotAddToClosedSprint": "No es poden afegir tasques a un sprint tancat o passat",
     "addTask": "Afegir tasca",
     "myTasks": "Les meves tasques",
+    "myStories": "Les meves històries",
     "dropHere": "Deixa la tasca aquí",
     "dropToBacklog": "Deixa aquí per moure al backlog",
     "failedToMoveToBacklog": "Error en moure la tasca al backlog",
