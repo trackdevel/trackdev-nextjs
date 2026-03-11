@@ -661,6 +661,7 @@
     "cannotAddToClosedSprint": "Cannot add tasks to a closed or past sprint",
     "addTask": "Add task",
     "myTasks": "My Tasks",
+    "myStories": "My Stories",
     "dropHere": "Drop task here",
     "dropToBacklog": "Drop here to move to backlog",
     "failedToMoveToBacklog": "Failed to move task to backlog",
