@@ -327,7 +327,7 @@ export default function SprintBoardPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-120px)] flex-col">
+    <div className="flex h-screen flex-col">
       <SprintHeader
         sprintMeta={sprintMeta}
         isPending={isPending}
