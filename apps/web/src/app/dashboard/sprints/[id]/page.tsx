@@ -1,6 +1,7 @@
 "use client";
 
 import { CreateTaskModal } from "@/components/tasks";
+import { useToast } from "@/components/ui/Toast";
 import {
   projectsApi,
   sprintsApi,
@@ -35,6 +36,7 @@ import {
   COLLAPSED_STORIES_STORAGE_KEY,
 } from "./types";
 import { useDndKitDragDrop } from "./useDndKitDragDrop";
+import { useSprintSSE } from "./useSprintSSE";
 import {
   mergeTasksFromServer,
   selectBacklogTasks,
@@ -91,6 +93,17 @@ export default function SprintBoardPage() {
     new Set(),
   );
   const [isInitialized, setIsInitialized] = useState(false);
+  const toast = useToast();
+
+  // Real-time SSE updates
+  useSprintSSE({
+    sprintId,
+    enabled: isAuthenticated && isInitialized && !isNaN(sprintId),
+    setTasks,
+    currentUserId: user?.id ?? null,
+    toast,
+    t,
+  });
 
   // Drag and drop (@dnd-kit/react)
   const { activeDragData, providerProps } = useDndKitDragDrop({
