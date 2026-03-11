@@ -107,7 +107,7 @@ export default function SprintBoardPage() {
   });
 
   // Drag and drop (@dnd-kit/react)
-  const { activeDragData, providerProps } = useDndKitDragDrop({
+  const { activeDragData, backlogSortableGroup, providerProps } = useDndKitDragDrop({
     optimisticTasks,
     addOptimisticUpdate,
     setTasks,
@@ -357,6 +357,7 @@ export default function SprintBoardPage() {
             draggedTaskId={draggedTaskId}
             showMyBacklogOnly={showMyBacklogOnly}
             onToggleMyBacklog={() => setShowMyBacklogOnly((prev) => !prev)}
+            backlogSortableGroup={backlogSortableGroup}
           />
 
           {/* Sprint Board */}
