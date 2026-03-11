@@ -174,13 +174,14 @@ const StoryHeader = memo(function StoryHeader({
   );
 
   const data: DragItemData = { source: "sprint", task: syntheticTask };
-  const { ref: handleRef } = useDraggable({
+  const { ref: elementRef, handleRef } = useDraggable({
     id: `story-${story.id}`,
     data,
   });
 
   return (
     <div
+      ref={elementRef}
       className={`flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 ${
         draggedTaskId === story.id ? "opacity-50" : ""
       }`}
