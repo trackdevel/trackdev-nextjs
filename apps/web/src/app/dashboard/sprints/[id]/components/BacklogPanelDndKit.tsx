@@ -35,7 +35,7 @@ export function BacklogPanelDndKit({
 
   return (
     <div
-      className={`shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-all duration-300 ${
+      className={`h-full shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-all duration-300 ${
         isOpen ? "w-80" : "w-12"
       }`}
     >
