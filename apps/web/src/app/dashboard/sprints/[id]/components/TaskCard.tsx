@@ -37,7 +37,7 @@ export const TaskCard = memo(function TaskCard({ task, isBeingDragged }: TaskCar
     <TaskHoverPreview task={task} disabled={isBeingDragged}>
       <div
         ref={ref}
-        className={`cursor-grab rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-shadow hover:shadow-md active:cursor-grabbing ${
+        className={`cursor-grab rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-xs transition-all duration-300 ease-in-out hover:shadow-md active:cursor-grabbing ${
           isBeingDragged ? "opacity-50" : ""
         }`}
       >
