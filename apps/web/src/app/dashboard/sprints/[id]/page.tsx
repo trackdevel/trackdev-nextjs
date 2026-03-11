@@ -89,6 +89,7 @@ export default function SprintBoardPage() {
     number | null
   >(`createSubtaskModal-sprint-${sprintId}`, null);
   const [showMyTasksOnly, setShowMyTasksOnly] = useState(false);
+  const [showMyBacklogOnly, setShowMyBacklogOnly] = useState(false);
   const [collapsedStories, setCollapsedStories] = useState<Set<number>>(
     new Set(),
   );
@@ -201,10 +202,14 @@ export default function SprintBoardPage() {
     () => selectSprintTasks(optimisticTasks, sprintId),
     [optimisticTasks, sprintId],
   );
-  const backlogTasks = useMemo(
+  const allBacklogTasks = useMemo(
     () => selectBacklogTasks(optimisticTasks),
     [optimisticTasks],
   );
+  const backlogTasks = useMemo(() => {
+    if (!showMyBacklogOnly || !user?.id) return allBacklogTasks;
+    return allBacklogTasks.filter((task) => task.assignee?.id === user.id);
+  }, [allBacklogTasks, showMyBacklogOnly, user?.id]);
   const backlogSubtasksMap = useMemo(() => {
     const map = new Map<number, Task[]>();
     const subtasksInBacklog = Array.from(optimisticTasks.values()).filter(
@@ -350,6 +355,8 @@ export default function SprintBoardPage() {
             backlogSubtasksMap={backlogSubtasksMap}
             isDraggingFromSprint={isDraggingFromSprint}
             draggedTaskId={draggedTaskId}
+            showMyBacklogOnly={showMyBacklogOnly}
+            onToggleMyBacklog={() => setShowMyBacklogOnly((prev) => !prev)}
           />
 
           {/* Sprint Board */}

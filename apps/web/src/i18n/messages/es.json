@@ -656,6 +656,7 @@
     "cannotAddToClosedSprint": "No se pueden añadir tareas a un sprint cerrado o pasado",
     "addTask": "Añadir tarea",
     "myTasks": "Mis tareas",
+    "myStories": "Mis historias",
     "dropHere": "Soltar tarea aquí",
     "dropToBacklog": "Soltar aquí para mover al backlog",
     "failedToMoveToBacklog": "Error al mover la tarea al backlog",
