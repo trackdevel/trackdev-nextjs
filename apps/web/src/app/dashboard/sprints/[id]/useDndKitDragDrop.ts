@@ -6,10 +6,11 @@ import {
 } from "@trackdev/api-client";
 import type { Task, TaskStatus } from "@trackdev/types";
 import { isSortable } from "@dnd-kit/react/sortable";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   DragItemData,
+  DropIntent,
   DropTargetColumnData,
   TaskOptimisticAction,
 } from "./types";
@@ -71,8 +72,29 @@ export function useDndKitDragDrop({
     null,
   );
 
+  // Sortable group reset key — incremented on every drag end to force
+  // @dnd-kit's useSortable to re-register items with their correct indices.
+  // Without this, when a backlog item is dragged toward the sprint (passing
+  // over other backlog items), the sortable rearranges internally.  If the
+  // drop is rejected, the items stay in the wrong visual order because
+  // useSortable's layout effect only re-runs when group/index changes.
+  const [sortResetKey, setSortResetKey] = useState(0);
+  const backlogSortableGroup = `backlog-${sortResetKey}`;
+
   // =========================================================================
-  // ASYNC ACTIONS (business logic — same as useDragAndDrop)
+  // INTENT + EFFECT: Deterministic deferred drop processing
+  //
+  // @dnd-kit/react calls flushSync inside a useLayoutEffect when isDragSource
+  // transitions to false.  flushSync can discard in-flight startTransition
+  // optimistic updates.  To avoid this, handleDragEnd only captures the drop
+  // intent in a ref.  A useEffect (guaranteed to run AFTER all layout effects
+  // and flushSync) then processes the intent in a clean React state.
+  // =========================================================================
+
+  const pendingDropRef = useRef<DropIntent | null>(null);
+
+  // =========================================================================
+  // ASYNC ACTIONS (business logic)
   // =========================================================================
 
   const moveTaskToColumn = useCallback(
@@ -382,6 +404,46 @@ export function useDndKitDragDrop({
   );
 
   // =========================================================================
+  // HANDLER REFS — always point to latest versions for the useEffect below
+  // =========================================================================
+
+  const handleDropOnColumnRef = useRef(handleDropOnColumn);
+  const handleDropOnBacklogRef = useRef(handleDropOnBacklog);
+  const reorderBacklogTaskRef = useRef(reorderBacklogTask);
+  handleDropOnColumnRef.current = handleDropOnColumn;
+  handleDropOnBacklogRef.current = handleDropOnBacklog;
+  reorderBacklogTaskRef.current = reorderBacklogTask;
+
+  // =========================================================================
+  // DEFERRED DROP PROCESSING
+  //
+  // React guarantees useEffect runs AFTER all useLayoutEffect callbacks
+  // (where @dnd-kit's flushSync happens) and AFTER paint.  This means our
+  // startTransition + addOptimisticUpdate happen in a completely clean state.
+  // =========================================================================
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const intent = pendingDropRef.current;
+    if (!intent) return;
+
+    // Clear immediately — process exactly once (StrictMode safe)
+    pendingDropRef.current = null;
+
+    switch (intent.kind) {
+      case "dropOnColumn":
+        handleDropOnColumnRef.current(intent.sourceData, intent.targetData);
+        break;
+      case "dropOnBacklog":
+        handleDropOnBacklogRef.current(intent.taskId);
+        break;
+      case "reorderBacklog":
+        reorderBacklogTaskRef.current(intent.taskId, intent.targetIndex);
+        break;
+    }
+  });
+
+  // =========================================================================
   // DRAGDROP PROVIDER EVENT HANDLERS
   // =========================================================================
 
@@ -431,55 +493,59 @@ export function useDndKitDragDrop({
         | { type: "backlog" }
         | undefined;
 
+      // Build the DropIntent from snapshotted values.
+      // Cross-container drops take priority over sortable reorder,
+      // because @dnd-kit updates source.index even when the item is
+      // dragged OUT of its sortable group (e.g. backlog → sprint).
+      let intent: DropIntent | null = null;
+
+      if (targetData && "type" in targetData) {
+        if (targetData.type === "column") {
+          intent = {
+            kind: "dropOnColumn",
+            sourceData,
+            targetData: targetData as DropTargetColumnData,
+          };
+        } else if (targetData.type === "backlog") {
+          if (sourceData.source === "sprint") {
+            intent = { kind: "dropOnBacklog", taskId: sourceData.task.id };
+          } else if (
+            sortable &&
+            initialIndex !== null &&
+            currentIndex !== null &&
+            initialIndex !== currentIndex
+          ) {
+            intent = {
+              kind: "reorderBacklog",
+              taskId: sourceData.task.id,
+              targetIndex: currentIndex,
+            };
+          }
+        }
+      } else if (
+        sortable &&
+        initialIndex !== null &&
+        currentIndex !== null &&
+        initialIndex !== currentIndex
+      ) {
+        // Target is another sortable item (no type field)
+        intent = {
+          kind: "reorderBacklog",
+          taskId: sourceData.task.id,
+          targetIndex: currentIndex,
+        };
+      }
+
+      // Store intent for the useEffect to process after flushSync completes
+      pendingDropRef.current = intent;
+
+      // Clear drag visual state — triggers re-render → useEffect
       setActiveDragData(null);
 
-      // Defer to next microtask to avoid state updates during @dnd-kit's
-      // internal lifecycle (its useLayoutEffect uses flushSync on signals).
-      queueMicrotask(() => {
-        // Cross-container drops take priority over sortable reorder,
-        // because @dnd-kit updates source.index even when the item is
-        // dragged OUT of its sortable group (e.g. backlog → sprint).
-        if (targetData && "type" in targetData) {
-          if (targetData.type === "column") {
-            handleDropOnColumn(
-              sourceData,
-              targetData as DropTargetColumnData,
-            );
-            return;
-          }
-          if (targetData.type === "backlog") {
-            if (sourceData.source === "sprint") {
-              handleDropOnBacklog(sourceData.task.id);
-            }
-            // backlog → backlog: fall through to sortable reorder check
-            else if (
-              sortable &&
-              initialIndex !== null &&
-              currentIndex !== null &&
-              initialIndex !== currentIndex
-            ) {
-              reorderBacklogTask(sourceData.task.id, currentIndex);
-            }
-            return;
-          }
-        }
-
-        // Sortable backlog reorder (target is another sortable item, no type)
-        if (
-          sortable &&
-          initialIndex !== null &&
-          currentIndex !== null &&
-          initialIndex !== currentIndex
-        ) {
-          reorderBacklogTask(sourceData.task.id, currentIndex);
-        }
-      });
+      // Reset sortable group to force items back to their data-driven order
+      setSortResetKey((k) => k + 1);
     },
-    [
-      handleDropOnColumn,
-      handleDropOnBacklog,
-      reorderBacklogTask,
-    ],
+    [], // Empty deps: stable reference, no closures over changing state
   );
 
   // =========================================================================
@@ -488,6 +554,7 @@ export function useDndKitDragDrop({
 
   return {
     activeDragData,
+    backlogSortableGroup,
     providerProps: {
       onDragStart: handleDragStart,
       onDragEnd: handleDragEnd,
