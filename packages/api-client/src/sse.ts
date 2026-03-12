@@ -19,6 +19,8 @@ export function createSprintEventSource(
   sprintId: number,
   onEvent: (event: TaskEvent) => void,
   onError?: (error: Event) => void,
+  onDisabled?: () => void,
+  onRejected?: (reason: string) => void,
 ): EventSource {
   const { baseUrl, apiPrefix } = getApiConfig();
   const url = `${baseUrl}${apiPrefix || ""}/sprints/${sprintId}/events`;
@@ -33,6 +35,24 @@ export function createSprintEventSource(
       // Ignore malformed events
     }
   }) as EventListener);
+
+  es.addEventListener("disabled", () => {
+    es.close();
+    onDisabled?.();
+  });
+
+  es.addEventListener(
+    "rejected",
+    ((e: MessageEvent) => {
+      es.close();
+      try {
+        const data = JSON.parse(e.data);
+        onRejected?.(data.reason);
+      } catch {
+        onRejected?.("unknown");
+      }
+    }) as EventListener,
+  );
 
   es.onerror = (e) => {
     onError?.(e);
