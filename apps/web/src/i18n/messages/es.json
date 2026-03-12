@@ -676,7 +676,8 @@
     "ranksRebalanced": "Prioridades de las tareas reequilibradas",
     "sse": {
       "taskUpdated": "{user} ha actualizado {task}",
-      "taskDeleted": "{user} ha eliminado una tarea"
+      "taskDeleted": "{user} ha eliminado una tarea",
+      "tooManyTabs": "Actualizaciones en tiempo real desactivadas: demasiadas pestañas abiertas"
     }
   },
   "courses": {

@@ -681,7 +681,8 @@
     "ranksRebalanced": "Task priorities rebalanced",
     "sse": {
       "taskUpdated": "{user} updated {task}",
-      "taskDeleted": "{user} deleted a task"
+      "taskDeleted": "{user} deleted a task",
+      "tooManyTabs": "Real-time updates disabled: too many open tabs"
     }
   },
   "courses": {
