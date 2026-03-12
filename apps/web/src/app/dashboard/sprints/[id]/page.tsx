@@ -83,7 +83,7 @@ export default function SprintBoardPage() {
   );
 
   // UI state
-  const [isBacklogOpen, setIsBacklogOpen] = useState(true);
+  const [isBacklogOpen, setIsBacklogOpen] = useSessionState(`backlogOpen-sprint-${sprintId}`, true);
   const [showCreateTaskModal, setShowCreateTaskModal] = useSessionState(`createTaskModal-sprint-${sprintId}`, false);
   const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useSessionState<
     number | null
