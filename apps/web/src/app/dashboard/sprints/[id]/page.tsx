@@ -88,8 +88,8 @@ export default function SprintBoardPage() {
   const [createSubtaskForStoryId, setCreateSubtaskForStoryId] = useSessionState<
     number | null
   >(`createSubtaskModal-sprint-${sprintId}`, null);
-  const [showMyTasksOnly, setShowMyTasksOnly] = useState(false);
-  const [showMyBacklogOnly, setShowMyBacklogOnly] = useState(false);
+  const [showMyTasksOnly, setShowMyTasksOnly] = useSessionState(`myTasks-sprint-${sprintId}`, false);
+  const [showMyBacklogOnly, setShowMyBacklogOnly] = useSessionState(`myBacklog-sprint-${sprintId}`, false);
   const [collapsedStories, setCollapsedStories] = useState<Set<number>>(
     new Set(),
   );
