@@ -58,11 +58,15 @@ export function useSprintSSE({
                 return next;
               });
 
-              const actorName = event.actorFullName || "Someone";
-              const taskName = event.task.name || "";
-              toast.success(
-                t("sse.taskUpdated", { user: actorName, task: taskName }),
-              );
+              // Skip toast for USER_STORY — these are cascading updates
+              // triggered by subtask changes (computed status/sprints)
+              if (event.task.type !== "USER_STORY") {
+                const actorName = event.actorFullName || "Someone";
+                const taskName = event.task.name || "";
+                toast.success(
+                  t("sse.taskUpdated", { user: actorName, task: taskName }),
+                );
+              }
             }
           }
 
@@ -79,6 +83,17 @@ export function useSprintSSE({
         },
         () => {
           // EventSource will auto-reconnect on error
+        },
+        () => {
+          // Server says SSE is disabled — close cleanly, don't reconnect
+          eventSourceRef.current = null;
+        },
+        (reason: string) => {
+          // Server rejected connection (limit reached)
+          eventSourceRef.current = null;
+          if (reason === "max_user_connections") {
+            toast.info(t("sse.tooManyTabs"));
+          }
         },
       );
 
