@@ -676,7 +676,8 @@
     "ranksRebalanced": "Prioritats de les tasques reequilibrades",
     "sse": {
       "taskUpdated": "{user} ha actualitzat {task}",
-      "taskDeleted": "{user} ha eliminat una tasca"
+      "taskDeleted": "{user} ha eliminat una tasca",
+      "tooManyTabs": "Actualitzacions en temps real desactivades: massa pestanyes obertes"
     }
   },
   "courses": {
