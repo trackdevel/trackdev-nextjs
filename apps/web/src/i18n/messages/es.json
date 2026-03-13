@@ -319,7 +319,10 @@
     "attributeValueError": "Error al guardar el valor del atributo",
     "attributeValueDeleted": "Valor del atributo eliminado",
     "attributeValueDeleteError": "Error al eliminar el valor del atributo",
-    "viewPRDetails": "Ver detalles del PR"
+    "viewPRDetails": "Ver detalles del PR",
+    "copyTaskLink": "Copiar enlace de la tarea",
+    "taskLinkCopied": "Enlace de la tarea copiado al portapapeles",
+    "taskLinkCopyError": "No se pudo copiar el enlace de la tarea"
   },
   "pointsReview": {
     "title": "Revisión de Puntos",
