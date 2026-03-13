@@ -30,8 +30,6 @@ export function PersonalAccessTokens() {
   const toast = useToast();
   const isStudent = user?.roles?.includes("STUDENT") ?? false;
 
-  if (isStudent) return null;
-
   const [tokenName, setTokenName] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -45,6 +43,7 @@ export function PersonalAccessTokens() {
   } = useQuery<PersonalAccessTokensResponse>(
     () => tokensApi.list(),
     [],
+    { enabled: !isStudent },
   );
 
   const createMutation = useMutation<PersonalAccessTokenCreated, CreateTokenRequest>(
@@ -86,6 +85,8 @@ export function PersonalAccessTokens() {
       },
     },
   );
+
+  if (isStudent) return null;
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
