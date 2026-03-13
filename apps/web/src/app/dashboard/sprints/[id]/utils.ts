@@ -59,6 +59,7 @@ export function selectStories(
         id: task.id,
         name: task.name,
         estimationPoints: task.estimationPoints || 0,
+        assignee: task.assignee,
         subtasks: [],
         allSubtaskSprints: [],
       });
