@@ -319,7 +319,10 @@
     "attributeValueError": "Error en guardar el valor de l'atribut",
     "attributeValueDeleted": "Valor de l'atribut eliminat",
     "attributeValueDeleteError": "Error en eliminar el valor de l'atribut",
-    "viewPRDetails": "Veure detalls del PR"
+    "viewPRDetails": "Veure detalls del PR",
+    "copyTaskLink": "Copiar enllaç de la tasca",
+    "taskLinkCopied": "Enllaç de la tasca copiat al porta-retalls",
+    "taskLinkCopyError": "No s'ha pogut copiar l'enllaç de la tasca"
   },
   "pointsReview": {
     "title": "Revisió de Punts",
