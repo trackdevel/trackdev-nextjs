@@ -190,6 +190,7 @@
     "oldest": "Antiguos",
     "clearFilters": "Limpiar filtros",
     "filters": "Filtros",
+    "searchPlaceholder": "Buscar por nombre...",
     "page": "Página",
     "of": "de",
     "itemsPerPage": "Elementos por página",

@@ -14,7 +14,8 @@ import { useSessionState } from "@/utils/useSessionState";
 import { useMemo, useState } from "react";
 
 const BACKLOG_FILTER_VALUE = "backlog";
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
 export default function ProjectTasksPage() {
   const params = useParams();
@@ -29,10 +30,12 @@ export default function ProjectTasksPage() {
     assigneeId: "",
     projectId: String(projectId),
     sprintId: "",
+    search: "",
     sortOrder: "desc",
   });
 
   const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [showCreateModal, setShowCreateModal] = useSessionState(`createTaskModal-project-${projectId}`, false);
 
   const { data: project } = useQuery(
@@ -96,6 +99,14 @@ export default function ProjectTasksPage() {
 
     let tasks = [...tasksResponse.tasks];
 
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      tasks = tasks.filter(
+        (task) =>
+          task.name.toLowerCase().includes(searchLower) ||
+          task.taskKey?.toLowerCase().includes(searchLower),
+      );
+    }
     if (filters.type) {
       tasks = tasks.filter((task) => task.type === filters.type);
     }
@@ -129,11 +140,11 @@ export default function ProjectTasksPage() {
   }, [tasksResponse?.tasks, filters]);
 
   // Client-side pagination
-  const totalPages = Math.ceil(filteredTasks.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredTasks.length / pageSize);
   const paginatedTasks = useMemo(() => {
-    const startIndex = currentPage * PAGE_SIZE;
-    return filteredTasks.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredTasks, currentPage]);
+    const startIndex = currentPage * pageSize;
+    return filteredTasks.slice(startIndex, startIndex + pageSize);
+  }, [filteredTasks, currentPage, pageSize]);
 
   // Extract unique assignees from all tasks for the filter dropdown
   const assigneeOptions = useMemo(() => {
@@ -176,6 +187,7 @@ export default function ProjectTasksPage() {
       assigneeId: "",
       projectId: String(projectId),
       sprintId: "",
+      search: "",
       sortOrder: "desc",
     });
     setCurrentPage(0);
@@ -183,6 +195,11 @@ export default function ProjectTasksPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(0);
   };
 
   if (error) {
@@ -233,17 +250,15 @@ export default function ProjectTasksPage() {
         assigneeOptions={assigneeOptions}
         projectOptions={projectOptions}
         sprintOptions={sprintOptions}
-        pagination={
-          totalPages > 1
-            ? {
-                currentPage,
-                totalPages,
-                totalItems: filteredTasks.length,
-                pageSize: PAGE_SIZE,
-                onPageChange: handlePageChange,
-              }
-            : undefined
-        }
+        pagination={{
+          currentPage,
+          totalPages,
+          totalItems: filteredTasks.length,
+          pageSize,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+          pageSizeOptions: PAGE_SIZE_OPTIONS,
+        }}
         emptyTitle={t("noTasksCreated")}
         emptyDescription={t("createTasksInBacklog")}
       />

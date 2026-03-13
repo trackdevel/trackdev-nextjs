@@ -35,6 +35,8 @@ interface FilterableTaskListProps {
     totalItems: number;
     pageSize: number;
     onPageChange: (page: number) => void;
+    onPageSizeChange?: (size: number) => void;
+    pageSizeOptions?: number[];
   };
   /** Empty state title when no filters are active */
   emptyTitle?: string;
@@ -72,6 +74,7 @@ export function FilterableTaskList({
     filters.type !== "" ||
     filters.status !== "" ||
     filters.assigneeId !== "" ||
+    filters.search !== "" ||
     (filters.projectId !== undefined && filters.projectId !== "") ||
     (filters.sprintId !== undefined && filters.sprintId !== "");
 
@@ -101,6 +104,8 @@ export function FilterableTaskList({
                 totalItems={pagination.totalItems}
                 pageSize={pagination.pageSize}
                 onPageChange={pagination.onPageChange}
+                onPageSizeChange={pagination.onPageSizeChange}
+                pageSizeOptions={pagination.pageSizeOptions}
                 itemLabel={t("title").toLowerCase()}
               />
             )}

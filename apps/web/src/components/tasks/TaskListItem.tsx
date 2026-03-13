@@ -1,5 +1,6 @@
 "use client";
 
+import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import type { Task } from "@trackdev/types";
 import { ArrowRight, ClipboardList } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -11,6 +12,8 @@ interface TaskListItemProps {
 }
 
 export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
+  const t = useTranslations("tasks");
+
   return (
     <li>
       <Link
@@ -31,9 +34,21 @@ export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
             <div className="mt-1 flex items-center gap-2 text-sm">
               <TaskTypeBadge type={task.type} />
               <TaskStatusBadge status={task.status} />
+              {task.status === "DONE" && task.estimationPoints > 0 && (
+                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                  {task.estimationPoints} {t("points")}
+                </span>
+              )}
               {showAssignee && task.assignee && (
-                <span className="text-gray-500 dark:text-gray-400">
-                  •{" "}
+                <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                  •
+                  <MemberAvatar
+                    username={task.assignee.fullName || task.assignee.username}
+                    capitalLetters={task.assignee.capitalLetters}
+                    color={task.assignee.color}
+                    size="xxs"
+                    title={task.assignee.fullName || task.assignee.username}
+                  />
                   <span className="font-medium">
                     {task.assignee.fullName || task.assignee.username}
                   </span>

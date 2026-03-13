@@ -16,7 +16,8 @@ import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
 export default function TasksListPage() {
   const { isAuthenticated, user } = useAuth();
@@ -31,12 +32,14 @@ export default function TasksListPage() {
       status: (searchParams.get("status") as TaskStatus | "") || "",
       assigneeId: searchParams.get("assigneeId") || "",
       projectId: searchParams.get("projectId") || "",
+      search: searchParams.get("search") || "",
       sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "desc",
     }),
     [searchParams],
   );
 
   const currentPage = parseInt(searchParams.get("page") || "0", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") || String(DEFAULT_PAGE_SIZE), 10);
 
   // Update URL when filters change
   const updateSearchParams = useCallback(
@@ -82,20 +85,28 @@ export default function TasksListPage() {
   }, [filters]);
 
   const { data: tasksResponse, isLoading } = useQuery(
-    () => tasksApi.getMy(currentPage, PAGE_SIZE, filterParams),
-    [currentPage, filterParams],
+    () => tasksApi.getMy(currentPage, pageSize, filterParams),
+    [currentPage, pageSize, filterParams],
     { enabled: isAuthenticated },
   );
 
-  // Sort tasks by createdAt to guarantee correct within-page order
+  // Sort and client-side search filter
   const tasks = useMemo(() => {
-    const raw = tasksResponse?.tasks || [];
+    let raw = tasksResponse?.tasks || [];
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      raw = raw.filter(
+        (task) =>
+          task.name.toLowerCase().includes(searchLower) ||
+          task.taskKey?.toLowerCase().includes(searchLower),
+      );
+    }
     return [...raw].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return filters.sortOrder === "asc" ? dateA - dateB : dateB - dateA;
     });
-  }, [tasksResponse?.tasks, filters.sortOrder]);
+  }, [tasksResponse?.tasks, filters.sortOrder, filters.search]);
   const totalPages = tasksResponse?.totalPages || 0;
   const totalElements = tasksResponse?.totalElements || 0;
 
@@ -132,6 +143,10 @@ export default function TasksListPage() {
     updateSearchParams({ page: page.toString() });
   };
 
+  const handlePageSizeChange = (size: number) => {
+    updateSearchParams({ pageSize: size.toString(), page: "0" });
+  };
+
   return (
     <PageContainer>
       {/* Header */}
@@ -162,8 +177,10 @@ export default function TasksListPage() {
           currentPage,
           totalPages,
           totalItems: totalElements,
-          pageSize: PAGE_SIZE,
+          pageSize,
           onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+          pageSizeOptions: PAGE_SIZE_OPTIONS,
         }}
       />
     </PageContainer>

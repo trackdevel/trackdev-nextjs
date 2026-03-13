@@ -8,6 +8,8 @@ interface PaginationProps {
   totalItems: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
+  pageSizeOptions?: number[];
   itemLabel?: string;
 }
 
@@ -17,9 +19,11 @@ export function Pagination({
   totalItems,
   pageSize,
   onPageChange,
+  onPageSizeChange,
+  pageSizeOptions,
   itemLabel = "items",
 }: PaginationProps) {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1 && !onPageSizeChange) return null;
 
   const startItem = currentPage * pageSize + 1;
   const endItem = Math.min((currentPage + 1) * pageSize, totalItems);
@@ -38,30 +42,47 @@ export function Pagination({
 
   return (
     <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-      <div className="text-sm text-gray-600 dark:text-gray-400">
-        Showing {startItem} to {endItem} of {totalItems} {itemLabel}
+      <div className="flex items-center gap-4">
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Showing {startItem} to {endItem} of {totalItems} {itemLabel}
+        </div>
+        {onPageSizeChange && pageSizeOptions && (
+          <select
+            value={pageSize}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+            className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+          >
+            {pageSizeOptions.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={handlePrevious}
-          disabled={currentPage === 0}
-          className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Previous
-        </button>
-        <span className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
-          Page {currentPage + 1} of {totalPages}
-        </span>
-        <button
-          onClick={handleNext}
-          disabled={currentPage >= totalPages - 1}
-          className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Next
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePrevious}
+            disabled={currentPage === 0}
+            className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </button>
+          <span className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+            Page {currentPage + 1} of {totalPages}
+          </span>
+          <button
+            onClick={handleNext}
+            disabled={currentPage >= totalPages - 1}
+            className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

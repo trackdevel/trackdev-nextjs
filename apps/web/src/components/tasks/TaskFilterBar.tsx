@@ -2,7 +2,7 @@
 
 import { Select } from "@/components/ui";
 import type { TaskStatus, TaskType } from "@trackdev/types";
-import { ArrowDownAZ, ArrowUpAZ, Filter, X } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, Filter, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export interface TaskFilters {
@@ -11,6 +11,7 @@ export interface TaskFilters {
   assigneeId: string;
   projectId?: string;
   sprintId?: string;
+  search: string;
   sortOrder: "asc" | "desc";
 }
 
@@ -60,6 +61,7 @@ export function TaskFilterBar({
     filters.type !== "" ||
     filters.status !== "" ||
     filters.assigneeId !== "" ||
+    filters.search !== "" ||
     (filters.projectId !== undefined && filters.projectId !== "") ||
     (filters.sprintId !== undefined && filters.sprintId !== "");
 
@@ -70,6 +72,20 @@ export function TaskFilterBar({
         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
           <Filter className="h-4 w-4" />
           <span className="text-sm font-medium">{t("filters")}:</span>
+        </div>
+
+        {/* Search by name */}
+        <div className="relative min-w-[180px]">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={filters.search}
+            onChange={(e) => onFilterChange("search", e.target.value)}
+            placeholder={t("searchPlaceholder")}
+            className="w-full rounded-md border border-gray-300 bg-white py-1.5 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 shadow-xs focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+          />
         </div>
 
         {/* Project filter */}
