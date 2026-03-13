@@ -2,6 +2,7 @@
 export * from "./CreateTaskModal";
 export * from "./FilterableTaskList";
 export * from "./RecentTasksCard";
+export * from "./TaskBadge";
 export * from "./TaskFilterBar";
 export * from "./TaskListItem";
 export { TaskList, TaskListItem } from "./TaskListItem";
