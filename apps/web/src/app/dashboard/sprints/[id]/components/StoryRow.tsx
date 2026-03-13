@@ -1,3 +1,4 @@
+import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
 import {
@@ -230,6 +231,15 @@ const StoryHeader = memo(function StoryHeader({
         )}
       </div>
       <div className="flex items-center gap-4">
+        {story.assignee && (
+          <MemberAvatar
+            size="xs"
+            username={story.assignee.fullName || story.assignee.username}
+            capitalLetters={story.assignee.capitalLetters}
+            color={story.assignee.color}
+            title={story.assignee.fullName || story.assignee.username}
+          />
+        )}
         {totalPoints > 0 && (
           <span className="text-sm text-gray-500 dark:text-gray-400">
             {totalPoints} {t("points")}
