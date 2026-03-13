@@ -1,5 +1,6 @@
 "use client";
 
+import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
@@ -89,7 +90,7 @@ function BacklogCardContent({
               {task.name}
             </Link>
             <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-              {task.taskKey && <span>{task.taskKey}</span>}
+              {task.taskKey && <TaskBadge taskKey={task.taskKey} taskId={task.id} />}
               {hasSubtasks && (
                 <span className="text-gray-400 dark:text-gray-500">
                   ({subtasks.length})
