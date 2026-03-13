@@ -324,7 +324,10 @@
     "attributeValueError": "Failed to save attribute value",
     "attributeValueDeleted": "Attribute value removed",
     "attributeValueDeleteError": "Failed to remove attribute value",
-    "viewPRDetails": "View PR Details"
+    "viewPRDetails": "View PR Details",
+    "copyTaskLink": "Copy task link",
+    "taskLinkCopied": "Task link copied to clipboard",
+    "taskLinkCopyError": "Failed to copy task link"
   },
   "pointsReview": {
     "title": "Points Review",
