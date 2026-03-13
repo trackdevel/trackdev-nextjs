@@ -2,11 +2,11 @@
 
 import { CreateTaskModal } from "@/components/tasks";
 import { TaskBadge } from "@/components/tasks/TaskBadge";
-import { Plus } from "lucide-react";
+import { Loader2, Plus, UserCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSessionState } from "@/utils/useSessionState";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { STATUS_CONFIG } from "../constants";
 
 interface ChildTask {
@@ -17,6 +17,7 @@ interface ChildTask {
   type?: string;
   estimationPoints?: number;
   assignee?: {
+    id?: string;
     username: string;
     fullName?: string;
   };
@@ -27,6 +28,8 @@ interface TaskChildrenProps {
   parentTaskId: number;
   projectId: number;
   onSubtaskCreated?: () => void;
+  onSelfAssignAll?: () => Promise<void>;
+  isAssigningAll?: boolean;
 }
 
 export const TaskChildren = memo(function TaskChildren({
@@ -34,9 +37,15 @@ export const TaskChildren = memo(function TaskChildren({
   parentTaskId,
   projectId,
   onSubtaskCreated,
+  onSelfAssignAll,
+  isAssigningAll,
 }: TaskChildrenProps) {
   const t = useTranslations("tasks");
   const [showCreateModal, setShowCreateModal] = useSessionState(`createSubtaskModal-task-${parentTaskId}`, false);
+
+  const hasUnassignedSubtasks = useMemo(() => {
+    return childTasks.length > 0 && childTasks.some((child) => !child.assignee);
+  }, [childTasks]);
 
   return (
     <>
@@ -45,13 +54,29 @@ export const TaskChildren = memo(function TaskChildren({
           <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             {t("subtasks")} ({childTasks.length})
           </h2>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-1 rounded-md bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-primary-100 transition-colors dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50"
-          >
-            <Plus className="h-4 w-4" />
-            {t("addSubtask")}
-          </button>
+          <div className="flex items-center gap-2">
+            {hasUnassignedSubtasks && onSelfAssignAll && (
+              <button
+                onClick={onSelfAssignAll}
+                disabled={isAssigningAll}
+                className="inline-flex items-center gap-1 rounded-md bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 hover:bg-green-100 transition-colors dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAssigningAll ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UserCheck className="h-4 w-4" />
+                )}
+                {t("assignAllToMe")}
+              </button>
+            )}
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-1 rounded-md bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-primary-100 transition-colors dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50"
+            >
+              <Plus className="h-4 w-4" />
+              {t("addSubtask")}
+            </button>
+          </div>
         </div>
         {childTasks.length === 0 ? (
           <div className="px-6 py-8 text-center">
