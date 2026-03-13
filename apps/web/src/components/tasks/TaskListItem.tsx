@@ -5,6 +5,7 @@ import type { Task } from "@trackdev/types";
 import { ArrowRight, ClipboardList } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { TaskBadge } from "./TaskBadge";
 
 interface TaskListItemProps {
   task: Task;
@@ -25,10 +26,8 @@ export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
             <ClipboardList className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h3 className="font-medium text-gray-900 dark:text-white">
-              <span className="mr-2 rounded-sm bg-gray-100 px-1.5 py-0.5 font-mono text-xs dark:bg-gray-700 dark:text-gray-300">
-                {task.taskKey || `#${task.id}`}
-              </span>
+            <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+              <TaskBadge taskKey={task.taskKey || `#${task.id}`} taskId={task.id} />
               {task.name}
             </h3>
             <div className="mt-1 flex items-center gap-2 text-sm">

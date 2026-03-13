@@ -1,3 +1,4 @@
+import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
@@ -55,7 +56,7 @@ export const TaskCard = memo(function TaskCard({ task, isBeingDragged }: TaskCar
                 {task.name}
               </Link>
               <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                {task.taskKey && <span>{task.taskKey}</span>}
+                {task.taskKey && <TaskBadge taskKey={task.taskKey} taskId={task.id} />}
                 {task.estimationPoints !== undefined &&
                   task.estimationPoints > 0 && (
                     <span className="rounded-sm bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5">

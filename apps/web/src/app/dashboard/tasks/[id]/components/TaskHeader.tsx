@@ -1,6 +1,7 @@
 "use client";
 
 import { useDateFormat } from "@/utils/useDateFormat";
+import { TaskBadge } from "@/components/tasks/TaskBadge";
 import {
   Calendar,
   Check,
@@ -153,9 +154,7 @@ export const TaskHeader = memo(function TaskHeader({
           ) : (
             <div className="group flex items-center gap-2">
               {task.taskKey && (
-                <span className="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-400">
-                  {task.taskKey}
-                </span>
+                <TaskBadge taskKey={task.taskKey} taskId={task.id} />
               )}
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {task.name}

@@ -1,6 +1,7 @@
 "use client";
 
 import { CreateTaskModal } from "@/components/tasks";
+import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -92,11 +93,9 @@ export const TaskChildren = memo(function TaskChildren({
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
+                        <p className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                           {subtask.taskKey && (
-                            <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-sm mr-2 dark:bg-gray-700 dark:text-gray-400">
-                              {subtask.taskKey}
-                            </span>
+                            <TaskBadge taskKey={subtask.taskKey} taskId={subtask.id} />
                           )}
                           {subtask.name}
                         </p>
