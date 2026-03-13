@@ -190,6 +190,7 @@
     "oldest": "Oldest",
     "clearFilters": "Clear filters",
     "filters": "Filters",
+    "searchPlaceholder": "Search by name...",
     "page": "Page",
     "of": "of",
     "itemsPerPage": "Items per page",
