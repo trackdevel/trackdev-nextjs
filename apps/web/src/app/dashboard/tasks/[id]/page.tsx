@@ -413,6 +413,35 @@ export default function TaskDetailPage() {
     });
   }, [taskId, addOptimisticUpdate, refetchTask, t, toast]);
 
+  const [isAssigningAllSubtasks, setIsAssigningAllSubtasks] = useState(false);
+
+  const handleSelfAssignAllSubtasks = useCallback(async () => {
+    if (!user || !optimisticTask?.childTasks) return;
+
+    const subtasksToAssign = optimisticTask.childTasks.filter(
+      (child) => !child.assignee,
+    );
+    if (subtasksToAssign.length === 0) return;
+
+    setIsAssigningAllSubtasks(true);
+    try {
+      await Promise.all(
+        subtasksToAssign.map((child) => tasksApi.selfAssign(child.id)),
+      );
+      toast.success(t("assignAllSubtasksSuccess"));
+      await refetchTask();
+    } catch (err) {
+      const errorMessage =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : t("assignAllSubtasksFailed");
+      toast.error(errorMessage);
+      await refetchTask();
+    } finally {
+      setIsAssigningAllSubtasks(false);
+    }
+  }, [user, optimisticTask?.childTasks, refetchTask, t, toast]);
+
   const handleSubtaskCreated = useCallback(() => {
     // Refetch to get updated childTasks
     refetchTask();
@@ -577,6 +606,8 @@ export default function TaskDetailPage() {
               parentTaskId={taskId}
               projectId={optimisticTask.project?.id || 0}
               onSubtaskCreated={handleSubtaskCreated}
+              onSelfAssignAll={handleSelfAssignAllSubtasks}
+              isAssigningAll={isAssigningAllSubtasks}
             />
           )}
 
