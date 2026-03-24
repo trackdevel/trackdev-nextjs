@@ -3,6 +3,7 @@
 import { CreateTaskModal } from "@/components/tasks";
 import { useToast } from "@/components/ui/Toast";
 import {
+  ApiClientError,
   projectsApi,
   sprintsApi,
   useAuth,
@@ -66,6 +67,7 @@ export default function SprintBoardPage() {
     statusText: string;
     startDate: string | null;
     endDate: string | null;
+    frozen: boolean;
     project: { id: number; name: string } | null;
   }>({
     name: "",
@@ -73,6 +75,7 @@ export default function SprintBoardPage() {
     statusText: "",
     startDate: null,
     endDate: null,
+    frozen: false,
     project: null,
   });
 
@@ -178,6 +181,7 @@ export default function SprintBoardPage() {
         statusText: sprintBoard.statusText,
         startDate: sprintBoard.startDate,
         endDate: sprintBoard.endDate,
+        frozen: sprintBoard.frozen ?? false,
         project: sprintBoard.project,
       });
       if (!isInitialized) {
@@ -296,6 +300,32 @@ export default function SprintBoardPage() {
     refetchProjectTasks();
   }, [refetchBoard, refetchProjectTasks]);
 
+  const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
+
+  const handleFreeze = useCallback(async () => {
+    try {
+      if (sprintMeta.frozen) {
+        await sprintsApi.unfreeze(sprintId);
+        setSprintMeta((prev) => ({ ...prev, frozen: false }));
+        toast.success(t("unfreezeSuccess"));
+      } else {
+        await sprintsApi.freeze(sprintId);
+        setSprintMeta((prev) => ({ ...prev, frozen: true }));
+        toast.success(t("freezeSuccess"));
+      }
+      refetchBoard();
+      refetchProjectTasks();
+    } catch (err) {
+      const errorMessage =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : sprintMeta.frozen
+            ? t("unfreezeError")
+            : t("freezeError");
+      toast.error(errorMessage);
+    }
+  }, [sprintId, sprintMeta.frozen, refetchBoard, refetchProjectTasks, toast, t]);
+
   // =============================================================================
   // RENDER
   // =============================================================================
@@ -342,6 +372,8 @@ export default function SprintBoardPage() {
         onAddTask={() => setShowCreateTaskModal(true)}
         showMyTasksOnly={showMyTasksOnly}
         onToggleMyTasks={() => setShowMyTasksOnly((prev) => !prev)}
+        isProfessor={isProfessor}
+        onFreeze={handleFreeze}
       />
 
       {/* Main content — wrapped in DragDropProvider */}
