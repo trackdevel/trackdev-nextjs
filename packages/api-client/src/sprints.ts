@@ -26,6 +26,7 @@ export interface SprintBoardResponse {
   endDate: string;
   status: string;
   statusText: string;
+  frozen?: boolean;
   project: {
     id: number;
     name: string;
@@ -66,4 +67,14 @@ export const sprintsApi = {
    */
   getLogs: (id: number) =>
     api.get<SprintHistoryResponse>(`/sprints/${id}/history`),
+
+  /**
+   * Freeze a sprint (PROFESSOR only)
+   */
+  freeze: (id: number) => api.post<Sprint>(`/sprints/${id}/freeze`, {}),
+
+  /**
+   * Unfreeze a sprint (PROFESSOR only)
+   */
+  unfreeze: (id: number) => api.post<Sprint>(`/sprints/${id}/unfreeze`, {}),
 };
