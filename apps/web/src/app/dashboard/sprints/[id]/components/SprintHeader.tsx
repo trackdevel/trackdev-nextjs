@@ -6,7 +6,9 @@ import {
   ChevronRight,
   FolderKanban,
   Loader2,
+  Lock,
   Plus,
+  Unlock,
   User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -21,6 +23,7 @@ interface SprintHeaderProps {
     statusText: string;
     startDate: string | null;
     endDate: string | null;
+    frozen: boolean;
     project: { id: number; name: string } | null;
   };
   isPending: boolean;
@@ -30,6 +33,8 @@ interface SprintHeaderProps {
   onAddTask: () => void;
   showMyTasksOnly: boolean;
   onToggleMyTasks: () => void;
+  isProfessor: boolean;
+  onFreeze: () => void;
 }
 
 export function SprintHeader({
@@ -41,6 +46,8 @@ export function SprintHeader({
   onAddTask,
   showMyTasksOnly,
   onToggleMyTasks,
+  isProfessor,
+  onFreeze,
 }: SprintHeaderProps) {
   const t = useTranslations("sprints");
   const { formatDateTimeRange } = useDateFormat();
@@ -59,6 +66,12 @@ export function SprintHeader({
                 status={sprintMeta.status}
                 statusText={sprintMeta.statusText}
               />
+              {sprintMeta.frozen && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <Lock className="h-3 w-3" />
+                  {t("frozenBadge")}
+                </span>
+              )}
               {isPending && (
                 <Loader2 className="h-4 w-4 animate-spin text-primary-600" />
               )}
@@ -123,6 +136,20 @@ export function SprintHeader({
             <User className="h-4 w-4" />
             {t("myTasks")}
           </button>
+          {isProfessor && (
+            <button
+              onClick={onFreeze}
+              className={`flex items-center gap-2 ${sprintMeta.frozen ? "btn-primary" : "btn-secondary"}`}
+              title={sprintMeta.frozen ? t("unfreeze") : t("freeze")}
+            >
+              {sprintMeta.frozen ? (
+                <Unlock className="h-4 w-4" />
+              ) : (
+                <Lock className="h-4 w-4" />
+              )}
+              {sprintMeta.frozen ? t("unfreeze") : t("freeze")}
+            </button>
+          )}
           <button
             onClick={onRefresh}
             className="btn-secondary flex items-center gap-2"
