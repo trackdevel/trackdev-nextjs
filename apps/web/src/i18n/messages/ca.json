@@ -536,7 +536,8 @@
       "integer": "Enter",
       "float": "Decimal",
       "enum": "Enum",
-      "list": "Llista"
+      "list": "Llista",
+      "text": "Markdown"
     },
     "targets": {
       "student": "Estudiant",
@@ -1149,7 +1150,8 @@
     "selectCategory": "Seleccionar categoria...",
     "enterTitle": "Introduir títol",
     "enterDescription": "Introduir descripció...",
-    "description": "Descripció"
+    "description": "Descripció",
+    "enterTextValue": "Introdueix contingut markdown..."
   },
   "pullRequestDetails": {
     "notFound": "Pull request no trobat",
