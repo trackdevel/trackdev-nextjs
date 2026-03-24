@@ -11,6 +11,7 @@ export interface Sprint {
   startDate?: string;
   endDate?: string;
   status: SprintStatus;
+  frozen?: boolean;
   activeTasks?: Task[];
 }
 
