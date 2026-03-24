@@ -3,7 +3,7 @@
 // Based on Profile.java entity
 // ============================================
 
-export type AttributeType = "STRING" | "ENUM" | "INTEGER" | "FLOAT" | "LIST";
+export type AttributeType = "STRING" | "ENUM" | "INTEGER" | "FLOAT" | "LIST" | "TEXT";
 export type AttributeTarget = "STUDENT" | "TASK" | "PULL_REQUEST";
 export type AttributeAppliedBy = "STUDENT" | "PROFESSOR";
 export type AttributeVisibility =
