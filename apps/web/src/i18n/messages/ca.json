@@ -682,6 +682,13 @@
     "cannotChangeStatusInClosedSprint": "L'estat de la tasca no es pot canviar en un sprint tancat",
     "failedToReorder": "No s'ha pogut reordenar la tasca",
     "ranksRebalanced": "Prioritats de les tasques reequilibrades",
+    "freeze": "Congelar Sprint",
+    "unfreeze": "Descongelar Sprint",
+    "freezeSuccess": "Sprint congelat correctament",
+    "unfreezeSuccess": "Sprint descongelat correctament",
+    "freezeError": "Error en congelar l'sprint",
+    "unfreezeError": "Error en descongelar l'sprint",
+    "frozenBadge": "Congelat",
     "sse": {
       "taskUpdated": "{user} ha actualitzat {task}",
       "taskDeleted": "{user} ha eliminat una tasca",
