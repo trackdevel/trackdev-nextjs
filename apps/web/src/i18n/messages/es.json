@@ -682,6 +682,13 @@
     "cannotChangeStatusInClosedSprint": "El estado de la tarea no se puede cambiar en un sprint cerrado",
     "failedToReorder": "No se pudo reordenar la tarea",
     "ranksRebalanced": "Prioridades de las tareas reequilibradas",
+    "freeze": "Congelar Sprint",
+    "unfreeze": "Descongelar Sprint",
+    "freezeSuccess": "Sprint congelado correctamente",
+    "unfreezeSuccess": "Sprint descongelado correctamente",
+    "freezeError": "Error al congelar el sprint",
+    "unfreezeError": "Error al descongelar el sprint",
+    "frozenBadge": "Congelado",
     "sse": {
       "taskUpdated": "{user} ha actualizado {task}",
       "taskDeleted": "{user} ha eliminado una tarea",
