@@ -541,7 +541,8 @@
       "integer": "Integer",
       "float": "Decimal",
       "enum": "Enum",
-      "list": "List"
+      "list": "List",
+      "text": "Markdown"
     },
     "targets": {
       "student": "Student",
@@ -1154,7 +1155,8 @@
     "selectCategory": "Select category...",
     "enterTitle": "Enter title",
     "enterDescription": "Enter description...",
-    "description": "Description"
+    "description": "Description",
+    "enterTextValue": "Enter markdown content..."
   },
   "pullRequestDetails": {
     "notFound": "Pull request not found",

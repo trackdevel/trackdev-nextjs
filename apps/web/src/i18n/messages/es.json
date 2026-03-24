@@ -536,7 +536,8 @@
       "integer": "Entero",
       "float": "Decimal",
       "enum": "Enum",
-      "list": "Lista"
+      "list": "Lista",
+      "text": "Markdown"
     },
     "targets": {
       "student": "Estudiante",
@@ -1149,7 +1150,8 @@
     "selectCategory": "Seleccionar categoría...",
     "enterTitle": "Introducir título",
     "enterDescription": "Introducir descripción...",
-    "description": "Descripción"
+    "description": "Descripción",
+    "enterTextValue": "Introduce contenido markdown..."
   },
   "pullRequestDetails": {
     "notFound": "Pull request no encontrado",

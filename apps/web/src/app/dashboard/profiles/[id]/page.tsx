@@ -497,6 +497,7 @@ export default function ProfileDetailPage({
       FLOAT: t("types.float"),
       ENUM: t("types.enum"),
       LIST: t("types.list"),
+      TEXT: t("types.text"),
     };
     return labels[type];
   };
@@ -971,6 +972,7 @@ export default function ProfileDetailPage({
                 { value: "FLOAT", label: t("types.float") },
                 { value: "ENUM", label: t("types.enum") },
                 { value: "LIST", label: t("types.list") },
+                { value: "TEXT", label: t("types.text") },
               ]}
               className="mt-1"
               aria-label={t("form.attributeType")}
