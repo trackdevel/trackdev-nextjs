@@ -1,4 +1,6 @@
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
+import { StatusBadge, getTaskStatusVariant } from "@/components/ui/StatusBadge";
+import type { TaskStatus } from "@/components/ui/StatusBadge";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
 import {
@@ -163,6 +165,8 @@ const StoryHeader = memo(function StoryHeader({
   draggedTaskId: number | null;
   t: (key: string) => string;
 }) {
+  const tTasks = useTranslations("tasks");
+
   const syntheticTask = useMemo(
     () =>
       ({
@@ -208,6 +212,12 @@ const StoryHeader = memo(function StoryHeader({
         >
           {story.name}
         </Link>
+        {(story.status === "TODO" || story.status === "DONE") && (
+          <StatusBadge
+            label={tTasks(story.status === "DONE" ? "statusDone" : "statusTodo")}
+            variant={getTaskStatusVariant(story.status as TaskStatus)}
+          />
+        )}
         <span className="text-sm text-gray-500 dark:text-gray-400">
           ({story.subtasks.length} {t("tasks")})
         </span>
