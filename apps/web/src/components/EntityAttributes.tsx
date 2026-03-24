@@ -439,6 +439,15 @@ export const EntityAttributes = memo(function EntityAttributes({
             max={attr.maxValue || undefined}
           />
         );
+      case "TEXT":
+        return (
+          <MarkdownEditor
+            value={modalValue}
+            onChange={(val) => setModalValue(val)}
+            height={300}
+            placeholder={t("enterTextValue")}
+          />
+        );
       case "STRING":
       default:
         return (
@@ -500,15 +509,22 @@ export const EntityAttributes = memo(function EntityAttributes({
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       {row.attribute.name}
                     </p>
-                    <span
-                      className={
-                        hasValue
-                          ? "text-sm text-gray-900 dark:text-white"
-                          : "text-sm italic text-gray-400 dark:text-gray-500"
-                      }
-                    >
-                      {hasValue ? row.currentValue!.value : t("notSet")}
-                    </span>
+                    {hasValue && row.attribute.type === "TEXT" ? (
+                      <span className="text-sm text-gray-900 dark:text-white line-clamp-2">
+                        {row.currentValue!.value!.substring(0, 100)}
+                        {row.currentValue!.value!.length > 100 ? "..." : ""}
+                      </span>
+                    ) : (
+                      <span
+                        className={
+                          hasValue
+                            ? "text-sm text-gray-900 dark:text-white"
+                            : "text-sm italic text-gray-400 dark:text-gray-500"
+                        }
+                      >
+                        {hasValue ? row.currentValue!.value : t("notSet")}
+                      </span>
+                    )}
                   </div>
                   {editable && (
                     <button
@@ -597,7 +613,7 @@ export const EntityAttributes = memo(function EntityAttributes({
           isOpen={true}
           onClose={handleCloseModal}
           title={editingAttr.attribute.name}
-          maxWidth="sm"
+          maxWidth={editingAttr.attribute.type === "TEXT" ? "lg" : "sm"}
         >
           <div className="space-y-4">
             {renderModalInput(editingAttr)}
