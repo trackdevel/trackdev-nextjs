@@ -58,6 +58,7 @@ export function selectStories(
       storyMap.set(task.id, {
         id: task.id,
         name: task.name,
+        status: task.status,
         estimationPoints: task.estimationPoints || 0,
         assignee: task.assignee,
         subtasks: [],
@@ -124,6 +125,7 @@ export function selectStories(
     storyMap.set(-1, {
       id: -1,
       name: "Unassigned Tasks",
+      status: "",
       estimationPoints: 0,
       subtasks: orphanTasks.sort((a, b) => a.id - b.id),
       allSubtaskSprints: [],
