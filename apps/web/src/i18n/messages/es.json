@@ -932,7 +932,10 @@
     "enterTitle": "Introduce un título",
     "enterDescription": "Introduce una descripción (Markdown)",
     "viewDescription": "Ver descripción",
-    "description": "Descripción"
+    "description": "Descripción",
+    "enterTextValue": "Introduce contenido markdown...",
+    "numericValue": "Valor numérico",
+    "markdownText": "Notas"
   },
   "userTypes": {
     "admin": "Administrador",
