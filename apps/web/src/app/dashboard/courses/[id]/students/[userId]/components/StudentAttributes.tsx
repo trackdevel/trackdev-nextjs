@@ -45,6 +45,7 @@ export const StudentAttributes = memo(function StudentAttributes({
 
   const [editingAttr, setEditingAttr] = useState<AttributeRow | null>(null);
   const [modalValue, setModalValue] = useState("");
+  const [modalTextValue, setModalTextValue] = useState("");
 
   // LIST attribute state
   const [listDataCache, setListDataCache] = useState<
@@ -109,15 +110,17 @@ export const StudentAttributes = memo(function StudentAttributes({
 
   // Mutation to set/update attribute value
   const setValueMutation = useMutation(
-    ({ attributeId, value }: { attributeId: number; value: string | null }) =>
+    ({ attributeId, value, textValue }: { attributeId: number; value: string | null; textValue?: string | null }) =>
       coursesApi.setStudentAttributeValue(courseId, userId, attributeId, {
         value,
+        textValue,
       }),
     {
       onSuccess: () => {
         refetchValues();
         setEditingAttr(null);
         setModalValue("");
+        setModalTextValue("");
         toast.success(t("attributeValueSaved"));
       },
       onError: (err) => {
@@ -216,13 +219,20 @@ export const StudentAttributes = memo(function StudentAttributes({
   const handleOpenEdit = (row: AttributeRow) => {
     setEditingAttr(row);
     setModalValue(row.currentValue?.value || "");
+    setModalTextValue(row.currentValue?.textValue || "");
   };
 
   const handleSave = () => {
     if (editingAttr) {
+      const data: { value: string | null; textValue?: string | null } = {
+        value: modalValue || null,
+      };
+      if (editingAttr.attribute.type === "NUMERIC_TEXT") {
+        data.textValue = modalTextValue || null;
+      }
       setValueMutation.mutate({
         attributeId: editingAttr.attribute.id,
-        value: modalValue || null,
+        ...data,
       });
     }
   };
@@ -236,6 +246,7 @@ export const StudentAttributes = memo(function StudentAttributes({
   const handleCloseModal = () => {
     setEditingAttr(null);
     setModalValue("");
+    setModalTextValue("");
   };
 
   // LIST handlers — single-item editing
@@ -409,6 +420,45 @@ export const StudentAttributes = memo(function StudentAttributes({
             max={attr.maxValue || undefined}
           />
         );
+      case "TEXT":
+        return (
+          <MarkdownEditor
+            value={modalValue}
+            onChange={(val) => setModalValue(val)}
+            height={300}
+            placeholder={t("enterTextValue")}
+          />
+        );
+      case "NUMERIC_TEXT":
+        return (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t("numericValue")}
+              </label>
+              <input
+                type="number"
+                value={modalValue}
+                onChange={(e) => setModalValue(e.target.value)}
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
+                step="0.01"
+                min={attr.minValue || undefined}
+                max={attr.maxValue || undefined}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t("markdownText")}
+              </label>
+              <MarkdownEditor
+                value={modalTextValue}
+                onChange={(val) => setModalTextValue(val)}
+                height={250}
+                placeholder={t("enterTextValue")}
+              />
+            </div>
+          </div>
+        );
       case "STRING":
       default:
         return (
@@ -559,7 +609,7 @@ export const StudentAttributes = memo(function StudentAttributes({
           isOpen={true}
           onClose={handleCloseModal}
           title={editingAttr.attribute.name}
-          maxWidth="sm"
+          maxWidth={editingAttr.attribute.type === "TEXT" || editingAttr.attribute.type === "NUMERIC_TEXT" ? "lg" : "sm"}
         >
           <div className="space-y-4">
             {renderModalInput(editingAttr)}
