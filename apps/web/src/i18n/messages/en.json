@@ -534,7 +534,17 @@
       "createSuccess": "Attribute created successfully",
       "updateSuccess": "Attribute updated successfully",
       "deleteSuccess": "Attribute deleted successfully",
-      "deleteConfirmation": "Are you sure you want to delete the attribute \"{name}\"?"
+      "deleteError": "Failed to delete attribute",
+      "deleteConfirmation": "Are you sure you want to delete the attribute \"{name}\"?",
+      "usageWarning": "This attribute has {count} instantiated value(s) that will also be deleted:",
+      "usageEntity": "Entity",
+      "usageValue": "Value",
+      "usageMore": "... and {remaining} more",
+      "entityType": {
+        "TASK": "Task",
+        "STUDENT": "Student",
+        "PULL_REQUEST": "PR"
+      }
     },
     "types": {
       "string": "Text",
@@ -542,7 +552,8 @@
       "float": "Decimal",
       "enum": "Enum",
       "list": "List",
-      "text": "Markdown"
+      "text": "Markdown",
+      "numericText": "Numeric + Markdown"
     },
     "targets": {
       "student": "Student",
@@ -1163,7 +1174,9 @@
     "enterTitle": "Enter title",
     "enterDescription": "Enter description...",
     "description": "Description",
-    "enterTextValue": "Enter markdown content..."
+    "enterTextValue": "Enter markdown content...",
+    "numericValue": "Numeric value",
+    "markdownText": "Notes"
   },
   "pullRequestDetails": {
     "notFound": "Pull request not found",
