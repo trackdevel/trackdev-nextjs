@@ -529,7 +529,17 @@
       "createSuccess": "Atribut creat correctament",
       "updateSuccess": "Atribut actualitzat correctament",
       "deleteSuccess": "Atribut eliminat correctament",
-      "deleteConfirmation": "Estàs segur que vols eliminar l'atribut \"{name}\"?"
+      "deleteError": "Error en eliminar l'atribut",
+      "deleteConfirmation": "Estàs segur que vols eliminar l'atribut \"{name}\"?",
+      "usageWarning": "Aquest atribut té {count} valor(s) instanciat(s) que també s'eliminaran:",
+      "usageEntity": "Entitat",
+      "usageValue": "Valor",
+      "usageMore": "... i {remaining} més",
+      "entityType": {
+        "TASK": "Tasca",
+        "STUDENT": "Estudiant",
+        "PULL_REQUEST": "PR"
+      }
     },
     "types": {
       "string": "Text",
@@ -537,7 +547,8 @@
       "float": "Decimal",
       "enum": "Enum",
       "list": "Llista",
-      "text": "Markdown"
+      "text": "Markdown",
+      "numericText": "Numèric + Markdown"
     },
     "targets": {
       "student": "Estudiant",
@@ -1158,7 +1169,9 @@
     "enterTitle": "Introduir títol",
     "enterDescription": "Introduir descripció...",
     "description": "Descripció",
-    "enterTextValue": "Introdueix contingut markdown..."
+    "enterTextValue": "Introdueix contingut markdown...",
+    "numericValue": "Valor numèric",
+    "markdownText": "Notes"
   },
   "pullRequestDetails": {
     "notFound": "Pull request no trobat",
