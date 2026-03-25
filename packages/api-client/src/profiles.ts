@@ -3,6 +3,7 @@
 // ============================================
 
 import type {
+  AttributeUsage,
   IdObject,
   ProfileBasic,
   ProfileComplete,
@@ -43,4 +44,16 @@ export const profilesApi = {
    * Delete a profile
    */
   delete: (id: number) => api.delete<void>(`/profiles/${id}`),
+
+  /**
+   * Get usage information for a profile attribute (count + first 10 samples)
+   */
+  getAttributeUsage: (profileId: number, attributeId: number) =>
+    api.get<AttributeUsage>(`/profiles/${profileId}/attributes/${attributeId}/usage`),
+
+  /**
+   * Delete an attribute from a profile, cascading to all its values
+   */
+  deleteAttribute: (profileId: number, attributeId: number) =>
+    api.delete<void>(`/profiles/${profileId}/attributes/${attributeId}`),
 };
