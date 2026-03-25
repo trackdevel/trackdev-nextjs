@@ -937,7 +937,10 @@
     "enterTitle": "Enter a title",
     "enterDescription": "Enter a description (Markdown)",
     "viewDescription": "View description",
-    "description": "Description"
+    "description": "Description",
+    "enterTextValue": "Enter markdown content...",
+    "numericValue": "Numeric value",
+    "markdownText": "Notes"
   },
   "userTypes": {
     "admin": "Administrator",
