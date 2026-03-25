@@ -3,7 +3,7 @@
 // Based on Profile.java entity
 // ============================================
 
-export type AttributeType = "STRING" | "ENUM" | "INTEGER" | "FLOAT" | "LIST" | "TEXT";
+export type AttributeType = "STRING" | "ENUM" | "INTEGER" | "FLOAT" | "LIST" | "TEXT" | "NUMERIC_TEXT";
 export type AttributeTarget = "STUDENT" | "TASK" | "PULL_REQUEST";
 export type AttributeAppliedBy = "STUDENT" | "PROFESSOR";
 export type AttributeVisibility =
@@ -113,4 +113,19 @@ export interface PullRequestAttributeListValue {
 
 export interface SetListAttributeValuesRequest {
   items: { enumValue?: string; title: string; description?: string }[];
+}
+
+// ============================================
+// Attribute Usage (for deletion confirmation)
+// ============================================
+
+export interface AttributeUsageSample {
+  entityType: "TASK" | "STUDENT" | "PULL_REQUEST";
+  entityName: string;
+  value: string | null;
+}
+
+export interface AttributeUsage {
+  totalCount: number;
+  samples: AttributeUsageSample[];
 }

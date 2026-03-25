@@ -183,9 +183,10 @@ export interface TaskAttributeValue {
   taskId: number;
   attributeId: number;
   attributeName: string;
-  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
+  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM" | "TEXT" | "NUMERIC_TEXT";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
+  textValue?: string | null;
   enumValues?: EnumValueEntry[];
 }
 
@@ -197,9 +198,10 @@ export interface StudentAttributeValue {
   userId: string;
   attributeId: number;
   attributeName: string;
-  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
+  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM" | "TEXT" | "NUMERIC_TEXT";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
+  textValue?: string | null;
   enumValues?: EnumValueEntry[];
 }
 
@@ -211,9 +213,10 @@ export interface PullRequestAttributeValue {
   pullRequestId: string;
   attributeId: number;
   attributeName: string;
-  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM";
+  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM" | "TEXT" | "NUMERIC_TEXT";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
+  textValue?: string | null;
   enumValues?: EnumValueEntry[];
 }
 
@@ -222,6 +225,7 @@ export interface PullRequestAttributeValue {
  */
 export interface SetAttributeValueRequest {
   value: string | null;
+  textValue?: string | null;
 }
 
 /**

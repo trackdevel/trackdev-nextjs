@@ -529,7 +529,17 @@
       "createSuccess": "Atributo creado correctamente",
       "updateSuccess": "Atributo actualizado correctamente",
       "deleteSuccess": "Atributo eliminado correctamente",
-      "deleteConfirmation": "¿Estás seguro de que quieres eliminar el atributo \"{name}\"?"
+      "deleteError": "Error al eliminar el atributo",
+      "deleteConfirmation": "¿Estás seguro de que quieres eliminar el atributo \"{name}\"?",
+      "usageWarning": "Este atributo tiene {count} valor(es) instanciado(s) que también se eliminarán:",
+      "usageEntity": "Entidad",
+      "usageValue": "Valor",
+      "usageMore": "... y {remaining} más",
+      "entityType": {
+        "TASK": "Tarea",
+        "STUDENT": "Estudiante",
+        "PULL_REQUEST": "PR"
+      }
     },
     "types": {
       "string": "Texto",
@@ -537,7 +547,8 @@
       "float": "Decimal",
       "enum": "Enum",
       "list": "Lista",
-      "text": "Markdown"
+      "text": "Markdown",
+      "numericText": "Numérico + Markdown"
     },
     "targets": {
       "student": "Estudiante",
@@ -1158,7 +1169,9 @@
     "enterTitle": "Introducir título",
     "enterDescription": "Introducir descripción...",
     "description": "Descripción",
-    "enterTextValue": "Introduce contenido markdown..."
+    "enterTextValue": "Introduce contenido markdown...",
+    "numericValue": "Valor numérico",
+    "markdownText": "Notas"
   },
   "pullRequestDetails": {
     "notFound": "Pull request no encontrado",

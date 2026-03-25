@@ -19,6 +19,7 @@ import type {
   AttributeAppliedBy,
   AttributeTarget,
   AttributeType,
+  AttributeUsage,
   AttributeVisibility,
   ProfileComplete,
   ProfileRequest,
@@ -27,6 +28,7 @@ import {
   ArrowLeft,
   FileSliders,
   List,
+  Loader2,
   Pencil,
   Plus,
   Tag,
@@ -98,6 +100,11 @@ export default function ProfileDetailPage({
   const [attributeToDeleteIndex, setAttributeToDeleteIndex] = useState<
     number | null
   >(null);
+  const [attributeUsage, setAttributeUsage] = useState<AttributeUsage | null>(
+    null,
+  );
+  const [isLoadingUsage, setIsLoadingUsage] = useState(false);
+  const [isDeletingAttribute, setIsDeletingAttribute] = useState(false);
 
   // API query
   const {
@@ -452,40 +459,50 @@ export default function ProfileDetailPage({
     }
   };
 
-  const handleDeleteAttributeClick = (index: number) => {
+  const handleDeleteAttributeClick = async (index: number) => {
+    if (!profile) return;
+    const attribute = profile.attributes[index];
+    if (!attribute) return;
+
     setAttributeToDeleteIndex(index);
+    setAttributeUsage(null);
+    setIsLoadingUsage(true);
     setShowDeleteAttributeDialog(true);
+
+    try {
+      const usage = await profilesApi.getAttributeUsage(
+        profile.id,
+        attribute.id,
+      );
+      setAttributeUsage(usage);
+    } catch {
+      setAttributeUsage({ totalCount: 0, samples: [] });
+    } finally {
+      setIsLoadingUsage(false);
+    }
   };
 
   const handleConfirmDeleteAttribute = async () => {
     if (!profile || attributeToDeleteIndex === null) return;
+    const attribute = profile.attributes[attributeToDeleteIndex];
+    if (!attribute) return;
 
-    const currentAttributes = profile.attributes || [];
-    const newAttributes = currentAttributes
-      .filter((_, i) => i !== attributeToDeleteIndex)
-      .map((a) => ({
-        id: a.id,
-        name: a.name,
-        type: a.type,
-        target: a.target,
-        appliedBy: a.appliedBy,
-        visibility: a.visibility,
-        enumRefName: a.enumRefName,
-        defaultValue: a.defaultValue,
-        minValue: a.minValue,
-        maxValue: a.maxValue,
-      }));
-
+    setIsDeletingAttribute(true);
     try {
-      await updateProfileMutation.mutateAsync({
-        ...buildProfileRequest(profile),
-        attributes: newAttributes,
-      });
+      await profilesApi.deleteAttribute(profile.id, attribute.id);
       setShowDeleteAttributeDialog(false);
       setAttributeToDeleteIndex(null);
+      setAttributeUsage(null);
       toast.success(t("attributes.deleteSuccess"));
-    } catch {
-      // Error handled by mutation
+      refetch();
+    } catch (err) {
+      const errorMessage =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : t("attributes.deleteError");
+      toast.error(errorMessage);
+    } finally {
+      setIsDeletingAttribute(false);
     }
   };
 
@@ -498,6 +515,7 @@ export default function ProfileDetailPage({
       ENUM: t("types.enum"),
       LIST: t("types.list"),
       TEXT: t("types.text"),
+      NUMERIC_TEXT: t("types.numericText"),
     };
     return labels[type];
   };
@@ -965,6 +983,17 @@ export default function ProfileDetailPage({
                   setAttributeMinValue("");
                   setAttributeMaxValue("");
                 }
+                // NUMERIC_TEXT: target TASK or STUDENT, appliedBy=PROFESSOR, visibility PROFESSOR_ONLY or ASSIGNED_STUDENT
+                if (newType === "NUMERIC_TEXT") {
+                  if (attributeTarget !== "TASK" && attributeTarget !== "STUDENT") {
+                    setAttributeTarget("TASK");
+                  }
+                  setAttributeAppliedBy("PROFESSOR");
+                  if (attributeVisibility !== "PROFESSOR_ONLY" && attributeVisibility !== "ASSIGNED_STUDENT") {
+                    setAttributeVisibility("PROFESSOR_ONLY");
+                  }
+                  setAttributeDefaultValue("");
+                }
               }}
               options={[
                 { value: "STRING", label: t("types.string") },
@@ -973,6 +1002,7 @@ export default function ProfileDetailPage({
                 { value: "ENUM", label: t("types.enum") },
                 { value: "LIST", label: t("types.list") },
                 { value: "TEXT", label: t("types.text") },
+                { value: "NUMERIC_TEXT", label: t("types.numericText") },
               ]}
               className="mt-1"
               aria-label={t("form.attributeType")}
@@ -1193,16 +1223,72 @@ export default function ProfileDetailPage({
       {/* Delete Attribute Confirmation */}
       <ConfirmDialog
         isOpen={showDeleteAttributeDialog}
-        onClose={() => setShowDeleteAttributeDialog(false)}
+        onClose={() => {
+          setShowDeleteAttributeDialog(false);
+          setAttributeToDeleteIndex(null);
+          setAttributeUsage(null);
+        }}
         onConfirm={handleConfirmDeleteAttribute}
         title={t("attributes.delete")}
         message={t("attributes.deleteConfirmation", {
           name: getAttributeToDeleteName(),
         })}
         confirmLabel={tCommon("delete")}
-        isLoading={updateProfileMutation.isLoading}
+        isLoading={isDeletingAttribute}
         variant="danger"
-      />
+        maxWidth={attributeUsage && attributeUsage.totalCount > 0 ? "md" : "sm"}
+      >
+        {isLoadingUsage ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+          </div>
+        ) : attributeUsage && attributeUsage.totalCount > 0 ? (
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-red-600 dark:text-red-400">
+              {t("attributes.usageWarning", {
+                count: attributeUsage.totalCount,
+              })}
+            </p>
+            <div className="max-h-48 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-600">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-3 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400">
+                      {t("attributes.usageEntity")}
+                    </th>
+                    <th className="px-3 py-1.5 text-left font-medium text-gray-500 dark:text-gray-400">
+                      {t("attributes.usageValue")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                  {attributeUsage.samples.map((sample, idx) => (
+                    <tr key={idx}>
+                      <td className="px-3 py-1.5 text-gray-900 dark:text-white whitespace-nowrap">
+                        <span className="inline-flex rounded-full bg-gray-100 dark:bg-gray-600 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300 mr-1.5">
+                          {t(`attributes.entityType.${sample.entityType}`)}
+                        </span>
+                        {sample.entityName}
+                      </td>
+                      <td className="px-3 py-1.5 text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
+                        {sample.value || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {attributeUsage.totalCount > attributeUsage.samples.length && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                {t("attributes.usageMore", {
+                  remaining:
+                    attributeUsage.totalCount - attributeUsage.samples.length,
+                })}
+              </p>
+            )}
+          </div>
+        ) : null}
+      </ConfirmDialog>
     </PageContainer>
   );
 }
