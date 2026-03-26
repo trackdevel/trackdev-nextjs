@@ -43,6 +43,7 @@ function AuthProviderWithLocale({ children }: { children: ReactNode }) {
       setStoredToken={setStoredToken}
       onAuthExpired={handleAuthExpired}
       getLocale={getLocale}
+      storageKey={TOKEN_KEY}
     >
       <ToastProvider>{children}</ToastProvider>
     </AuthProvider>

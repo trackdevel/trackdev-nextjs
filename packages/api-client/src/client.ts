@@ -193,12 +193,9 @@ export async function fetchApi<T>(
     );
   }
 
-  // Handle 204 No Content
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  // Check for refreshed token and update it
+  // Check for refreshed token and update it (sliding session).
+  // Must run BEFORE any early returns (e.g. 204) to ensure every
+  // successful response extends the session.
   const refreshedToken = response.headers.get("X-Refreshed-Token");
   if (refreshedToken && config.setToken) {
     // Remove "Bearer " prefix if present
@@ -206,6 +203,11 @@ export async function fetchApi<T>(
       ? refreshedToken.slice(7)
       : refreshedToken;
     await config.setToken(token);
+  }
+
+  // Handle 204 No Content
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   // Handle errors
