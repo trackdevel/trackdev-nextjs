@@ -58,6 +58,7 @@ export function selectStories(
       storyMap.set(task.id, {
         id: task.id,
         name: task.name,
+        taskKey: task.taskKey,
         status: task.status,
         estimationPoints: task.estimationPoints || 0,
         assignee: task.assignee,
