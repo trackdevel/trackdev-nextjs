@@ -51,6 +51,7 @@ export interface SprintBoardResponse {
 export interface Story {
   id: number;
   name: string;
+  taskKey?: string;
   status: string;
   estimationPoints: number;
   assignee?: Task["assignee"];
