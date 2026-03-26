@@ -1,3 +1,4 @@
+import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import { StatusBadge, getTaskStatusVariant } from "@/components/ui/StatusBadge";
 import type { TaskStatus } from "@/components/ui/StatusBadge";
@@ -205,6 +206,7 @@ const StoryHeader = memo(function StoryHeader({
             <ChevronDown className="h-4 w-4 text-gray-400" />
           )}
         </button>
+        {story.taskKey && <TaskBadge taskKey={story.taskKey} taskId={story.id} />}
         <Link
           href={`/dashboard/tasks/${story.id}`}
           onClick={(e) => e.stopPropagation()}
