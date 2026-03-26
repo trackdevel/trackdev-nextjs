@@ -1,8 +1,7 @@
 "use client";
 
-import { ApiClientError, authApi } from "@trackdev/api-client";
+import { authApi } from "@trackdev/api-client";
 import {
-  AlertCircle,
   ArrowLeft,
   CheckCircle,
   Layers,
@@ -16,25 +15,19 @@ export default function ForgotPasswordPage() {
   const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     setIsLoading(true);
 
     try {
       await authApi.forgotPassword({ email });
-      setSuccess(true);
-    } catch (err) {
-      if (err instanceof ApiClientError) {
-        setError(err.getUserMessage());
-      } else {
-        setError(t("unexpectedError"));
-      }
+    } catch {
+      // Silently ignore errors to avoid leaking whether the email exists
     } finally {
       setIsLoading(false);
+      setSuccess(true);
     }
   };
 
@@ -88,13 +81,6 @@ export default function ForgotPasswordPage() {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="flex items-center gap-2 rounded-md bg-red-50 p-4 text-sm text-red-700">
-              <AlertCircle className="h-5 w-5 shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-
           <div>
             <label htmlFor="email" className="label">
               {t("emailAddress")}
