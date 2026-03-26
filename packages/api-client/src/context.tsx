@@ -38,6 +38,8 @@ export interface AuthProviderProps {
   getStoredToken?: () => Promise<string | null>;
   setStoredToken?: (token: string | null) => Promise<void>;
   getLocale?: () => string;
+  /** localStorage key used to store the token — enables cross-tab sync via the storage event */
+  storageKey?: string;
 }
 
 export function AuthProvider({
@@ -48,6 +50,7 @@ export function AuthProvider({
   getStoredToken,
   setStoredToken,
   getLocale,
+  storageKey,
 }: AuthProviderProps) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -100,7 +103,6 @@ export function AuthProvider({
   }, [baseUrl]);
 
   // Initialize from stored token
-  // Initialize from stored token
   useEffect(() => {
     const init = async () => {
       try {
@@ -135,6 +137,58 @@ export function AuthProvider({
 
     init();
   }, [getStoredToken, setStoredToken]);
+
+  // Cross-tab synchronization via the storage event.
+  // When another tab updates or clears the token in localStorage,
+  // this tab picks up the change so all tabs stay in sync.
+  useEffect(() => {
+    if (typeof window === "undefined" || !storageKey) return;
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key !== storageKey) return;
+
+      if (e.newValue) {
+        // Another tab wrote a new token — adopt it
+        tokenRef.current = e.newValue;
+        setState((prev) => ({ ...prev, token: e.newValue }));
+      } else {
+        // Another tab cleared the token (logout or auth expired)
+        tokenRef.current = null;
+        setState({
+          user: null,
+          token: null,
+          isLoading: false,
+          isAuthenticated: false,
+        });
+        onAuthExpiredRef.current?.();
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [storageKey]);
+
+  // Keep-alive: periodically ping the backend so the sliding session
+  // doesn't expire while the user has the tab open but idle (e.g.
+  // watching a sprint board via SSE, which is excluded from token refresh).
+  // Runs every 15 minutes; only fires when the tab is authenticated.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const KEEP_ALIVE_MS = 15 * 60 * 1000; // 15 minutes
+
+    const interval = setInterval(() => {
+      if (tokenRef.current) {
+        // Silent call — the response will carry X-Refreshed-Token
+        authApi.self().catch(() => {
+          // Ignore — if the token is truly dead, the next user-initiated
+          // request will trigger onUnauthorized and redirect to login.
+        });
+      }
+    }, KEEP_ALIVE_MS);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const login = useCallback(
     async (credentials: LoginRequest) => {
