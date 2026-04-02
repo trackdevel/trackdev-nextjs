@@ -81,6 +81,7 @@ export default function TasksListPage() {
     if (filters.status) params.status = filters.status;
     if (filters.assigneeId) params.assigneeId = filters.assigneeId;
     if (filters.projectId) params.projectId = Number(filters.projectId);
+    if (filters.search) params.search = filters.search;
     return params;
   }, [filters]);
 
@@ -90,30 +91,14 @@ export default function TasksListPage() {
     { enabled: isAuthenticated },
   );
 
-  // Sort and client-side search filter
-  const tasks = useMemo(() => {
-    let raw = tasksResponse?.tasks || [];
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      raw = raw.filter(
-        (task) =>
-          task.name.toLowerCase().includes(searchLower) ||
-          task.taskKey?.toLowerCase().includes(searchLower),
-      );
-    }
-    return [...raw].sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return filters.sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-    });
-  }, [tasksResponse?.tasks, filters.sortOrder, filters.search]);
+  const tasks = tasksResponse?.tasks || [];
   const totalPages = tasksResponse?.totalPages || 0;
   const totalElements = tasksResponse?.totalElements || 0;
 
-  // Extract unique assignees from tasks for the filter dropdown
+  // Extract unique assignees from current page tasks for the filter dropdown
   const assigneeOptions = useMemo(() => {
     const assignees = new Map<string, string>();
-    tasks.forEach((task) => {
+    (tasksResponse?.tasks || []).forEach((task) => {
       if (task.assignee) {
         assignees.set(task.assignee.id, task.assignee.username);
       }
@@ -122,7 +107,7 @@ export default function TasksListPage() {
       value: id,
       label: username,
     }));
-  }, [tasks]);
+  }, [tasksResponse?.tasks]);
 
   const handleFilterChange = (key: string, value: string) => {
     updateSearchParams({ [key]: value, page: "0" });
