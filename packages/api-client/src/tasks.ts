@@ -36,6 +36,7 @@ export interface TasksFilterParams {
   assigneeId?: string;
   projectId?: number;
   sortOrder?: "asc" | "desc";
+  search?: string;
 }
 
 export interface StatusListResponse {
@@ -198,6 +199,9 @@ export const tasksApi = {
     }
     if (filters?.sortOrder) {
       params.set("sortOrder", filters.sortOrder);
+    }
+    if (filters?.search) {
+      params.set("search", filters.search);
     }
 
     return api.get<PagedTasksResponse>(`/tasks/my?${params.toString()}`);
