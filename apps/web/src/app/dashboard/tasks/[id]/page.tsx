@@ -30,6 +30,7 @@ import {
   TaskDiscussion,
   TaskHeader,
   TaskHistory,
+  TaskLinkModal,
   TaskPointsReview,
   TaskPullRequests,
   TaskSidebar,
@@ -100,6 +101,7 @@ export default function TaskDetailPage() {
   const [baseTask, setBaseTask] = useState<TaskDetail | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
 
   // Fetch task data
   const {
@@ -171,6 +173,7 @@ export default function TaskDetailPage() {
   const [showCannotDeleteDialog, setShowCannotDeleteDialog] = useState(false);
   const canFreeze = optimisticTask?.canFreeze ?? false;
   const canComment = optimisticTask?.canComment ?? false;
+  const canManageLinks = optimisticTask?.canManageLinks ?? false;
   // Additional permission flag available: canAddSubtask (in optimisticTask)
 
   // USER_STORY status is derived from its children - no manual status change available
@@ -447,6 +450,40 @@ export default function TaskDetailPage() {
     refetchTask();
   }, [refetchTask]);
 
+  const handleRemoveLink = useCallback(
+    async (linked: Task) => {
+      startTransition(async () => {
+        addOptimisticUpdate({
+          type: "updateTask",
+          task: {
+            linkedTasks: optimisticTask?.linkedTasks?.filter(
+              (lt) => lt.id !== linked.id,
+            ),
+          },
+        });
+        try {
+          await tasksApi.removeLinkedTask(taskId, linked.id);
+          await refetchTask();
+          toast.success(t("linkRemoved"));
+        } catch (err) {
+          const errorMessage =
+            err instanceof ApiClientError && err.body?.message
+              ? err.body.message
+              : t("failedToRemoveLink");
+          toast.error(errorMessage);
+          await refetchTask();
+        }
+      });
+    },
+    [taskId, optimisticTask?.linkedTasks, addOptimisticUpdate, refetchTask, t, toast],
+  );
+
+  const handleLinkSuccess = useCallback(() => {
+    setShowLinkModal(false);
+    toast.success(t("linkAdded"));
+    refetchTask();
+  }, [refetchTask, t, toast]);
+
   const handleCommentAdded = useCallback(() => {
     // Refetch to get updated discussion
     refetchTask();
@@ -663,6 +700,9 @@ export default function TaskDetailPage() {
             onSprintChange={handleSprintChange}
             onSelfAssign={handleSelfAssign}
             onUnassign={handleUnassign}
+            canManageLinks={canManageLinks}
+            onAddLink={() => setShowLinkModal(true)}
+            onRemoveLink={handleRemoveLink}
           />
 
           {/* Profile Attributes */}
@@ -674,6 +714,23 @@ export default function TaskDetailPage() {
           />
         </div>
       </div>
+
+      {/* Link Task Modal */}
+      {optimisticTask.project?.id && (
+        <TaskLinkModal
+          isOpen={showLinkModal}
+          onClose={() => setShowLinkModal(false)}
+          taskId={taskId}
+          projectId={optimisticTask.project.id}
+          excludeTaskIds={
+            new Set([
+              taskId,
+              ...(optimisticTask.linkedTasks?.map((lt) => lt.id) ?? []),
+            ])
+          }
+          onSuccess={handleLinkSuccess}
+        />
+      )}
 
       {/* Cannot Delete Dialog */}
       {showCannotDeleteDialog && (

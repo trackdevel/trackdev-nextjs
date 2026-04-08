@@ -48,6 +48,12 @@ interface FilterableTaskListProps {
   emptyFilteredDescription?: string;
   /** Whether to show assignee in task items */
   showAssignee?: boolean;
+  /** When true, tasks render as selectable rows instead of navigation links */
+  selectionMode?: boolean;
+  /** Currently selected task IDs (for selection mode) */
+  selectedTaskIds?: Set<number>;
+  /** Called when a task is toggled in selection mode */
+  onTaskToggle?: (task: import("@trackdev/types").Task) => void;
 }
 
 export function FilterableTaskList({
@@ -67,6 +73,9 @@ export function FilterableTaskList({
   emptyFilteredTitle,
   emptyFilteredDescription,
   showAssignee = true,
+  selectionMode = false,
+  selectedTaskIds,
+  onTaskToggle,
 }: FilterableTaskListProps) {
   const t = useTranslations("tasks");
 
@@ -96,7 +105,12 @@ export function FilterableTaskList({
           <LoadingContainer />
         ) : tasks.length > 0 ? (
           <>
-            <TaskList tasks={tasks} showAssignee={showAssignee} />
+            <TaskList
+            tasks={tasks}
+            showAssignee={showAssignee}
+            onTaskToggle={selectionMode ? onTaskToggle : undefined}
+            selectedTaskIds={selectionMode ? selectedTaskIds : undefined}
+          />
             {pagination && (
               <Pagination
                 currentPage={pagination.currentPage}

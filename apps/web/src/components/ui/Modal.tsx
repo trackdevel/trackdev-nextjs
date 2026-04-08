@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useEffect } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -35,6 +36,15 @@ export function Modal({
   maxWidth = "md",
   resizable = false,
 }: ModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
