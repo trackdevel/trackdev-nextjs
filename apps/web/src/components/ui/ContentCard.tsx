@@ -28,7 +28,7 @@ export function ContentCard({
         {viewAllHref && (
           <Link
             href={viewAllHref}
-            className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
+            className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
           >
             {viewAllLabel}
             <ArrowRight className="h-4 w-4" />
