@@ -208,6 +208,20 @@ export const tasksApi = {
   },
 
   /**
+   * Add a bidirectional link between two tasks.
+   * Only the assignee or a professor can manage links.
+   */
+  addLinkedTask: (taskId: number, linkedTaskId: number) =>
+    api.put<void>(`/tasks/${taskId}/linked-tasks/${linkedTaskId}`, {}),
+
+  /**
+   * Remove the bidirectional link between two tasks.
+   * Only the assignee or a professor can manage links.
+   */
+  removeLinkedTask: (taskId: number, linkedTaskId: number) =>
+    api.delete<void>(`/tasks/${taskId}/linked-tasks/${linkedTaskId}`),
+
+  /**
    * Freeze a task (PROFESSOR only)
    */
   freeze: (id: number) => api.post<Task>(`/tasks/${id}/freeze`, {}),
