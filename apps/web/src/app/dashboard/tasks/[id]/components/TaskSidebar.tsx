@@ -2,13 +2,14 @@
 
 import { Select } from "@/components/ui";
 import type { SprintSummary } from "@trackdev/api-client";
-import type { TaskStatus, TaskType } from "@trackdev/types";
+import type { Task, TaskStatus, TaskType } from "@trackdev/types";
 import { Check, Loader2, Pencil, UserMinus, UserPlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { memo, useMemo, useState } from "react";
 import { STATUS_CONFIG, TYPE_CONFIG } from "../constants";
 import type { EditField, EditState, TaskWithProject } from "../types";
+import { LinkedTasksSection } from "./LinkedTasksSection";
 
 interface TaskSidebarProps {
   task: TaskWithProject;
@@ -29,6 +30,9 @@ interface TaskSidebarProps {
   onSprintChange: (value: number | null) => void;
   onSelfAssign: () => Promise<void>;
   onUnassign: () => Promise<void>;
+  canManageLinks: boolean;
+  onAddLink: () => void;
+  onRemoveLink: (linkedTask: Task) => Promise<void>;
 }
 
 export const TaskSidebar = memo(function TaskSidebar({
@@ -50,6 +54,9 @@ export const TaskSidebar = memo(function TaskSidebar({
   onSprintChange,
   onSelfAssign,
   onUnassign,
+  canManageLinks,
+  onAddLink,
+  onRemoveLink,
 }: TaskSidebarProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
@@ -126,6 +133,12 @@ export const TaskSidebar = memo(function TaskSidebar({
 
   return (
     <div className="space-y-6">
+      <LinkedTasksSection
+        linkedTasks={task.linkedTasks || []}
+        canManageLinks={canManageLinks}
+        onAddLink={onAddLink}
+        onRemoveLink={onRemoveLink}
+      />
       <div className="card">
         <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
           <h2 className="font-semibold text-gray-900 dark:text-white">
