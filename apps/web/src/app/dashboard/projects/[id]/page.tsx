@@ -1,7 +1,6 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-import { RecentTasksCard } from "@/components/tasks";
 import {
   CardSection,
   DropdownMenu,
@@ -30,7 +29,6 @@ import type {
   GitHubRepoSummary,
   Report,
   SprintPattern,
-  Task,
 } from "@trackdev/types";
 import {
   AlertCircle,
@@ -63,7 +61,6 @@ export default function ProjectDetailPage() {
   const t = useTranslations("projects");
   const tCommon = useTranslations("common");
   const tSprints = useTranslations("sprints");
-  const tTasks = useTranslations("tasks");
   const tReports = useTranslations("reports");
   const tAnalysis = useTranslations("projectAnalysis");
   const { formatDateTimeRange } = useDateFormat();
@@ -384,6 +381,7 @@ export default function ProjectDetailPage() {
           value={`${completedTasks} / ${totalTasks}`}
           iconBgColor="bg-green-100"
           iconColor="text-green-600"
+          viewAllHref={`/dashboard/projects/${projectId}/tasks`}
         />
         <StatCard
           icon={Calendar}
@@ -618,18 +616,6 @@ export default function ProjectDetailPage() {
             ))}
           </ul>
         </CardSection>
-      </div>
-
-      {/* Tasks Section */}
-      <div className="mt-8">
-        <RecentTasksCard
-          tasks={tasks as Task[]}
-          showCount
-          title={tTasks("recentTasks")}
-          viewAllHref={`/dashboard/projects/${projectId}/tasks`}
-          emptyTitle={t("noTasksCreated")}
-          emptyDescription={t("createTasksInBacklog")}
-        />
       </div>
 
       {/* Add Repository Modal */}
