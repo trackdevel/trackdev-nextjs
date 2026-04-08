@@ -10,10 +10,88 @@ import { TaskBadge } from "./TaskBadge";
 interface TaskListItemProps {
   task: Task;
   showAssignee?: boolean;
+  /** When provided, renders as a selectable row (no navigation) */
+  onSelect?: (task: Task) => void;
+  /** Whether this task is currently selected */
+  isSelected?: boolean;
 }
 
-export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
+export function TaskListItem({
+  task,
+  showAssignee = true,
+  onSelect,
+  isSelected,
+}: TaskListItemProps) {
   const t = useTranslations("tasks");
+
+  const content = (
+    <>
+      <div className="flex items-center gap-3">
+        {onSelect !== undefined && (
+          <div
+            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
+              isSelected
+                ? "border-primary-500 bg-primary-500"
+                : "border-gray-300 dark:border-gray-600"
+            }`}
+          >
+            {isSelected && <span className="text-white text-xs font-bold">✓</span>}
+          </div>
+        )}
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+          <ClipboardList className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        </div>
+        <div>
+          <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+            <TaskBadge taskKey={task.taskKey || `#${task.id}`} taskId={task.id} />
+            {task.name}
+          </h3>
+          <div className="mt-1 flex items-center gap-2 text-sm">
+            <TaskTypeBadge type={task.type} />
+            <TaskStatusBadge status={task.status} />
+            {task.status === "DONE" && task.estimationPoints > 0 && (
+              <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                {task.estimationPoints} {t("points")}
+              </span>
+            )}
+            {showAssignee && task.assignee && (
+              <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                •
+                <MemberAvatar
+                  username={task.assignee.fullName || task.assignee.username}
+                  capitalLetters={task.assignee.capitalLetters}
+                  color={task.assignee.color}
+                  size="xxs"
+                  title={task.assignee.fullName || task.assignee.username}
+                />
+                <span className="font-medium">
+                  {task.assignee.fullName || task.assignee.username}
+                </span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      {onSelect === undefined && <ArrowRight className="h-4 w-4 text-gray-400" />}
+    </>
+  );
+
+  if (onSelect !== undefined) {
+    return (
+      <li>
+        <div
+          role="checkbox"
+          aria-checked={isSelected}
+          onClick={() => onSelect(task)}
+          className={`flex cursor-pointer items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+            isSelected ? "bg-primary-50 dark:bg-primary-900/20" : ""
+          }`}
+        >
+          {content}
+        </div>
+      </li>
+    );
+  }
 
   return (
     <li>
@@ -21,42 +99,7 @@ export function TaskListItem({ task, showAssignee = true }: TaskListItemProps) {
         href={`/dashboard/tasks/${task.id}`}
         className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700"
       >
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-            <ClipboardList className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-              <TaskBadge taskKey={task.taskKey || `#${task.id}`} taskId={task.id} />
-              {task.name}
-            </h3>
-            <div className="mt-1 flex items-center gap-2 text-sm">
-              <TaskTypeBadge type={task.type} />
-              <TaskStatusBadge status={task.status} />
-              {task.status === "DONE" && task.estimationPoints > 0 && (
-                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                  {task.estimationPoints} {t("points")}
-                </span>
-              )}
-              {showAssignee && task.assignee && (
-                <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                  •
-                  <MemberAvatar
-                    username={task.assignee.fullName || task.assignee.username}
-                    capitalLetters={task.assignee.capitalLetters}
-                    color={task.assignee.color}
-                    size="xxs"
-                    title={task.assignee.fullName || task.assignee.username}
-                  />
-                  <span className="font-medium">
-                    {task.assignee.fullName || task.assignee.username}
-                  </span>
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        <ArrowRight className="h-4 w-4 text-gray-400" />
+        {content}
       </Link>
     </li>
   );
@@ -118,13 +161,21 @@ export function TaskStatusBadge({ status }: TaskStatusBadgeProps) {
 interface TaskListProps {
   tasks: Task[];
   showAssignee?: boolean;
+  onTaskToggle?: (task: Task) => void;
+  selectedTaskIds?: Set<number>;
 }
 
-export function TaskList({ tasks, showAssignee = true }: TaskListProps) {
+export function TaskList({ tasks, showAssignee = true, onTaskToggle, selectedTaskIds }: TaskListProps) {
   return (
     <ul className="divide-y divide-gray-200 dark:divide-gray-700">
       {tasks.map((task) => (
-        <TaskListItem key={task.id} task={task} showAssignee={showAssignee} />
+        <TaskListItem
+          key={task.id}
+          task={task}
+          showAssignee={showAssignee}
+          onSelect={onTaskToggle}
+          isSelected={selectedTaskIds?.has(task.id)}
+        />
       ))}
     </ul>
   );
