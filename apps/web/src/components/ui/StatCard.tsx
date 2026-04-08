@@ -1,6 +1,8 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface StatCardProps {
   icon: LucideIcon;
@@ -9,6 +11,8 @@ interface StatCardProps {
   iconBgColor?: string;
   iconColor?: string;
   isLoading?: boolean;
+  viewAllHref?: string;
+  viewAllLabel?: string;
 }
 
 export function StatCard({
@@ -18,9 +22,11 @@ export function StatCard({
   iconBgColor = "bg-primary-100",
   iconColor = "text-primary-600",
   isLoading = false,
+  viewAllHref,
+  viewAllLabel = "View all",
 }: StatCardProps) {
   return (
-    <div className="card p-6">
+    <div className="card flex flex-col gap-4 p-6">
       <div className="flex items-center gap-4">
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-lg ${iconBgColor}`}
@@ -36,6 +42,15 @@ export function StatCard({
           </p>
         </div>
       </div>
+      {viewAllHref && (
+        <Link
+          href={viewAllHref}
+          className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+        >
+          {viewAllLabel}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      )}
     </div>
   );
 }
