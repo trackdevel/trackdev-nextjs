@@ -325,7 +325,17 @@
     "viewPRDetails": "Ver detalles del PR",
     "copyTaskLink": "Copiar enlace de la tarea",
     "taskLinkCopied": "Enlace de la tarea copiado al portapapeles",
-    "taskLinkCopyError": "No se pudo copiar el enlace de la tarea"
+    "taskLinkCopyError": "No se pudo copiar el enlace de la tarea",
+    "linkedTasks": "Tareas relacionadas",
+    "noLinkedTasks": "Sin tareas relacionadas",
+    "addLink": "Añadir relación",
+    "removeLink": "Eliminar relación",
+    "addLinksCount": "Añadir {count} relación/iones",
+    "linkAdded": "Relación añadida",
+    "linkRemoved": "Relación eliminada",
+    "failedToAddLink": "Error al añadir la relación",
+    "failedToRemoveLink": "Error al eliminar la relación",
+    "selectTasksToLink": "Selecciona tareas para relacionar"
   },
   "pointsReview": {
     "title": "Revisión de Puntos",
