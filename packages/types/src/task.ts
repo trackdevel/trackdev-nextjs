@@ -280,6 +280,16 @@ export interface TaskDetail extends Task {
   /** Whether the current user can add comments */
   canComment: boolean;
 
+  /** Whether the current user can add/remove linked tasks */
+  canManageLinks: boolean;
+
+  // =============================================================================
+  // LINKED TASKS
+  // =============================================================================
+
+  /** Tasks linked to this task (informational, bidirectional) */
+  linkedTasks?: Task[];
+
   // =============================================================================
   // POINTS REVIEW FLAGS
   // =============================================================================
