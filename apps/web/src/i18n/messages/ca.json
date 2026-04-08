@@ -325,7 +325,17 @@
     "viewPRDetails": "Veure detalls del PR",
     "copyTaskLink": "Copiar enllaç de la tasca",
     "taskLinkCopied": "Enllaç de la tasca copiat al porta-retalls",
-    "taskLinkCopyError": "No s'ha pogut copiar l'enllaç de la tasca"
+    "taskLinkCopyError": "No s'ha pogut copiar l'enllaç de la tasca",
+    "linkedTasks": "Tasques relacionades",
+    "noLinkedTasks": "Cap tasca relacionada",
+    "addLink": "Afegir relació",
+    "removeLink": "Eliminar relació",
+    "addLinksCount": "Afegir {count} relació/ons",
+    "linkAdded": "Relació afegida",
+    "linkRemoved": "Relació eliminada",
+    "failedToAddLink": "Error en afegir la relació",
+    "failedToRemoveLink": "Error en eliminar la relació",
+    "selectTasksToLink": "Selecciona tasques per relacionar"
   },
   "pointsReview": {
     "title": "Revisió de Punts",
