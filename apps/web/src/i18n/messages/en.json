@@ -330,7 +330,17 @@
     "viewPRDetails": "View PR Details",
     "copyTaskLink": "Copy task link",
     "taskLinkCopied": "Task link copied to clipboard",
-    "taskLinkCopyError": "Failed to copy task link"
+    "taskLinkCopyError": "Failed to copy task link",
+    "linkedTasks": "Linked Tasks",
+    "noLinkedTasks": "No linked tasks",
+    "addLink": "Add link",
+    "removeLink": "Remove link",
+    "addLinksCount": "Add {count} link(s)",
+    "linkAdded": "Link added",
+    "linkRemoved": "Link removed",
+    "failedToAddLink": "Failed to add link",
+    "failedToRemoveLink": "Failed to remove link",
+    "selectTasksToLink": "Select tasks to link"
   },
   "pointsReview": {
     "title": "Points Review",
