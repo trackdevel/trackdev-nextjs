@@ -6,12 +6,12 @@ import { FilterableTaskList } from "@/components/tasks/FilterableTaskList";
 import type { TaskFilters } from "@/components/tasks/TaskFilterBar";
 import { EmptyState, PageContainer } from "@/components/ui";
 import { projectsApi, useAuth, useQuery } from "@trackdev/api-client";
-import type { Task } from "@trackdev/types";
+import type { Task, TaskStatus, TaskType } from "@trackdev/types";
 import { ClipboardList, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSessionState } from "@/utils/useSessionState";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 const BACKLOG_FILTER_VALUE = "backlog";
 const DEFAULT_PAGE_SIZE = 10;
@@ -24,18 +24,43 @@ export default function ProjectTasksPage() {
   const t = useTranslations("projects");
   const tTasks = useTranslations("tasks");
 
-  const [filters, setFilters] = useState<TaskFilters>({
-    type: "",
-    status: "",
-    assigneeId: "",
-    projectId: String(projectId),
-    sprintId: "",
-    search: "",
-    sortOrder: "desc",
-  });
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const filters = useMemo<TaskFilters>(
+    () => ({
+      type: (searchParams.get("type") as TaskType | "") || "",
+      status: (searchParams.get("status") as TaskStatus | "") || "",
+      assigneeId: searchParams.get("assigneeId") || "",
+      projectId: String(projectId),
+      sprintId: searchParams.get("sprintId") || "",
+      search: searchParams.get("search") || "",
+      sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "desc",
+    }),
+    [searchParams, projectId],
+  );
+
+  const currentPage = parseInt(searchParams.get("page") || "0", 10);
+  const pageSize = parseInt(
+    searchParams.get("pageSize") || String(DEFAULT_PAGE_SIZE),
+    10,
+  );
+
+  const updateSearchParams = useCallback(
+    (updates: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === "" || value === "0") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router],
+  );
+
   const [showCreateModal, setShowCreateModal] = useSessionState(`createTaskModal-project-${projectId}`, false);
 
   const { data: project } = useQuery(
@@ -139,6 +164,11 @@ export default function ProjectTasksPage() {
     return tasks;
   }, [tasksResponse?.tasks, filters]);
 
+  const totalPoints = useMemo(
+    () => filteredTasks.reduce((sum, task) => sum + (task.estimationPoints || 0), 0),
+    [filteredTasks],
+  );
+
   // Client-side pagination
   const totalPages = Math.ceil(filteredTasks.length / pageSize);
   const paginatedTasks = useMemo(() => {
@@ -168,38 +198,26 @@ export default function ProjectTasksPage() {
   const handleFilterChange = (key: string, value: string) => {
     // Don't allow changing the project filter on this page
     if (key === "projectId") return;
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    setCurrentPage(0);
+    updateSearchParams({ [key]: value, page: "0" });
   };
 
   const toggleSortOrder = () => {
-    setFilters((prev) => ({
-      ...prev,
-      sortOrder: prev.sortOrder === "asc" ? "desc" : "asc",
-    }));
-    setCurrentPage(0);
+    updateSearchParams({
+      sortOrder: filters.sortOrder === "desc" ? "asc" : "desc",
+      page: "0",
+    });
   };
 
   const clearFilters = () => {
-    setFilters({
-      type: "",
-      status: "",
-      assigneeId: "",
-      projectId: String(projectId),
-      sprintId: "",
-      search: "",
-      sortOrder: "desc",
-    });
-    setCurrentPage(0);
+    router.push("?", { scroll: false });
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    updateSearchParams({ page: page.toString() });
   };
 
   const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    setCurrentPage(0);
+    updateSearchParams({ pageSize: size.toString(), page: "0" });
   };
 
   if (error) {
@@ -250,6 +268,7 @@ export default function ProjectTasksPage() {
         assigneeOptions={assigneeOptions}
         projectOptions={projectOptions}
         sprintOptions={sprintOptions}
+        totalPoints={totalPoints}
         pagination={{
           currentPage,
           totalPages,

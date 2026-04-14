@@ -49,11 +49,24 @@ export function TaskListItem({
           <div className="mt-1 flex items-center gap-2 text-sm">
             <TaskTypeBadge type={task.type} />
             <TaskStatusBadge status={task.status} />
-            {task.status === "DONE" && task.estimationPoints > 0 && (
+            {(task.status === "DONE" || task.status === "VERIFY") && task.estimationPoints > 0 && (
               <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 {task.estimationPoints} {t("points")}
               </span>
             )}
+            {task.status === "VERIFY" && (() => {
+              const hasOpenPr = task.pullRequests?.some((pr) => pr.state === "open" && !pr.merged) ?? false;
+              return (
+                <span
+                  title={hasOpenPr ? t("hasOpenPr") : t("noOpenPr")}
+                  className={`rounded-full px-2 py-0.5 text-xs font-bold text-white ${
+                    hasOpenPr ? "bg-red-600" : "bg-green-600"
+                  }`}
+                >
+                  PR
+                </span>
+              );
+            })()}
             {showAssignee && task.assignee && (
               <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                 •

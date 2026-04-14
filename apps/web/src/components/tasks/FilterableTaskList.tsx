@@ -48,6 +48,8 @@ interface FilterableTaskListProps {
   emptyFilteredDescription?: string;
   /** Whether to show assignee in task items */
   showAssignee?: boolean;
+  /** Sum of estimation points across all filtered tasks (not just current page). Hidden when undefined. */
+  totalPoints?: number;
   /** When true, tasks render as selectable rows instead of navigation links */
   selectionMode?: boolean;
   /** Currently selected task IDs (for selection mode) */
@@ -73,6 +75,7 @@ export function FilterableTaskList({
   emptyFilteredTitle,
   emptyFilteredDescription,
   showAssignee = true,
+  totalPoints,
   selectionMode = false,
   selectedTaskIds,
   onTaskToggle,
@@ -99,6 +102,16 @@ export function FilterableTaskList({
         projectOptions={projectOptions}
         sprintOptions={sprintOptions}
       />
+
+      {totalPoints !== undefined && (
+        <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+          {t("totalPoints")}:{" "}
+          <span className="font-semibold text-gray-900 dark:text-white">
+            {totalPoints}
+          </span>{" "}
+          {t("points")}
+        </div>
+      )}
 
       <div className="card">
         {isLoading ? (
