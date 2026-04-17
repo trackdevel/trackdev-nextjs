@@ -280,6 +280,10 @@ export default function ProjectTasksPage() {
         }}
         emptyTitle={t("noTasksCreated")}
         emptyDescription={t("createTasksInBacklog")}
+        bulkActions={{
+          getAllFilteredTasks: () => filteredTasks,
+          onRefresh: refetchTasks,
+        }}
       />
 
       {/* Create Task Modal */}
