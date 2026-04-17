@@ -1,11 +1,22 @@
 "use client";
 
 import { EmptyState, LoadingContainer, Pagination } from "@/components/ui";
+import { useToast } from "@/components/ui/Toast";
+import { ApiClientError, tasksApi, useAuth } from "@trackdev/api-client";
 import type { Task } from "@trackdev/types";
 import { ClipboardList } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useCallback, useMemo, useState } from "react";
+import { BulkActionToolbar, type BulkAction } from "./BulkActionToolbar";
 import { TaskFilterBar, type TaskFilters } from "./TaskFilterBar";
 import { TaskList } from "./TaskListItem";
+
+export interface BulkActionsConfig {
+  /** Returns all tasks matching current filters (across all pages). Can be sync or async. */
+  getAllFilteredTasks: () => Task[] | Promise<Task[]>;
+  /** Called after a bulk action completes to refresh the underlying data. */
+  onRefresh: () => void;
+}
 
 interface FilterableTaskListProps {
   /** Tasks to display on the current page (pre-filtered for server-side pagination) */
@@ -56,6 +67,25 @@ interface FilterableTaskListProps {
   selectedTaskIds?: Set<number>;
   /** Called when a task is toggled in selection mode */
   onTaskToggle?: (task: import("@trackdev/types").Task) => void;
+  /** When provided, enables bulk action mode (checkboxes + action dropdown). */
+  bulkActions?: BulkActionsConfig;
+}
+
+function isTaskSelectableFor(
+  task: Task,
+  userId: string | undefined,
+  isProfessor: boolean,
+): boolean {
+  if (isProfessor) return true;
+  if (!task.assignee) return true;
+  return task.assignee.id === userId;
+}
+
+function computeAvailableActions(isProfessor: boolean): BulkAction[] {
+  if (isProfessor) {
+    return ["UNASSIGN", "FREEZE", "UNFREEZE"];
+  }
+  return ["ASSIGN_TO_ME", "UNASSIGN"];
 }
 
 export function FilterableTaskList({
@@ -79,8 +109,160 @@ export function FilterableTaskList({
   selectionMode = false,
   selectedTaskIds,
   onTaskToggle,
+  bulkActions,
 }: FilterableTaskListProps) {
   const t = useTranslations("tasks");
+  const toast = useToast();
+  const { user } = useAuth();
+
+  const isProfessor = useMemo(
+    () => user?.roles.includes("PROFESSOR") ?? false,
+    [user?.roles],
+  );
+
+  const bulkEnabled = bulkActions !== undefined && !selectionMode;
+
+  const [bulkSelectedIds, setBulkSelectedIds] = useState<Set<number>>(new Set());
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [isSelectingAll, setIsSelectingAll] = useState(false);
+
+  const isTaskSelectable = useCallback(
+    (task: Task) => isTaskSelectableFor(task, user?.id, isProfessor),
+    [user?.id, isProfessor],
+  );
+
+  const toggleBulkSelection = useCallback(
+    (task: Task) => {
+      if (!isTaskSelectable(task)) return;
+      setBulkSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(task.id)) {
+          next.delete(task.id);
+        } else {
+          next.add(task.id);
+        }
+        return next;
+      });
+    },
+    [isTaskSelectable],
+  );
+
+  const clearBulkSelection = useCallback(() => {
+    setBulkSelectedIds(new Set());
+  }, []);
+
+  const handleToggleSelectAll = useCallback(async () => {
+    if (!bulkActions) return;
+    if (bulkSelectedIds.size > 0) {
+      clearBulkSelection();
+      return;
+    }
+    try {
+      setIsSelectingAll(true);
+      const all = await Promise.resolve(bulkActions.getAllFilteredTasks());
+      const selectableIds = all
+        .filter((task) => isTaskSelectable(task))
+        .map((task) => task.id);
+      setBulkSelectedIds(new Set(selectableIds));
+    } catch (err) {
+      const message =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : t("bulkActionFailed");
+      toast.error(message);
+    } finally {
+      setIsSelectingAll(false);
+    }
+  }, [bulkActions, bulkSelectedIds.size, clearBulkSelection, isTaskSelectable, t, toast]);
+
+  const runActionForIds = useCallback(
+    async (action: BulkAction, ids: number[]) => {
+      const results = await Promise.allSettled(
+        ids.map((id) => {
+          switch (action) {
+            case "ASSIGN_TO_ME":
+              return tasksApi.selfAssign(id);
+            case "UNASSIGN":
+              return tasksApi.unassign(id);
+            case "FREEZE":
+              return tasksApi.freeze(id);
+            case "UNFREEZE":
+              return tasksApi.unfreeze(id);
+          }
+        }),
+      );
+      const succeeded = results.filter((r) => r.status === "fulfilled").length;
+      const failed = results.length - succeeded;
+      return { succeeded, failed };
+    },
+    [],
+  );
+
+  const handleBulkAction = useCallback(
+    async (action: BulkAction) => {
+      if (!bulkActions || bulkSelectedIds.size === 0) return;
+
+      const selectedTasks = (await Promise.resolve(
+        bulkActions.getAllFilteredTasks(),
+      )).filter((task) => bulkSelectedIds.has(task.id));
+
+      const targetTasks = selectedTasks.filter((task) => {
+        if (action === "ASSIGN_TO_ME") return !task.assignee;
+        if (action === "UNASSIGN") return !!task.assignee;
+        if (action === "FREEZE") return !task.frozen;
+        if (action === "UNFREEZE") return !!task.frozen;
+        return false;
+      });
+
+      if (targetTasks.length === 0) {
+        toast.info(t("noActionableTasks"));
+        return;
+      }
+
+      setIsExecuting(true);
+      try {
+        const { succeeded, failed } = await runActionForIds(
+          action,
+          targetTasks.map((task) => task.id),
+        );
+
+        if (failed === 0) {
+          toast.success(t("bulkActionSuccess", { count: succeeded }));
+        } else if (succeeded === 0) {
+          toast.error(t("bulkActionFailed"));
+        } else {
+          toast.warning(t("bulkActionPartial", { succeeded, failed }));
+        }
+
+        bulkActions.onRefresh();
+        clearBulkSelection();
+      } catch (err) {
+        const message =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("bulkActionFailed");
+        toast.error(message);
+      } finally {
+        setIsExecuting(false);
+      }
+    },
+    [bulkActions, bulkSelectedIds, clearBulkSelection, runActionForIds, t, toast],
+  );
+
+  const visibleSelectableCount = useMemo(
+    () => (bulkEnabled ? tasks.filter((task) => isTaskSelectable(task)).length : 0),
+    [bulkEnabled, tasks, isTaskSelectable],
+  );
+
+  const selectionState: "none" | "some" | "all" = useMemo(() => {
+    if (bulkSelectedIds.size === 0) return "none";
+    const allVisibleSelected =
+      visibleSelectableCount > 0 &&
+      tasks
+        .filter(isTaskSelectable)
+        .every((task) => bulkSelectedIds.has(task.id));
+    return allVisibleSelected ? "all" : "some";
+  }, [bulkSelectedIds, tasks, isTaskSelectable, visibleSelectableCount]);
 
   const hasActiveFilters =
     filters.type !== "" ||
@@ -89,6 +271,11 @@ export function FilterableTaskList({
     filters.search !== "" ||
     (filters.projectId !== undefined && filters.projectId !== "") ||
     (filters.sprintId !== undefined && filters.sprintId !== "");
+
+  const effectiveSelectionMode = selectionMode || bulkEnabled;
+  const effectiveSelectedIds = selectionMode ? selectedTaskIds : bulkSelectedIds;
+  const effectiveOnToggle = selectionMode ? onTaskToggle : toggleBulkSelection;
+  const effectiveIsSelectable = bulkEnabled ? isTaskSelectable : undefined;
 
   return (
     <>
@@ -113,17 +300,32 @@ export function FilterableTaskList({
         </div>
       )}
 
+      {bulkEnabled && (
+        <BulkActionToolbar
+          selectedCount={bulkSelectedIds.size}
+          totalSelectable={visibleSelectableCount}
+          selectionState={selectionState}
+          onToggleSelectAll={handleToggleSelectAll}
+          onClearSelection={clearBulkSelection}
+          availableActions={computeAvailableActions(isProfessor)}
+          onAction={handleBulkAction}
+          isExecuting={isExecuting}
+          isSelectingAll={isSelectingAll}
+        />
+      )}
+
       <div className="card">
         {isLoading ? (
           <LoadingContainer />
         ) : tasks.length > 0 ? (
           <>
             <TaskList
-            tasks={tasks}
-            showAssignee={showAssignee}
-            onTaskToggle={selectionMode ? onTaskToggle : undefined}
-            selectedTaskIds={selectionMode ? selectedTaskIds : undefined}
-          />
+              tasks={tasks}
+              showAssignee={showAssignee}
+              onTaskToggle={effectiveSelectionMode ? effectiveOnToggle : undefined}
+              selectedTaskIds={effectiveSelectionMode ? effectiveSelectedIds : undefined}
+              isSelectable={effectiveIsSelectable}
+            />
             {pagination && (
               <Pagination
                 currentPage={pagination.currentPage}
