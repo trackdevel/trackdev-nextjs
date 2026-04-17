@@ -85,7 +85,7 @@ export default function TasksListPage() {
     return params;
   }, [filters]);
 
-  const { data: tasksResponse, isLoading } = useQuery(
+  const { data: tasksResponse, isLoading, refetch: refetchTasks } = useQuery(
     () => tasksApi.getMy(currentPage, pageSize, filterParams),
     [currentPage, pageSize, filterParams],
     { enabled: isAuthenticated },
@@ -166,6 +166,13 @@ export default function TasksListPage() {
           onPageChange: handlePageChange,
           onPageSizeChange: handlePageSizeChange,
           pageSizeOptions: PAGE_SIZE_OPTIONS,
+        }}
+        bulkActions={{
+          getAllFilteredTasks: async () => {
+            const all = await tasksApi.getMy(0, Math.max(totalElements, 1), filterParams);
+            return all.tasks;
+          },
+          onRefresh: refetchTasks,
         }}
       />
     </PageContainer>
