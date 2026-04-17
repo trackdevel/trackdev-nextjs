@@ -14,6 +14,8 @@ interface TaskListItemProps {
   onSelect?: (task: Task) => void;
   /** Whether this task is currently selected */
   isSelected?: boolean;
+  /** When false, the checkbox is rendered disabled and cannot be toggled. Defaults to true. */
+  selectable?: boolean;
 }
 
 export function TaskListItem({
@@ -21,6 +23,7 @@ export function TaskListItem({
   showAssignee = true,
   onSelect,
   isSelected,
+  selectable = true,
 }: TaskListItemProps) {
   const t = useTranslations("tasks");
 
@@ -30,12 +33,14 @@ export function TaskListItem({
         {onSelect !== undefined && (
           <div
             className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
-              isSelected
-                ? "border-primary-500 bg-primary-500"
-                : "border-gray-300 dark:border-gray-600"
+              !selectable
+                ? "border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800"
+                : isSelected
+                  ? "border-primary-500 bg-primary-500"
+                  : "border-gray-300 dark:border-gray-600"
             }`}
           >
-            {isSelected && <span className="text-white text-xs font-bold">✓</span>}
+            {isSelected && selectable && <span className="text-white text-xs font-bold">✓</span>}
           </div>
         )}
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -95,10 +100,16 @@ export function TaskListItem({
         <div
           role="checkbox"
           aria-checked={isSelected}
-          onClick={() => onSelect(task)}
-          className={`flex cursor-pointer items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 ${
-            isSelected ? "bg-primary-50 dark:bg-primary-900/20" : ""
-          }`}
+          aria-disabled={!selectable}
+          onClick={() => {
+            if (selectable) onSelect(task);
+          }}
+          className={`flex items-center justify-between px-6 py-4 ${
+            selectable
+              ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+              : "cursor-not-allowed opacity-60"
+          } ${isSelected && selectable ? "bg-primary-50 dark:bg-primary-900/20" : ""}`}
+          title={selectable ? undefined : "Not selectable"}
         >
           {content}
         </div>
@@ -176,9 +187,17 @@ interface TaskListProps {
   showAssignee?: boolean;
   onTaskToggle?: (task: Task) => void;
   selectedTaskIds?: Set<number>;
+  /** When provided, called with each task to determine if it can be selected. Defaults to always selectable. */
+  isSelectable?: (task: Task) => boolean;
 }
 
-export function TaskList({ tasks, showAssignee = true, onTaskToggle, selectedTaskIds }: TaskListProps) {
+export function TaskList({
+  tasks,
+  showAssignee = true,
+  onTaskToggle,
+  selectedTaskIds,
+  isSelectable,
+}: TaskListProps) {
   return (
     <ul className="divide-y divide-gray-200 dark:divide-gray-700">
       {tasks.map((task) => (
@@ -188,6 +207,7 @@ export function TaskList({ tasks, showAssignee = true, onTaskToggle, selectedTas
           showAssignee={showAssignee}
           onSelect={onTaskToggle}
           isSelected={selectedTaskIds?.has(task.id)}
+          selectable={isSelectable ? isSelectable(task) : true}
         />
       ))}
     </ul>
