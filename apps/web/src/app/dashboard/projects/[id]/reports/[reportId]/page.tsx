@@ -1,8 +1,18 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-import { LoadingContainer, PageContainer, PageHeader } from "@/components/ui";
-import { projectReportsApi, useAuth, useQuery } from "@trackdev/api-client";
+import {
+  LoadingContainer,
+  PageContainer,
+  PageHeader,
+  UserLink,
+} from "@/components/ui";
+import {
+  projectReportsApi,
+  projectsApi,
+  useAuth,
+  useQuery,
+} from "@trackdev/api-client";
 import type { ReportResult, TaskStatus } from "@trackdev/types";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -48,6 +58,14 @@ export default function ReportViewPage() {
     [projectId, reportId, statusFilterQuery],
     { enabled: !!projectId && !!reportId },
   );
+
+  // Fetch project to resolve course id for student profile links
+  const { data: project } = useQuery(
+    () => projectsApi.getById(projectId),
+    [projectId],
+    { enabled: !!projectId },
+  );
+  const courseId = project?.course?.id;
 
   // Toggle status filter
   const toggleStatus = (status: TaskStatus) => {
@@ -161,7 +179,7 @@ export default function ReportViewPage() {
       )}
 
       {/* Report Table */}
-      <ReportTable result={reportResult} t={t} />
+      <ReportTable result={reportResult} t={t} courseId={courseId} />
     </PageContainer>
   );
 }
@@ -203,9 +221,10 @@ function getStatusTranslationKey(status: TaskStatus): string {
 interface ReportTableProps {
   result: ReportResult;
   t: (key: string) => string;
+  courseId?: number;
 }
 
-function ReportTable({ result, t }: ReportTableProps) {
+function ReportTable({ result, t, courseId }: ReportTableProps) {
   if (result.rowHeaders.length === 0 || result.columnHeaders.length === 0) {
     return (
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-12 text-center text-gray-500 dark:text-gray-400">
@@ -213,6 +232,30 @@ function ReportTable({ result, t }: ReportTableProps) {
       </div>
     );
   }
+
+  const renderRowLabel = (row: { id: string; name: string }) => {
+    if (result.rowType === "STUDENTS") {
+      return (
+        <UserLink
+          user={{ id: row.id, fullName: row.name }}
+          courseId={courseId}
+        />
+      );
+    }
+    return row.name;
+  };
+
+  const renderColLabel = (col: { id: string; name: string }) => {
+    if (result.columnType === "STUDENTS") {
+      return (
+        <UserLink
+          user={{ id: col.id, fullName: col.name }}
+          courseId={courseId}
+        />
+      );
+    }
+    return col.name;
+  };
 
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -228,7 +271,7 @@ function ReportTable({ result, t }: ReportTableProps) {
                 key={col.id}
                 className="border-b border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                {col.name}
+                {renderColLabel(col)}
               </th>
             ))}
             <th className="border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 px-4 py-3 text-center text-sm font-semibold text-gray-800 dark:text-gray-200">
@@ -240,7 +283,7 @@ function ReportTable({ result, t }: ReportTableProps) {
           {result.rowHeaders.map((row) => (
             <tr key={row.id}>
               <td className="border-b border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {row.name}
+                {renderRowLabel(row)}
               </td>
               {result.columnHeaders.map((col) => {
                 const key = `${row.id}:${col.id}`;

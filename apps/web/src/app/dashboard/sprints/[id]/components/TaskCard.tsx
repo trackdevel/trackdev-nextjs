@@ -1,5 +1,6 @@
 import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
+import { userProfileHref } from "@/components/ui/UserLink";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
 import { Snowflake } from "lucide-react";
@@ -12,9 +13,10 @@ import { TaskHoverPreview } from "./TaskHoverPreview";
 interface TaskCardProps {
   task: Task;
   isBeingDragged: boolean;
+  courseId?: number;
 }
 
-export const TaskCard = memo(function TaskCard({ task, isBeingDragged }: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({ task, isBeingDragged, courseId }: TaskCardProps) {
   const data: DragItemData = { source: "sprint", task };
   // Intentionally not reading isDragSource — its Proxy tracking triggers
   // flushSync inside useLayoutEffect when drag ends, causing React errors.
@@ -70,15 +72,30 @@ export const TaskCard = memo(function TaskCard({ task, isBeingDragged }: TaskCar
                 )}
               </div>
             </div>
-            {task.assignee && (
-              <MemberAvatar
-                size="xs"
-                username={task.assignee.fullName || task.assignee.username}
-                capitalLetters={task.assignee.capitalLetters}
-                color={task.assignee.color}
-                title={task.assignee.fullName || task.assignee.username}
-              />
-            )}
+            {task.assignee &&
+              (courseId && task.assignee.id ? (
+                <Link
+                  href={userProfileHref(task.assignee.id, courseId)}
+                  draggable={false}
+                  onClick={(e) => e.stopPropagation()}
+                  title={task.assignee.fullName || task.assignee.username}
+                >
+                  <MemberAvatar
+                    size="xs"
+                    username={task.assignee.fullName || task.assignee.username}
+                    capitalLetters={task.assignee.capitalLetters}
+                    color={task.assignee.color}
+                  />
+                </Link>
+              ) : (
+                <MemberAvatar
+                  size="xs"
+                  username={task.assignee.fullName || task.assignee.username}
+                  capitalLetters={task.assignee.capitalLetters}
+                  color={task.assignee.color}
+                  title={task.assignee.fullName || task.assignee.username}
+                />
+              ))}
           </div>
         </div>
       </div>

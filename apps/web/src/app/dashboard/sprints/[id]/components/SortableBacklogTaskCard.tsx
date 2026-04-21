@@ -2,6 +2,7 @@
 
 import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
+import { userProfileHref } from "@/components/ui/UserLink";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
@@ -24,14 +25,17 @@ interface SortableBacklogTaskCardProps {
   subtasks: Task[];
   draggedTaskId: number | null;
   backlogSortableGroup: string;
+  courseId?: number;
 }
 
 function BacklogCardContent({
   task,
   subtasks,
+  courseId,
 }: {
   task: Task;
   subtasks: Task[];
+  courseId?: number;
 }) {
   const [expanded, setExpanded] = useState(false);
   const hasSubtasks = task.type === "USER_STORY" && subtasks.length > 0;
@@ -104,15 +108,30 @@ function BacklogCardContent({
                 )}
             </div>
           </div>
-          {task.assignee && (
-            <MemberAvatar
-              size="xxs"
-              username={task.assignee.fullName || task.assignee.username}
-              capitalLetters={task.assignee.capitalLetters}
-              color={task.assignee.color}
-              title={task.assignee.fullName || task.assignee.username}
-            />
-          )}
+          {task.assignee &&
+            (courseId && task.assignee.id ? (
+              <Link
+                href={userProfileHref(task.assignee.id, courseId)}
+                draggable={false}
+                onClick={(e) => e.stopPropagation()}
+                title={task.assignee.fullName || task.assignee.username}
+              >
+                <MemberAvatar
+                  size="xxs"
+                  username={task.assignee.fullName || task.assignee.username}
+                  capitalLetters={task.assignee.capitalLetters}
+                  color={task.assignee.color}
+                />
+              </Link>
+            ) : (
+              <MemberAvatar
+                size="xxs"
+                username={task.assignee.fullName || task.assignee.username}
+                capitalLetters={task.assignee.capitalLetters}
+                color={task.assignee.color}
+                title={task.assignee.fullName || task.assignee.username}
+              />
+            ))}
         </div>
       </div>
 
@@ -153,6 +172,7 @@ function SortableStoryCard({
   subtasks,
   draggedTaskId,
   backlogSortableGroup,
+  courseId,
 }: SortableBacklogTaskCardProps) {
   const data: DragItemData = { source: "backlog", task };
   // Not reading isDragSource — its Proxy tracking triggers flushSync
@@ -172,7 +192,7 @@ function SortableStoryCard({
           draggedTaskId === task.id ? "opacity-50" : ""
         }`}
       >
-        <BacklogCardContent task={task} subtasks={subtasks} />
+        <BacklogCardContent task={task} subtasks={subtasks} courseId={courseId} />
       </div>
     </TaskHoverPreview>
   );
@@ -183,10 +203,12 @@ function DraggableTaskCard({
   task,
   subtasks,
   draggedTaskId,
+  courseId,
 }: {
   task: Task;
   subtasks: Task[];
   draggedTaskId: number | null;
+  courseId?: number;
 }) {
   const data: DragItemData = { source: "backlog", task };
   const { ref } = useDraggable({
@@ -202,7 +224,7 @@ function DraggableTaskCard({
           draggedTaskId === task.id ? "opacity-50" : ""
         }`}
       >
-        <BacklogCardContent task={task} subtasks={subtasks} />
+        <BacklogCardContent task={task} subtasks={subtasks} courseId={courseId} />
       </div>
     </TaskHoverPreview>
   );
@@ -214,12 +236,13 @@ export function SortableBacklogTaskCard({
   subtasks,
   draggedTaskId,
   backlogSortableGroup,
+  courseId,
 }: SortableBacklogTaskCardProps) {
   if (task.type === "USER_STORY") {
     return (
-      <SortableStoryCard task={task} index={index} subtasks={subtasks} draggedTaskId={draggedTaskId} backlogSortableGroup={backlogSortableGroup} />
+      <SortableStoryCard task={task} index={index} subtasks={subtasks} draggedTaskId={draggedTaskId} backlogSortableGroup={backlogSortableGroup} courseId={courseId} />
     );
   }
 
-  return <DraggableTaskCard task={task} subtasks={subtasks} draggedTaskId={draggedTaskId} />;
+  return <DraggableTaskCard task={task} subtasks={subtasks} draggedTaskId={draggedTaskId} courseId={courseId} />;
 }

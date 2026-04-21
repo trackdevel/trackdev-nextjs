@@ -18,6 +18,7 @@ interface BacklogPanelDndKitProps {
   showMyBacklogOnly: boolean;
   onToggleMyBacklog: () => void;
   backlogSortableGroup: string;
+  courseId?: number;
 }
 
 export function BacklogPanelDndKit({
@@ -31,6 +32,7 @@ export function BacklogPanelDndKit({
   showMyBacklogOnly,
   onToggleMyBacklog,
   backlogSortableGroup,
+  courseId,
 }: BacklogPanelDndKitProps) {
   const t = useTranslations("sprints");
 
@@ -120,6 +122,7 @@ export function BacklogPanelDndKit({
                     subtasks={backlogSubtasksMap.get(task.id) || []}
                     draggedTaskId={draggedTaskId}
                     backlogSortableGroup={backlogSortableGroup}
+                    courseId={courseId}
                   />
                 ))}
               </div>

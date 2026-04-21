@@ -26,3 +26,4 @@ export * from "./Select";
 export * from "./StatCard";
 export * from "./StatusBadge";
 export * from "./Toast";
+export * from "./UserLink";

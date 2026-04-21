@@ -149,6 +149,15 @@ export default function SprintBoardPage() {
     { enabled: isAuthenticated && !!sprintBoard?.project?.id },
   );
 
+  const { data: projectDetails } = useQuery(
+    () =>
+      sprintBoard?.project?.id
+        ? projectsApi.getById(sprintBoard.project.id)
+        : Promise.resolve(null),
+    [sprintBoard?.project?.id],
+    { enabled: isAuthenticated && !!sprintBoard?.project?.id },
+  );
+
   const { prevSprintId, nextSprintId } = useMemo(() => {
     if (!projectSprints?.sprints || projectSprints.sprints.length === 0) {
       return { prevSprintId: null, nextSprintId: null };
@@ -301,6 +310,7 @@ export default function SprintBoardPage() {
   }, [refetchBoard, refetchProjectTasks]);
 
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
+  const profileCourseId = isProfessor ? projectDetails?.course?.id : undefined;
 
   const handleFreeze = useCallback(async () => {
     try {
@@ -390,6 +400,7 @@ export default function SprintBoardPage() {
             showMyBacklogOnly={showMyBacklogOnly}
             onToggleMyBacklog={() => setShowMyBacklogOnly((prev) => !prev)}
             backlogSortableGroup={backlogSortableGroup}
+            courseId={profileCourseId}
           />
 
           {/* Sprint Board */}
@@ -427,6 +438,7 @@ export default function SprintBoardPage() {
                       sprintStatus={sprintMeta.status}
                       draggedTaskId={draggedTaskId}
                       dragSource={dragSource}
+                      courseId={profileCourseId}
                     />
                   ))}
                 </div>

@@ -3,6 +3,7 @@
 import { BackButton } from "@/components/BackButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
+import { UserLink } from "@/components/ui/UserLink";
 import {
   ApiClientError,
   projectsApi,
@@ -155,6 +156,12 @@ export default function TaskDetailPage() {
 
   // Check user roles (still needed for comment edit/delete permissions and TaskAttributes)
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
+
+  // Course ID for student profile links (professor only)
+  const courseId = (
+    optimisticTask?.project as { course?: { id: number } } | undefined
+  )?.course?.id;
+  const profileCourseId = isProfessor ? courseId : undefined;
 
   // Derived values
   const isLoading = authLoading || dataLoading;
@@ -663,6 +670,7 @@ export default function TaskDetailPage() {
             pointsReviewConversationCount={optimisticTask.pointsReviewConversationCount ?? 0}
             projectMembers={optimisticTask.project?.members}
             onConversationCreated={() => refetchTask()}
+            courseId={profileCourseId}
           />
 
           {/* Task History - Only visible to professors */}
@@ -676,6 +684,7 @@ export default function TaskDetailPage() {
             canComment={canComment}
             isProfessor={isProfessor}
             currentUserId={user?.id}
+            courseId={profileCourseId}
           />
         </div>
 
@@ -834,9 +843,14 @@ export default function TaskDetailPage() {
                       {child.status}
                     </td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">
-                      {child.assignee?.fullName ||
-                        child.assignee?.username ||
-                        t("unassigned")}
+                      {child.assignee ? (
+                        <UserLink
+                          user={child.assignee}
+                          courseId={profileCourseId}
+                        />
+                      ) : (
+                        t("unassigned")
+                      )}
                     </td>
                   </tr>
                 ))}

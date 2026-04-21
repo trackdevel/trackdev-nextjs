@@ -1,6 +1,11 @@
 "use client";
 
-import { MarkdownEditor, MarkdownPreview, Select } from "@/components/ui";
+import {
+  MarkdownEditor,
+  MarkdownPreview,
+  Select,
+  UserLink,
+} from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import { useDateFormat } from "@/utils/useDateFormat";
@@ -44,6 +49,7 @@ interface TaskPointsReviewProps {
   pointsReviewConversationCount: number;
   projectMembers?: UserPublic[];
   onConversationCreated?: () => void;
+  courseId?: number;
 }
 
 // =============================================================================
@@ -57,6 +63,7 @@ export const TaskPointsReview = memo(function TaskPointsReview({
   pointsReviewConversationCount,
   projectMembers,
   onConversationCreated,
+  courseId,
 }: TaskPointsReviewProps) {
   const t = useTranslations("pointsReview");
   const tCommon = useTranslations("common");
@@ -531,6 +538,7 @@ export const TaskPointsReview = memo(function TaskPointsReview({
                   }}
                   isUpdatingConversation={isUpdatingConversation}
                   validationError={validationError}
+                  courseId={courseId}
                   t={t}
                   tCommon={tCommon}
                 />
@@ -605,6 +613,7 @@ interface ConversationItemProps {
   onCancelEditConversation: () => void;
   isUpdatingConversation: boolean;
   validationError: string | null;
+  courseId?: number;
   t: ReturnType<typeof useTranslations>;
   tCommon: ReturnType<typeof useTranslations>;
 }
@@ -644,6 +653,7 @@ function ConversationItem({
   onCancelEditConversation,
   isUpdatingConversation,
   validationError,
+  courseId,
   t,
   tCommon,
 }: ConversationItemProps) {
@@ -789,16 +799,17 @@ function ConversationItem({
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                   {t("participants")}:
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {expandedConversation.initiator.fullName ||
-                    expandedConversation.initiator.username}
-                </span>
+                <UserLink
+                  user={expandedConversation.initiator}
+                  courseId={courseId}
+                  className="text-sm text-gray-500 dark:text-gray-400"
+                />
                 {expandedConversation.participants.map((p) => (
                   <span
                     key={p.id}
                     className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
                   >
-                    {p.fullName || p.username}
+                    <UserLink user={p} courseId={courseId} />
                     {expandedConversation.canAddParticipant && (
                       <button
                         onClick={() => onRemoveParticipant(p.id)}
@@ -876,9 +887,11 @@ function ConversationItem({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm text-gray-900 dark:text-white">
-                              {msg.author?.fullName || msg.author?.username}
-                            </span>
+                            <UserLink
+                              user={msg.author}
+                              courseId={courseId}
+                              className="font-medium text-sm text-gray-900 dark:text-white"
+                            />
                             <span className="text-xs text-gray-500 dark:text-gray-400">
                               {msg.createdAt
                                 ? formatDateTime(msg.createdAt)
