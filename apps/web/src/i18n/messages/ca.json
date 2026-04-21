@@ -668,6 +668,7 @@
     "noDatesSet": "Sense dates definides",
     "noTasksCreated": "Encara no s'han creat tasques",
     "createTasksInBacklog": "Crea tasques al backlog per començar",
+    "goToProject": "Anar al projecte",
     "addGithubRepository": "Afegir Repositori de GitHub",
     "displayName": "Nom a Mostrar",
     "repositoryUrl": "URL del Repositori",
