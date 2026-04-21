@@ -1,6 +1,7 @@
 import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import { StatusBadge, getTaskStatusVariant } from "@/components/ui/StatusBadge";
+import { userProfileHref } from "@/components/ui/UserLink";
 import type { TaskStatus } from "@/components/ui/StatusBadge";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
@@ -32,6 +33,7 @@ interface StoryRowProps {
   sprintStatus: string;
   draggedTaskId: number | null;
   dragSource: "sprint" | "backlog" | null;
+  courseId?: number;
 }
 
 export const StoryRow = memo(function StoryRow({
@@ -43,6 +45,7 @@ export const StoryRow = memo(function StoryRow({
   sprintStatus,
   draggedTaskId,
   dragSource,
+  courseId,
 }: StoryRowProps) {
   const t = useTranslations("sprints");
 
@@ -98,6 +101,7 @@ export const StoryRow = memo(function StoryRow({
               }
               draggedTaskId={draggedTaskId}
               dragSource={dragSource}
+              courseId={courseId}
             />
           ))}
         </div>
@@ -116,6 +120,7 @@ export const StoryRow = memo(function StoryRow({
         onCreateSubtask={onCreateSubtask}
         totalPoints={totalPoints}
         draggedTaskId={draggedTaskId}
+        courseId={courseId}
         t={t}
       />
 
@@ -138,6 +143,7 @@ export const StoryRow = memo(function StoryRow({
               }
               draggedTaskId={draggedTaskId}
               dragSource={dragSource}
+              courseId={courseId}
             />
           ))}
         </div>
@@ -155,6 +161,7 @@ const StoryHeader = memo(function StoryHeader({
   onCreateSubtask,
   totalPoints,
   draggedTaskId,
+  courseId,
   t,
 }: {
   story: Story;
@@ -164,6 +171,7 @@ const StoryHeader = memo(function StoryHeader({
   onCreateSubtask: (storyId: number) => void;
   totalPoints: number;
   draggedTaskId: number | null;
+  courseId?: number;
   t: (key: string) => string;
 }) {
   const tTasks = useTranslations("tasks");
@@ -243,15 +251,30 @@ const StoryHeader = memo(function StoryHeader({
         )}
       </div>
       <div className="flex items-center gap-4">
-        {story.assignee && (
-          <MemberAvatar
-            size="xs"
-            username={story.assignee.fullName || story.assignee.username}
-            capitalLetters={story.assignee.capitalLetters}
-            color={story.assignee.color}
-            title={story.assignee.fullName || story.assignee.username}
-          />
-        )}
+        {story.assignee &&
+          (courseId && story.assignee.id ? (
+            <Link
+              href={userProfileHref(story.assignee.id, courseId)}
+              draggable={false}
+              onClick={(e) => e.stopPropagation()}
+              title={story.assignee.fullName || story.assignee.username}
+            >
+              <MemberAvatar
+                size="xs"
+                username={story.assignee.fullName || story.assignee.username}
+                capitalLetters={story.assignee.capitalLetters}
+                color={story.assignee.color}
+              />
+            </Link>
+          ) : (
+            <MemberAvatar
+              size="xs"
+              username={story.assignee.fullName || story.assignee.username}
+              capitalLetters={story.assignee.capitalLetters}
+              color={story.assignee.color}
+              title={story.assignee.fullName || story.assignee.username}
+            />
+          ))}
         {totalPoints > 0 && (
           <span className="text-sm text-gray-500 dark:text-gray-400">
             {totalPoints} {t("points")}
