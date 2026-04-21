@@ -1,6 +1,6 @@
 "use client";
 
-import { Select } from "@/components/ui";
+import { Select, UserLink } from "@/components/ui";
 import type { SprintSummary } from "@trackdev/api-client";
 import type { Task, TaskStatus, TaskType } from "@trackdev/types";
 import { Check, Loader2, Pencil, UserMinus, UserPlus, X } from "lucide-react";
@@ -163,18 +163,12 @@ export const TaskSidebar = memo(function TaskSidebar({
                     {task.assignee.capitalLetters ||
                       task.assignee.username?.slice(0, 2).toUpperCase()}
                   </div>
-                  {isProfessor && courseId ? (
-                    <Link
-                      href={`/dashboard/courses/${courseId}/students/${task.assignee.id}`}
-                      className="text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
-                    >
-                      {task.assignee.fullName || task.assignee.username}
-                    </Link>
-                  ) : (
-                    <span className="text-gray-900 dark:text-white">
-                      {task.assignee.fullName || task.assignee.username}
-                    </span>
-                  )}
+                  <UserLink
+                    user={task.assignee}
+                    courseId={isProfessor ? courseId : undefined}
+                    className="text-gray-900 dark:text-white"
+                  />
+
                 </div>
                 {canUnassign && (
                   <button
@@ -246,18 +240,12 @@ export const TaskSidebar = memo(function TaskSidebar({
                   {task.reporter.capitalLetters ||
                     task.reporter.username?.slice(0, 2).toUpperCase()}
                 </div>
-                {isProfessor && courseId ? (
-                  <Link
-                    href={`/dashboard/courses/${courseId}/students/${task.reporter.id}`}
-                    className="text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
-                  >
-                    {task.reporter.fullName || task.reporter.username}
-                  </Link>
-                ) : (
-                  <span className="text-gray-900 dark:text-white">
-                    {task.reporter.fullName || task.reporter.username}
-                  </span>
-                )}
+                <UserLink
+                  user={task.reporter}
+                  courseId={isProfessor ? courseId : undefined}
+                  className="text-gray-900 dark:text-white"
+                />
+
               </div>
             ) : (
               <span className="text-gray-500 dark:text-gray-400">
