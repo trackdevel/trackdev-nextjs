@@ -325,6 +325,7 @@ export function FilterableTaskList({
               onTaskToggle={effectiveSelectionMode ? effectiveOnToggle : undefined}
               selectedTaskIds={effectiveSelectionMode ? effectiveSelectedIds : undefined}
               isSelectable={effectiveIsSelectable}
+              bulkMode={bulkEnabled}
             />
             {pagination && (
               <Pagination

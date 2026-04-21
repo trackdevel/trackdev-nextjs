@@ -10,12 +10,14 @@ import { TaskBadge } from "./TaskBadge";
 interface TaskListItemProps {
   task: Task;
   showAssignee?: boolean;
-  /** When provided, renders as a selectable row (no navigation) */
+  /** When provided, enables checkbox rendering. Called when the task is toggled. */
   onSelect?: (task: Task) => void;
   /** Whether this task is currently selected */
   isSelected?: boolean;
   /** When false, the checkbox is rendered disabled and cannot be toggled. Defaults to true. */
   selectable?: boolean;
+  /** When true, the row remains a navigation link and only the checkbox toggles selection. Defaults to false (entire row toggles). */
+  bulkMode?: boolean;
 }
 
 export function TaskListItem({
@@ -24,25 +26,41 @@ export function TaskListItem({
   onSelect,
   isSelected,
   selectable = true,
+  bulkMode = false,
 }: TaskListItemProps) {
   const t = useTranslations("tasks");
+
+  const checkbox = onSelect !== undefined && (
+    <div
+      role="checkbox"
+      aria-checked={isSelected}
+      aria-disabled={!selectable}
+      onClick={(e) => {
+        if (!bulkMode) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (selectable) onSelect(task);
+      }}
+      className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
+        !selectable
+          ? "border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800"
+          : isSelected
+            ? "border-primary-500 bg-primary-500"
+            : "border-gray-300 dark:border-gray-600"
+      } ${bulkMode && selectable ? "cursor-pointer" : ""} ${
+        bulkMode && !selectable ? "cursor-not-allowed" : ""
+      }`}
+    >
+      {isSelected && selectable && (
+        <span className="text-white text-xs font-bold">✓</span>
+      )}
+    </div>
+  );
 
   const content = (
     <>
       <div className="flex items-center gap-3">
-        {onSelect !== undefined && (
-          <div
-            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
-              !selectable
-                ? "border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800"
-                : isSelected
-                  ? "border-primary-500 bg-primary-500"
-                  : "border-gray-300 dark:border-gray-600"
-            }`}
-          >
-            {isSelected && selectable && <span className="text-white text-xs font-bold">✓</span>}
-          </div>
-        )}
+        {checkbox}
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
           <ClipboardList className="h-5 w-5 text-blue-600 dark:text-blue-400" />
         </div>
@@ -90,11 +108,13 @@ export function TaskListItem({
           </div>
         </div>
       </div>
-      {onSelect === undefined && <ArrowRight className="h-4 w-4 text-gray-400" />}
+      {(onSelect === undefined || bulkMode) && (
+        <ArrowRight className="h-4 w-4 text-gray-400" />
+      )}
     </>
   );
 
-  if (onSelect !== undefined) {
+  if (onSelect !== undefined && !bulkMode) {
     return (
       <li>
         <div
@@ -121,7 +141,9 @@ export function TaskListItem({
     <li>
       <Link
         href={`/dashboard/tasks/${task.id}`}
-        className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700"
+        className={`flex items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+          bulkMode && isSelected ? "bg-primary-50 dark:bg-primary-900/20" : ""
+        }`}
       >
         {content}
       </Link>
@@ -189,6 +211,8 @@ interface TaskListProps {
   selectedTaskIds?: Set<number>;
   /** When provided, called with each task to determine if it can be selected. Defaults to always selectable. */
   isSelectable?: (task: Task) => boolean;
+  /** When true, rows stay as navigation links; only the checkbox toggles selection. */
+  bulkMode?: boolean;
 }
 
 export function TaskList({
@@ -197,6 +221,7 @@ export function TaskList({
   onTaskToggle,
   selectedTaskIds,
   isSelectable,
+  bulkMode = false,
 }: TaskListProps) {
   return (
     <ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -208,6 +233,7 @@ export function TaskList({
           onSelect={onTaskToggle}
           isSelected={selectedTaskIds?.has(task.id)}
           selectable={isSelectable ? isSelectable(task) : true}
+          bulkMode={bulkMode}
         />
       ))}
     </ul>
