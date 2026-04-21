@@ -668,6 +668,7 @@
     "noDatesSet": "Sin fechas definidas",
     "noTasksCreated": "Aún no se han creado tareas",
     "createTasksInBacklog": "Crea tareas en el backlog para comenzar",
+    "goToProject": "Ir al proyecto",
     "addGithubRepository": "Añadir Repositorio de GitHub",
     "displayName": "Nombre a Mostrar",
     "repositoryUrl": "URL del Repositorio",
