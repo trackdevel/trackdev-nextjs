@@ -3,11 +3,12 @@
 import { EmptyState, LoadingContainer, Pagination } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import { ApiClientError, tasksApi, useAuth } from "@trackdev/api-client";
-import type { Task } from "@trackdev/types";
+import type { Task, TaskStatus } from "@trackdev/types";
 import { ClipboardList } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { BulkActionToolbar, type BulkAction } from "./BulkActionToolbar";
+import { BulkChangeStatusDialog } from "./BulkChangeStatusDialog";
 import { TaskFilterBar, type TaskFilters } from "./TaskFilterBar";
 import { TaskList } from "./TaskListItem";
 
@@ -83,7 +84,7 @@ function isTaskSelectableFor(
 
 function computeAvailableActions(isProfessor: boolean): BulkAction[] {
   if (isProfessor) {
-    return ["UNASSIGN", "FREEZE", "UNFREEZE"];
+    return ["CHANGE_STATUS", "UNASSIGN", "FREEZE", "UNFREEZE"];
   }
   return ["ASSIGN_TO_ME", "UNASSIGN"];
 }
@@ -125,6 +126,7 @@ export function FilterableTaskList({
   const [bulkSelectedIds, setBulkSelectedIds] = useState<Set<number>>(new Set());
   const [isExecuting, setIsExecuting] = useState(false);
   const [isSelectingAll, setIsSelectingAll] = useState(false);
+  const [changeStatusDialogOpen, setChangeStatusDialogOpen] = useState(false);
 
   const isTaskSelectable = useCallback(
     (task: Task) => isTaskSelectableFor(task, user?.id, isProfessor),
@@ -175,8 +177,11 @@ export function FilterableTaskList({
     }
   }, [bulkActions, bulkSelectedIds.size, clearBulkSelection, isTaskSelectable, t, toast]);
 
-  const runActionForIds = useCallback(
-    async (action: BulkAction, ids: number[]) => {
+  const runSimpleActionForIds = useCallback(
+    async (
+      action: Exclude<BulkAction, "CHANGE_STATUS">,
+      ids: number[],
+    ) => {
       const results = await Promise.allSettled(
         ids.map((id) => {
           switch (action) {
@@ -202,6 +207,11 @@ export function FilterableTaskList({
     async (action: BulkAction) => {
       if (!bulkActions || bulkSelectedIds.size === 0) return;
 
+      if (action === "CHANGE_STATUS") {
+        setChangeStatusDialogOpen(true);
+        return;
+      }
+
       const selectedTasks = (await Promise.resolve(
         bulkActions.getAllFilteredTasks(),
       )).filter((task) => bulkSelectedIds.has(task.id));
@@ -221,7 +231,7 @@ export function FilterableTaskList({
 
       setIsExecuting(true);
       try {
-        const { succeeded, failed } = await runActionForIds(
+        const { succeeded, failed } = await runSimpleActionForIds(
           action,
           targetTasks.map((task) => task.id),
         );
@@ -246,7 +256,44 @@ export function FilterableTaskList({
         setIsExecuting(false);
       }
     },
-    [bulkActions, bulkSelectedIds, clearBulkSelection, runActionForIds, t, toast],
+    [bulkActions, bulkSelectedIds, clearBulkSelection, runSimpleActionForIds, t, toast],
+  );
+
+  const handleConfirmChangeStatus = useCallback(
+    async (status: TaskStatus) => {
+      if (!bulkActions || bulkSelectedIds.size === 0) return;
+
+      const ids = Array.from(bulkSelectedIds);
+      setIsExecuting(true);
+      try {
+        const results = await Promise.allSettled(
+          ids.map((id) => tasksApi.update(id, { status })),
+        );
+        const succeeded = results.filter((r) => r.status === "fulfilled").length;
+        const failed = results.length - succeeded;
+
+        if (failed === 0) {
+          toast.success(t("bulkActionSuccess", { count: succeeded }));
+        } else if (succeeded === 0) {
+          toast.error(t("bulkActionFailed"));
+        } else {
+          toast.warning(t("bulkActionPartial", { succeeded, failed }));
+        }
+
+        bulkActions.onRefresh();
+        clearBulkSelection();
+        setChangeStatusDialogOpen(false);
+      } catch (err) {
+        const message =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("bulkActionFailed");
+        toast.error(message);
+      } finally {
+        setIsExecuting(false);
+      }
+    },
+    [bulkActions, bulkSelectedIds, clearBulkSelection, t, toast],
   );
 
   const visibleSelectableCount = useMemo(
@@ -356,6 +403,16 @@ export function FilterableTaskList({
           />
         )}
       </div>
+
+      {bulkEnabled && (
+        <BulkChangeStatusDialog
+          isOpen={changeStatusDialogOpen}
+          selectedCount={bulkSelectedIds.size}
+          onClose={() => setChangeStatusDialogOpen(false)}
+          onConfirm={handleConfirmChangeStatus}
+          isExecuting={isExecuting}
+        />
+      )}
     </>
   );
 }
