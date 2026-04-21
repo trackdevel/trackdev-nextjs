@@ -2,6 +2,7 @@
 
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
+import { UserLink } from "@/components/ui/UserLink";
 import { useDateFormat } from "@/utils/useDateFormat";
 import { ApiClientError, tasksApi, useMutation } from "@trackdev/api-client";
 import type { Comment } from "@trackdev/types";
@@ -24,6 +25,7 @@ interface TaskDiscussionProps {
   canComment?: boolean;
   isProfessor?: boolean;
   currentUserId?: string;
+  courseId?: number;
 }
 
 export const TaskDiscussion = memo(function TaskDiscussion({
@@ -33,6 +35,7 @@ export const TaskDiscussion = memo(function TaskDiscussion({
   canComment = false,
   isProfessor = false,
   currentUserId,
+  courseId,
 }: TaskDiscussionProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
@@ -226,9 +229,11 @@ export const TaskDiscussion = memo(function TaskDiscussion({
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {comment.author?.fullName || comment.author?.username}
-                        </span>
+                        <UserLink
+                          user={comment.author}
+                          courseId={courseId}
+                          className="font-medium text-gray-900 dark:text-white"
+                        />
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           {comment.createdAt
                             ? formatDateTime(comment.createdAt)
