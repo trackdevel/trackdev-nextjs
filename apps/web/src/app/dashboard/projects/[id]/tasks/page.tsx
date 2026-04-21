@@ -7,8 +7,9 @@ import type { TaskFilters } from "@/components/tasks/TaskFilterBar";
 import { EmptyState, PageContainer } from "@/components/ui";
 import { projectsApi, useAuth, useQuery } from "@trackdev/api-client";
 import type { Task, TaskStatus, TaskType } from "@trackdev/types";
-import { ClipboardList, Plus } from "lucide-react";
+import { ClipboardList, FolderKanban, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSessionState } from "@/utils/useSessionState";
 import { useCallback, useMemo } from "react";
@@ -242,9 +243,21 @@ export default function ProjectTasksPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {tTasks("title")}
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {tTasks("title")}
+            </h1>
+            {project && (
+              <Link
+                href={`/dashboard/projects/${projectId}`}
+                title={t("goToProject")}
+                className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+              >
+                <FolderKanban className="h-3.5 w-3.5" />
+                {project.name}
+              </Link>
+            )}
+          </div>
           <p className="mt-1 text-gray-600 dark:text-gray-400">
             {filteredTasks.length} {tTasks("title").toLowerCase()}
           </p>
