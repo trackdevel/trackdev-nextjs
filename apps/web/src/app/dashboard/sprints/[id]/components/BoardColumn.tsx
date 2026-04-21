@@ -12,6 +12,7 @@ interface BoardColumnProps {
   dropDisabled?: boolean;
   draggedTaskId: number | null;
   dragSource: "sprint" | "backlog" | null;
+  courseId?: number;
 }
 
 export const BoardColumn = memo(function BoardColumn({
@@ -21,6 +22,7 @@ export const BoardColumn = memo(function BoardColumn({
   dropDisabled,
   draggedTaskId,
   dragSource,
+  courseId,
 }: BoardColumnProps) {
   const colData: DropTargetColumnData = {
     type: "column",
@@ -59,7 +61,11 @@ export const BoardColumn = memo(function BoardColumn({
               }`}
             >
               <div className="overflow-hidden p-0.5 -m-0.5">
-                <TaskCard task={task} isBeingDragged={isBeingDragged} />
+                <TaskCard
+                  task={task}
+                  isBeingDragged={isBeingDragged}
+                  courseId={courseId}
+                />
               </div>
             </div>
           );
