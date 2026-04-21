@@ -673,6 +673,7 @@
     "noDatesSet": "No dates set",
     "noTasksCreated": "No tasks created yet",
     "createTasksInBacklog": "Create tasks in the backlog to get started",
+    "goToProject": "Go to project",
     "addGithubRepository": "Add GitHub Repository",
     "displayName": "Display Name",
     "repositoryUrl": "Repository URL",
