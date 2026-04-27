@@ -1,7 +1,7 @@
 "use client";
 
 import { DropdownMenu, type DropdownMenuItem } from "@/components/ui/DropdownMenu";
-import { ChevronDown, UserPlus, UserMinus, Lock, Unlock, ArrowRightLeft } from "lucide-react";
+import { ChevronDown, UserPlus, UserMinus, Lock, Unlock, ArrowRightLeft, CalendarRange } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export type BulkAction =
@@ -9,7 +9,8 @@ export type BulkAction =
   | "UNASSIGN"
   | "FREEZE"
   | "UNFREEZE"
-  | "CHANGE_STATUS";
+  | "CHANGE_STATUS"
+  | "CHANGE_SPRINT";
 
 interface BulkActionToolbarProps {
   selectedCount: number;
@@ -42,6 +43,7 @@ export function BulkActionToolbar({
     FREEZE: <Lock className="h-4 w-4" />,
     UNFREEZE: <Unlock className="h-4 w-4" />,
     CHANGE_STATUS: <ArrowRightLeft className="h-4 w-4" />,
+    CHANGE_SPRINT: <CalendarRange className="h-4 w-4" />,
   };
 
   const actionLabels: Record<BulkAction, string> = {
@@ -50,6 +52,7 @@ export function BulkActionToolbar({
     FREEZE: t("bulkFreeze"),
     UNFREEZE: t("bulkUnfreeze"),
     CHANGE_STATUS: t("bulkChangeStatus"),
+    CHANGE_SPRINT: t("bulkChangeSprint"),
   };
 
   const menuItems: DropdownMenuItem[] = availableActions.map((action) => ({
