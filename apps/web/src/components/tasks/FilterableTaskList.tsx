@@ -2,12 +2,13 @@
 
 import { EmptyState, LoadingContainer, Pagination } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
-import { ApiClientError, tasksApi, useAuth } from "@trackdev/api-client";
+import { ApiClientError, projectsApi, tasksApi, useAuth } from "@trackdev/api-client";
 import type { Task, TaskStatus } from "@trackdev/types";
 import { ClipboardList } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { BulkActionToolbar, type BulkAction } from "./BulkActionToolbar";
+import { BulkChangeSprintDialog, type SprintOption } from "./BulkChangeSprintDialog";
 import { BulkChangeStatusDialog } from "./BulkChangeStatusDialog";
 import { TaskFilterBar, type TaskFilters } from "./TaskFilterBar";
 import { TaskList } from "./TaskListItem";
@@ -84,9 +85,9 @@ function isTaskSelectableFor(
 
 function computeAvailableActions(isProfessor: boolean): BulkAction[] {
   if (isProfessor) {
-    return ["CHANGE_STATUS", "UNASSIGN", "FREEZE", "UNFREEZE"];
+    return ["CHANGE_STATUS", "CHANGE_SPRINT", "UNASSIGN", "FREEZE", "UNFREEZE"];
   }
-  return ["ASSIGN_TO_ME", "UNASSIGN"];
+  return ["ASSIGN_TO_ME", "CHANGE_SPRINT", "UNASSIGN"];
 }
 
 export function FilterableTaskList({
@@ -127,6 +128,12 @@ export function FilterableTaskList({
   const [isExecuting, setIsExecuting] = useState(false);
   const [isSelectingAll, setIsSelectingAll] = useState(false);
   const [changeStatusDialogOpen, setChangeStatusDialogOpen] = useState(false);
+  const [changeSprintDialogOpen, setChangeSprintDialogOpen] = useState(false);
+  const [sprintDialogProject, setSprintDialogProject] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [sprintDialogSprints, setSprintDialogSprints] = useState<SprintOption[]>([]);
 
   const isTaskSelectable = useCallback(
     (task: Task) => isTaskSelectableFor(task, user?.id, isProfessor),
@@ -212,6 +219,47 @@ export function FilterableTaskList({
         return;
       }
 
+      if (action === "CHANGE_SPRINT") {
+        const projectId = filters.projectId ? Number(filters.projectId) : null;
+        if (!projectId) {
+          toast.info(t("bulkSprintMultiProject"));
+          return;
+        }
+        const projectName =
+          projectOptions?.find((opt) => opt.value === filters.projectId)?.label ??
+          "";
+        setIsExecuting(true);
+        try {
+          const response = await projectsApi.getSprints(projectId);
+          const sprints: SprintOption[] = (response.sprints ?? [])
+            .filter(
+              (sprint) =>
+                sprint.status === "ACTIVE" || sprint.status === "DRAFT",
+            )
+            .sort((a, b) => {
+              if (!a.startDate) return 1;
+              if (!b.startDate) return -1;
+              return (
+                new Date(a.startDate).getTime() -
+                new Date(b.startDate).getTime()
+              );
+            })
+            .map((sprint) => ({ id: sprint.id, label: sprint.label }));
+          setSprintDialogProject({ id: projectId, name: projectName });
+          setSprintDialogSprints(sprints);
+          setChangeSprintDialogOpen(true);
+        } catch (err) {
+          const message =
+            err instanceof ApiClientError && err.body?.message
+              ? err.body.message
+              : t("bulkActionFailed");
+          toast.error(message);
+        } finally {
+          setIsExecuting(false);
+        }
+        return;
+      }
+
       const selectedTasks = (await Promise.resolve(
         bulkActions.getAllFilteredTasks(),
       )).filter((task) => bulkSelectedIds.has(task.id));
@@ -256,7 +304,53 @@ export function FilterableTaskList({
         setIsExecuting(false);
       }
     },
-    [bulkActions, bulkSelectedIds, clearBulkSelection, runSimpleActionForIds, t, toast],
+    [
+      bulkActions,
+      bulkSelectedIds,
+      clearBulkSelection,
+      filters.projectId,
+      projectOptions,
+      runSimpleActionForIds,
+      t,
+      toast,
+    ],
+  );
+
+  const handleConfirmChangeSprint = useCallback(
+    async (sprintId: number | null) => {
+      if (!bulkActions || bulkSelectedIds.size === 0) return;
+
+      const ids = Array.from(bulkSelectedIds);
+      setIsExecuting(true);
+      try {
+        const results = await Promise.allSettled(
+          ids.map((id) => tasksApi.update(id, { sprintId })),
+        );
+        const succeeded = results.filter((r) => r.status === "fulfilled").length;
+        const failed = results.length - succeeded;
+
+        if (failed === 0) {
+          toast.success(t("bulkActionSuccess", { count: succeeded }));
+        } else if (succeeded === 0) {
+          toast.error(t("bulkActionFailed"));
+        } else {
+          toast.warning(t("bulkActionPartial", { succeeded, failed }));
+        }
+
+        bulkActions.onRefresh();
+        clearBulkSelection();
+        setChangeSprintDialogOpen(false);
+      } catch (err) {
+        const message =
+          err instanceof ApiClientError && err.body?.message
+            ? err.body.message
+            : t("bulkActionFailed");
+        toast.error(message);
+      } finally {
+        setIsExecuting(false);
+      }
+    },
+    [bulkActions, bulkSelectedIds, clearBulkSelection, t, toast],
   );
 
   const handleConfirmChangeStatus = useCallback(
@@ -410,6 +504,18 @@ export function FilterableTaskList({
           selectedCount={bulkSelectedIds.size}
           onClose={() => setChangeStatusDialogOpen(false)}
           onConfirm={handleConfirmChangeStatus}
+          isExecuting={isExecuting}
+        />
+      )}
+
+      {bulkEnabled && sprintDialogProject && (
+        <BulkChangeSprintDialog
+          isOpen={changeSprintDialogOpen}
+          selectedCount={bulkSelectedIds.size}
+          projectName={sprintDialogProject.name}
+          sprints={sprintDialogSprints}
+          onClose={() => setChangeSprintDialogOpen(false)}
+          onConfirm={handleConfirmChangeSprint}
           isExecuting={isExecuting}
         />
       )}
