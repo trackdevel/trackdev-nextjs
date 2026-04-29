@@ -512,11 +512,14 @@
       "attributeType": "Tipo",
       "attributeTarget": "Objetivo",
       "enumRef": "Referencia de Enum",
+      "firstEnum": "Primera enumeración",
+      "secondEnum": "Segunda enumeración",
       "selectEnum": "Selecciona un enum",
       "defaultValue": "Valor por Defecto",
       "defaultValuePlaceholder": "Introduce el valor por defecto",
       "defaultValueHint": "Se usa como valor alternativo cuando las tareas no tienen un valor establecido para este atributo",
       "appliedBy": "Aplicado por",
+      "appliedByEnumPairHint": "Elige quién puede editar este atributo en una tarea: Profesor (solo profesores) o Estudiante (el estudiante asignado — los profesores siempre pueden editar).",
       "minValue": "Valor Mínimo",
       "minValuePlaceholder": "Introduce el mínimo",
       "maxValue": "Valor Máximo",
@@ -535,7 +538,10 @@
       "enumValuesRequired": "Se requiere al menos un valor de enum",
       "enumValueNoSpaces": "Los valores de enum no pueden contener espacios",
       "attributeNameRequired": "El nombre del atributo es obligatorio",
-      "enumRefRequired": "Debes seleccionar un enum para los atributos de tipo enum"
+      "enumRefRequired": "Debes seleccionar un enum para los atributos de tipo enum",
+      "enumPairBothRequired": "Un atributo ENUM_PAIR requiere dos enumeraciones",
+      "enumPairDistinct": "Las dos enumeraciones de un ENUM_PAIR deben ser diferentes",
+      "enumPairTarget": "Los atributos ENUM_PAIR sólo pueden aplicarse a Tarea o Estudiante"
     },
     "enums": {
       "title": "Enums",
@@ -584,6 +590,7 @@
       "integer": "Entero",
       "float": "Decimal",
       "enum": "Enum",
+      "enumPair": "Par de enumeraciones",
       "list": "Lista",
       "text": "Markdown",
       "numericText": "Numérico + Markdown"
