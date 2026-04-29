@@ -517,11 +517,14 @@
       "attributeType": "Type",
       "attributeTarget": "Target",
       "enumRef": "Enum Reference",
+      "firstEnum": "First enum",
+      "secondEnum": "Second enum",
       "selectEnum": "Select an enum",
       "defaultValue": "Default Value",
       "defaultValuePlaceholder": "Enter default value",
       "defaultValueHint": "Used as fallback when tasks don't have a value set for this attribute",
       "appliedBy": "Applied By",
+      "appliedByEnumPairHint": "Choose who can edit this attribute on a task: Professor (only professors) or Student (the assigned student — professors can always edit too).",
       "minValue": "Minimum Value",
       "minValuePlaceholder": "Enter minimum",
       "maxValue": "Maximum Value",
@@ -540,7 +543,10 @@
       "enumValuesRequired": "At least one enum value is required",
       "enumValueNoSpaces": "Enum values must not contain spaces",
       "attributeNameRequired": "Attribute name is required",
-      "enumRefRequired": "An enum must be selected for enum type attributes"
+      "enumRefRequired": "An enum must be selected for enum type attributes",
+      "enumPairBothRequired": "An ENUM_PAIR attribute requires two enums",
+      "enumPairDistinct": "The two enums of an ENUM_PAIR must be different",
+      "enumPairTarget": "ENUM_PAIR attributes can only target Task or Student"
     },
     "enums": {
       "title": "Enums",
@@ -589,6 +595,7 @@
       "integer": "Integer",
       "float": "Decimal",
       "enum": "Enum",
+      "enumPair": "Enum pair",
       "list": "List",
       "text": "Markdown",
       "numericText": "Numeric + Markdown"
