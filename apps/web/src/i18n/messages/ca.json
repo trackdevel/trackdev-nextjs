@@ -512,11 +512,14 @@
       "attributeType": "Tipus",
       "attributeTarget": "Objectiu",
       "enumRef": "Referència d'Enum",
+      "firstEnum": "Primera enumeració",
+      "secondEnum": "Segona enumeració",
       "selectEnum": "Selecciona un enum",
       "defaultValue": "Valor per Defecte",
       "defaultValuePlaceholder": "Introdueix el valor per defecte",
       "defaultValueHint": "S'utilitza com a valor alternatiu quan les tasques no tenen un valor establert per a aquest atribut",
       "appliedBy": "Aplicat per",
+      "appliedByEnumPairHint": "Tria qui pot editar aquest atribut en una tasca: Professor (només els professors) o Estudiant (l'estudiant assignat — els professors sempre poden editar).",
       "minValue": "Valor Mínim",
       "minValuePlaceholder": "Introdueix el mínim",
       "maxValue": "Valor Màxim",
@@ -535,7 +538,10 @@
       "enumValuesRequired": "Es requereix almenys un valor d'enum",
       "enumValueNoSpaces": "Els valors d'enum no poden contenir espais",
       "attributeNameRequired": "El nom de l'atribut és obligatori",
-      "enumRefRequired": "Cal seleccionar un enum per als atributs de tipus enum"
+      "enumRefRequired": "Cal seleccionar un enum per als atributs de tipus enum",
+      "enumPairBothRequired": "Un atribut ENUM_PAIR requereix dues enumeracions",
+      "enumPairDistinct": "Les dues enumeracions d'un ENUM_PAIR han de ser diferents",
+      "enumPairTarget": "Els atributs ENUM_PAIR només es poden aplicar a Tasca o Estudiant"
     },
     "enums": {
       "title": "Enums",
@@ -584,6 +590,7 @@
       "integer": "Enter",
       "float": "Decimal",
       "enum": "Enum",
+      "enumPair": "Parell d'enumeracions",
       "list": "Llista",
       "text": "Markdown",
       "numericText": "Numèric + Markdown"
