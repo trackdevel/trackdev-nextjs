@@ -183,11 +183,22 @@ export interface TaskAttributeValue {
   taskId: number;
   attributeId: number;
   attributeName: string;
-  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM" | "TEXT" | "NUMERIC_TEXT";
+  attributeType:
+    | "STRING"
+    | "INTEGER"
+    | "FLOAT"
+    | "ENUM"
+    | "TEXT"
+    | "NUMERIC_TEXT"
+    | "ENUM_PAIR";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
+  /** Second value, used when attributeType is ENUM_PAIR */
+  valueB?: string | null;
   textValue?: string | null;
   enumValues?: EnumValueEntry[];
+  /** Possible values for the second enum slot — populated only when attributeType is ENUM_PAIR */
+  enumValues2?: EnumValueEntry[];
 }
 
 /**
@@ -198,11 +209,22 @@ export interface StudentAttributeValue {
   userId: string;
   attributeId: number;
   attributeName: string;
-  attributeType: "STRING" | "INTEGER" | "FLOAT" | "ENUM" | "TEXT" | "NUMERIC_TEXT";
+  attributeType:
+    | "STRING"
+    | "INTEGER"
+    | "FLOAT"
+    | "ENUM"
+    | "TEXT"
+    | "NUMERIC_TEXT"
+    | "ENUM_PAIR";
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
+  /** Second value, used when attributeType is ENUM_PAIR */
+  valueB?: string | null;
   textValue?: string | null;
   enumValues?: EnumValueEntry[];
+  /** Possible values for the second enum slot — populated only when attributeType is ENUM_PAIR */
+  enumValues2?: EnumValueEntry[];
 }
 
 /**
@@ -225,6 +247,8 @@ export interface PullRequestAttributeValue {
  */
 export interface SetAttributeValueRequest {
   value: string | null;
+  /** Second value, used when attribute type is ENUM_PAIR */
+  valueB?: string | null;
   textValue?: string | null;
 }
 

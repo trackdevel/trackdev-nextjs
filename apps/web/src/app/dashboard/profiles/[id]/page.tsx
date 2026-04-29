@@ -78,6 +78,7 @@ export default function ProfileDetailPage({
   const [attributeTarget, setAttributeTarget] =
     useState<AttributeTarget>("STUDENT");
   const [attributeEnumRef, setAttributeEnumRef] = useState<string>("");
+  const [attributeEnumRef2, setAttributeEnumRef2] = useState<string>("");
   const [attributeDefaultValue, setAttributeDefaultValue] =
     useState<string>("");
   const [attributeAppliedBy, setAttributeAppliedBy] =
@@ -135,6 +136,7 @@ export default function ProfileDetailPage({
       appliedBy: a.appliedBy,
       visibility: a.visibility,
       enumRefName: a.enumRefName,
+      enumRefName2: a.enumRef2Name,
       defaultValue: a.defaultValue,
       minValue: a.minValue,
       maxValue: a.maxValue,
@@ -172,6 +174,7 @@ export default function ProfileDetailPage({
     setAttributeType("STRING");
     setAttributeTarget("STUDENT");
     setAttributeEnumRef("");
+    setAttributeEnumRef2("");
     setAttributeDefaultValue("");
     setAttributeAppliedBy("PROFESSOR");
     setAttributeVisibility("PROFESSOR_ONLY");
@@ -352,6 +355,7 @@ export default function ProfileDetailPage({
       setAttributeType(attribute.type);
       setAttributeTarget(attribute.target);
       setAttributeEnumRef(attribute.enumRefName || "");
+      setAttributeEnumRef2(attribute.enumRef2Name || "");
       setAttributeAppliedBy(attribute.appliedBy || "PROFESSOR");
       setAttributeVisibility(attribute.visibility || "PROFESSOR_ONLY");
       setAttributeMinValue(attribute.minValue || "");
@@ -387,12 +391,28 @@ export default function ProfileDetailPage({
       return;
     }
 
+    if (attributeType === "ENUM_PAIR") {
+      if (!attributeEnumRef || !attributeEnumRef2) {
+        setAttributeValidationError(t("validation.enumPairBothRequired"));
+        return;
+      }
+      if (attributeEnumRef === attributeEnumRef2) {
+        setAttributeValidationError(t("validation.enumPairDistinct"));
+        return;
+      }
+      if (attributeTarget !== "TASK" && attributeTarget !== "STUDENT") {
+        setAttributeValidationError(t("validation.enumPairTarget"));
+        return;
+      }
+    }
+
     const currentAttributes = profile.attributes || [];
     let newAttributes;
 
     const isNumeric =
       attributeType === "INTEGER" || attributeType === "FLOAT";
     const isList = attributeType === "LIST";
+    const isEnumPair = attributeType === "ENUM_PAIR";
     const newAttr = {
       name: attributeName.trim(),
       type: attributeType,
@@ -406,11 +426,12 @@ export default function ProfileDetailPage({
         ? ("PROFESSOR_ONLY" as AttributeVisibility)
         : attributeVisibility,
       enumRefName:
-        attributeType === "ENUM"
+        attributeType === "ENUM" || isEnumPair
           ? attributeEnumRef
           : isList && attributeEnumRef
             ? attributeEnumRef
             : undefined,
+      enumRefName2: isEnumPair ? attributeEnumRef2 : undefined,
       defaultValue: isNumeric
         ? attributeDefaultValue.trim() || undefined
         : undefined,
@@ -434,6 +455,7 @@ export default function ProfileDetailPage({
           appliedBy: a.appliedBy,
           visibility: a.visibility,
           enumRefName: a.enumRefName,
+          enumRefName2: a.enumRef2Name,
           defaultValue: a.defaultValue,
           minValue: a.minValue,
           maxValue: a.maxValue,
@@ -516,6 +538,7 @@ export default function ProfileDetailPage({
       LIST: t("types.list"),
       TEXT: t("types.text"),
       NUMERIC_TEXT: t("types.numericText"),
+      ENUM_PAIR: t("types.enumPair"),
     };
     return labels[type];
   };
@@ -750,8 +773,11 @@ export default function ProfileDetailPage({
                       <div className="mt-1 flex gap-2">
                         <span className="inline-flex rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-400">
                           {getTypeLabel(attribute.type)}
-                          {attribute.enumRefName &&
-                            `: ${attribute.enumRefName}`}
+                          {attribute.type === "ENUM_PAIR"
+                            ? `: ${attribute.enumRefName ?? "?"} / ${attribute.enumRef2Name ?? "?"}`
+                            : attribute.enumRefName
+                              ? `: ${attribute.enumRefName}`
+                              : ""}
                         </span>
                         <span className="inline-flex rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs text-green-700 dark:text-green-400">
                           {t("form.attributeTarget")}: {getTargetLabel(attribute.target)}
@@ -994,12 +1020,26 @@ export default function ProfileDetailPage({
                   }
                   setAttributeDefaultValue("");
                 }
+                // ENUM_PAIR: target TASK or STUDENT, no min/max/default.
+                // Default target to TASK so the "applied by" selector is visible.
+                if (newType === "ENUM_PAIR") {
+                  if (attributeTarget !== "TASK" && attributeTarget !== "STUDENT") {
+                    setAttributeTarget("TASK");
+                  }
+                  setAttributeMinValue("");
+                  setAttributeMaxValue("");
+                  setAttributeDefaultValue("");
+                }
+                if (newType !== "ENUM_PAIR") {
+                  setAttributeEnumRef2("");
+                }
               }}
               options={[
                 { value: "STRING", label: t("types.string") },
                 { value: "INTEGER", label: t("types.integer") },
                 { value: "FLOAT", label: t("types.float") },
                 { value: "ENUM", label: t("types.enum") },
+                { value: "ENUM_PAIR", label: t("types.enumPair") },
                 { value: "LIST", label: t("types.list") },
                 { value: "TEXT", label: t("types.text") },
                 { value: "NUMERIC_TEXT", label: t("types.numericText") },
@@ -1008,13 +1048,20 @@ export default function ProfileDetailPage({
               aria-label={t("form.attributeType")}
             />
           </div>
-          {(attributeType === "ENUM" || attributeType === "LIST") && (
+          {(attributeType === "ENUM" ||
+            attributeType === "LIST" ||
+            attributeType === "ENUM_PAIR") && (
             <div>
               <label
                 htmlFor="attributeEnumRef"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                {t("form.enumRef")} {attributeType === "ENUM" ? "*" : ""}
+                {attributeType === "ENUM_PAIR"
+                  ? t("form.firstEnum")
+                  : t("form.enumRef")}
+                {attributeType === "ENUM" || attributeType === "ENUM_PAIR"
+                  ? " *"
+                  : ""}
               </label>
               {attributeType === "LIST" && (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -1037,6 +1084,32 @@ export default function ProfileDetailPage({
               />
             </div>
           )}
+          {attributeType === "ENUM_PAIR" && (
+            <div>
+              <label
+                htmlFor="attributeEnumRef2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                {t("form.secondEnum")} *
+              </label>
+              <Select
+                value={attributeEnumRef2}
+                onChange={(value) => setAttributeEnumRef2(value)}
+                options={[
+                  { value: "", label: t("form.selectEnum") },
+                  ...(profile?.enums
+                    ?.filter((e) => e.name !== attributeEnumRef)
+                    .map((profileEnum) => ({
+                      value: profileEnum.name,
+                      label: profileEnum.name,
+                    })) || []),
+                ]}
+                placeholder={t("form.selectEnum")}
+                className="mt-1"
+                aria-label={t("form.secondEnum")}
+              />
+            </div>
+          )}
           <div>
             <label
               htmlFor="attributeTarget"
@@ -1046,18 +1119,29 @@ export default function ProfileDetailPage({
             </label>
             <Select
               value={attributeTarget}
-              onChange={(value) => setAttributeTarget(value as AttributeTarget)}
+              onChange={(value) => {
+                const newTarget = value as AttributeTarget;
+                setAttributeTarget(newTarget);
+                if (newTarget !== "TASK") {
+                  setAttributeAppliedBy("PROFESSOR");
+                }
+              }}
               options={
                 attributeType === "LIST"
                   ? [
                       { value: "STUDENT", label: t("targets.student") },
                       { value: "PULL_REQUEST", label: t("targets.pullRequest") },
                     ]
-                  : [
-                      { value: "STUDENT", label: t("targets.student") },
-                      { value: "TASK", label: t("targets.task") },
-                      { value: "PULL_REQUEST", label: t("targets.pullRequest") },
-                    ]
+                  : attributeType === "ENUM_PAIR"
+                    ? [
+                        { value: "STUDENT", label: t("targets.student") },
+                        { value: "TASK", label: t("targets.task") },
+                      ]
+                    : [
+                        { value: "STUDENT", label: t("targets.student") },
+                        { value: "TASK", label: t("targets.task") },
+                        { value: "PULL_REQUEST", label: t("targets.pullRequest") },
+                      ]
               }
               className="mt-1"
               aria-label={t("form.attributeTarget")}
@@ -1088,6 +1172,11 @@ export default function ProfileDetailPage({
                 className="mt-1"
                 aria-label={t("form.appliedBy")}
               />
+              {attributeType === "ENUM_PAIR" && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {t("form.appliedByEnumPairHint")}
+                </p>
+              )}
             </div>
           )}
           {attributeType !== "LIST" && (

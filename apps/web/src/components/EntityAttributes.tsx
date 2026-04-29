@@ -24,8 +24,10 @@ interface AttributeValue {
   attributeType: string;
   attributeAppliedBy: "STUDENT" | "PROFESSOR";
   value: string | null;
+  valueB?: string | null;
   textValue?: string | null;
   enumValues?: EnumValueEntry[];
+  enumValues2?: EnumValueEntry[];
 }
 
 type ListValueDTO = StudentAttributeListValue | PullRequestAttributeListValue;
@@ -39,7 +41,7 @@ interface EntityAttributesProps {
   /** Set/update a scalar attribute value */
   setValue: (
     attrId: number,
-    data: { value: string | null; textValue?: string | null },
+    data: { value: string | null; valueB?: string | null; textValue?: string | null },
   ) => Promise<unknown>;
   /** Delete a scalar attribute value */
   deleteValue: (attrId: number) => Promise<void>;
@@ -89,6 +91,7 @@ export const EntityAttributes = memo(function EntityAttributes({
 
   const [editingAttr, setEditingAttr] = useState<AttributeRow | null>(null);
   const [modalValue, setModalValue] = useState("");
+  const [modalValueB, setModalValueB] = useState("");
   const [modalTextValue, setModalTextValue] = useState("");
 
   // LIST attribute state
@@ -148,8 +151,17 @@ export const EntityAttributes = memo(function EntityAttributes({
 
   // Mutation to set/update scalar attribute value
   const setValueMutation = useMutation(
-    ({ attributeId, value, textValue }: { attributeId: number; value: string | null; textValue?: string | null }) =>
-      setValue(attributeId, { value, textValue }),
+    ({
+      attributeId,
+      value,
+      valueB,
+      textValue,
+    }: {
+      attributeId: number;
+      value: string | null;
+      valueB?: string | null;
+      textValue?: string | null;
+    }) => setValue(attributeId, { value, valueB, textValue }),
     {
       onSuccess: () => {
         refetchValues();
@@ -249,16 +261,20 @@ export const EntityAttributes = memo(function EntityAttributes({
   const handleOpenEdit = (row: AttributeRow) => {
     setEditingAttr(row);
     setModalValue(row.currentValue?.value || "");
+    setModalValueB(row.currentValue?.valueB || "");
     setModalTextValue(row.currentValue?.textValue || "");
   };
 
   const handleSave = () => {
     if (editingAttr) {
-      const data: { value: string | null; textValue?: string | null } = {
+      const data: { value: string | null; valueB?: string | null; textValue?: string | null } = {
         value: modalValue || null,
       };
       if (editingAttr.attribute.type === "NUMERIC_TEXT") {
         data.textValue = modalTextValue || null;
+      }
+      if (editingAttr.attribute.type === "ENUM_PAIR") {
+        data.valueB = modalValueB || null;
       }
       setValueMutation.mutate({
         attributeId: editingAttr.attribute.id,
@@ -276,6 +292,7 @@ export const EntityAttributes = memo(function EntityAttributes({
   const handleCloseModal = () => {
     setEditingAttr(null);
     setModalValue("");
+    setModalValueB("");
     setModalTextValue("");
   };
 
@@ -383,6 +400,51 @@ export const EntityAttributes = memo(function EntityAttributes({
     const attr = row.attribute;
 
     switch (attr.type) {
+      case "ENUM_PAIR": {
+        const enumValuesA = getEnumValues(row);
+        const enumValuesB =
+          row.currentValue?.enumValues2 || row.attribute.enumValues2 || [];
+        return (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                {row.attribute.enumRefName || ""}
+              </label>
+              <select
+                value={modalValue}
+                onChange={(e) => setModalValue(e.target.value)}
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
+              >
+                <option value="">—</option>
+                {enumValuesA.map((v) => (
+                  <option key={v.value} value={v.value}>
+                    {v.value}
+                    {v.description ? ` — ${v.description}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                {row.attribute.enumRef2Name || ""}
+              </label>
+              <select
+                value={modalValueB}
+                onChange={(e) => setModalValueB(e.target.value)}
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500"
+              >
+                <option value="">—</option>
+                {enumValuesB.map((v) => (
+                  <option key={v.value} value={v.value}>
+                    {v.value}
+                    {v.description ? ` — ${v.description}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        );
+      }
       case "ENUM": {
         const enumValues = getEnumValues(row);
         return (
@@ -565,6 +627,16 @@ export const EntityAttributes = memo(function EntityAttributes({
                           </span>
                         )}
                       </span>
+                    ) : row.attribute.type === "ENUM_PAIR" ? (
+                      row.currentValue?.value || row.currentValue?.valueB ? (
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {row.currentValue?.value || "—"} / {row.currentValue?.valueB || "—"}
+                        </span>
+                      ) : (
+                        <span className="text-sm italic text-gray-400 dark:text-gray-500">
+                          {t("notSet")}
+                        </span>
+                      )
                     ) : (
                       <span
                         className={
@@ -664,7 +736,13 @@ export const EntityAttributes = memo(function EntityAttributes({
           isOpen={true}
           onClose={handleCloseModal}
           title={editingAttr.attribute.name}
-          maxWidth={editingAttr.attribute.type === "TEXT" || editingAttr.attribute.type === "NUMERIC_TEXT" ? "lg" : "sm"}
+          maxWidth={
+            editingAttr.attribute.type === "TEXT" ||
+            editingAttr.attribute.type === "NUMERIC_TEXT" ||
+            editingAttr.attribute.type === "ENUM_PAIR"
+              ? "lg"
+              : "sm"
+          }
         >
           <div className="space-y-4">
             {renderModalInput(editingAttr)}
@@ -687,7 +765,8 @@ export const EntityAttributes = memo(function EntityAttributes({
 
             <div className="flex items-center justify-between pt-2">
               {/* Delete button (only if there is a current value) */}
-              {editingAttr.currentValue?.value != null ? (
+              {editingAttr.currentValue?.value != null ||
+              editingAttr.currentValue?.valueB != null ? (
                 <button
                   onClick={handleDelete}
                   disabled={deleteValueMutation.isLoading}
