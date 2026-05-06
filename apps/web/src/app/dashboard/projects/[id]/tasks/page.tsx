@@ -3,10 +3,14 @@
 import { BackButton } from "@/components/BackButton";
 import { CreateTaskModal } from "@/components/tasks";
 import { FilterableTaskList } from "@/components/tasks/FilterableTaskList";
-import type { TaskFilters } from "@/components/tasks/TaskFilterBar";
+import {
+  parseTaskTypes,
+  type TaskFilters,
+  UNASSIGNED_ASSIGNEE_VALUE,
+} from "@/components/tasks/TaskFilterBar";
 import { EmptyState, PageContainer } from "@/components/ui";
 import { projectsApi, useAuth, useQuery } from "@trackdev/api-client";
-import type { Task, TaskStatus, TaskType } from "@trackdev/types";
+import type { Task, TaskStatus } from "@trackdev/types";
 import { ClipboardList, FolderKanban, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -30,7 +34,7 @@ export default function ProjectTasksPage() {
 
   const filters = useMemo<TaskFilters>(
     () => ({
-      type: (searchParams.get("type") as TaskType | "") || "",
+      type: searchParams.get("type") || "",
       status: (searchParams.get("status") as TaskStatus | "") || "",
       assigneeId: searchParams.get("assigneeId") || "",
       projectId: String(projectId),
@@ -133,13 +137,16 @@ export default function ProjectTasksPage() {
           task.taskKey?.toLowerCase().includes(searchLower),
       );
     }
-    if (filters.type) {
-      tasks = tasks.filter((task) => task.type === filters.type);
+    const typeFilter = parseTaskTypes(filters.type);
+    if (typeFilter.length > 0) {
+      tasks = tasks.filter((task) => typeFilter.includes(task.type));
     }
     if (filters.status) {
       tasks = tasks.filter((task) => task.status === filters.status);
     }
-    if (filters.assigneeId) {
+    if (filters.assigneeId === UNASSIGNED_ASSIGNEE_VALUE) {
+      tasks = tasks.filter((task) => !task.assignee);
+    } else if (filters.assigneeId) {
       tasks = tasks.filter((task) => task.assignee?.id === filters.assigneeId);
     }
     if (filters.sprintId) {
@@ -166,7 +173,10 @@ export default function ProjectTasksPage() {
   }, [tasksResponse?.tasks, filters]);
 
   const totalPoints = useMemo(
-    () => filteredTasks.reduce((sum, task) => sum + (task.estimationPoints || 0), 0),
+    () =>
+      filteredTasks
+        .filter((task) => task.type !== "USER_STORY")
+        .reduce((sum, task) => sum + (task.estimationPoints || 0), 0),
     [filteredTasks],
   );
 
