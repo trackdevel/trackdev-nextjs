@@ -2,7 +2,11 @@
 
 import { BackButton } from "@/components/BackButton";
 import { FilterableTaskList } from "@/components/tasks/FilterableTaskList";
-import type { TaskFilters } from "@/components/tasks/TaskFilterBar";
+import {
+  parseTaskTypes,
+  type TaskFilters,
+  UNASSIGNED_ASSIGNEE_VALUE,
+} from "@/components/tasks/TaskFilterBar";
 import { PageContainer } from "@/components/ui";
 import {
   projectsApi,
@@ -11,7 +15,7 @@ import {
   useQuery,
   type TasksFilterParams,
 } from "@trackdev/api-client";
-import type { TaskStatus, TaskType } from "@trackdev/types";
+import type { TaskStatus } from "@trackdev/types";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
@@ -28,7 +32,7 @@ export default function TasksListPage() {
   // Read filter state from URL searchParams for shareable/bookmarkable URLs
   const filters = useMemo<TaskFilters>(
     () => ({
-      type: (searchParams.get("type") as TaskType | "") || "",
+      type: searchParams.get("type") || "",
       status: (searchParams.get("status") as TaskStatus | "") || "",
       assigneeId: searchParams.get("assigneeId") || "",
       projectId: searchParams.get("projectId") || "",
@@ -72,18 +76,31 @@ export default function TasksListPage() {
     }));
   }, [projectsResponse?.projects]);
 
+  const filteringUnassigned = filters.assigneeId === UNASSIGNED_ASSIGNEE_VALUE;
+  const selectedTypes = useMemo(
+    () => parseTaskTypes(filters.type),
+    [filters.type],
+  );
+
   // Build filter params for API
   const filterParams = useMemo<TasksFilterParams>(() => {
     const params: TasksFilterParams = {
       sortOrder: filters.sortOrder,
     };
-    if (filters.type) params.type = filters.type;
+    // Backend's `type` query param accepts a single TaskType. When the user
+    // picks multiple types we omit the param and post-filter the response
+    // client-side (pagination metadata becomes approximate).
+    if (selectedTypes.length === 1) params.type = selectedTypes[0];
     if (filters.status) params.status = filters.status;
-    if (filters.assigneeId) params.assigneeId = filters.assigneeId;
+    // Backend filters by user UUID; for the "unassigned" sentinel we
+    // post-filter the response client-side instead.
+    if (filters.assigneeId && !filteringUnassigned) {
+      params.assigneeId = filters.assigneeId;
+    }
     if (filters.projectId) params.projectId = Number(filters.projectId);
     if (filters.search) params.search = filters.search;
     return params;
-  }, [filters]);
+  }, [filters, filteringUnassigned, selectedTypes]);
 
   const { data: tasksResponse, isLoading, refetch: refetchTasks } = useQuery(
     () => tasksApi.getMy(currentPage, pageSize, filterParams),
@@ -91,7 +108,17 @@ export default function TasksListPage() {
     { enabled: isAuthenticated },
   );
 
-  const tasks = tasksResponse?.tasks || [];
+  const rawTasks = tasksResponse?.tasks || [];
+  const tasks = useMemo(() => {
+    let result = rawTasks;
+    if (filteringUnassigned) {
+      result = result.filter((task) => !task.assignee);
+    }
+    if (selectedTypes.length > 1) {
+      result = result.filter((task) => selectedTypes.includes(task.type));
+    }
+    return result;
+  }, [rawTasks, filteringUnassigned, selectedTypes]);
   const totalPages = tasksResponse?.totalPages || 0;
   const totalElements = tasksResponse?.totalElements || 0;
 
