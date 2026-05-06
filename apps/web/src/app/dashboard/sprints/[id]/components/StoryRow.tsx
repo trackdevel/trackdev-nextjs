@@ -34,6 +34,7 @@ interface StoryRowProps {
   draggedTaskId: number | null;
   dragSource: "sprint" | "backlog" | null;
   courseId?: number;
+  onTaskUpdated?: (task: Task) => void;
 }
 
 export const StoryRow = memo(function StoryRow({
@@ -46,6 +47,7 @@ export const StoryRow = memo(function StoryRow({
   draggedTaskId,
   dragSource,
   courseId,
+  onTaskUpdated,
 }: StoryRowProps) {
   const t = useTranslations("sprints");
 
@@ -102,6 +104,7 @@ export const StoryRow = memo(function StoryRow({
               draggedTaskId={draggedTaskId}
               dragSource={dragSource}
               courseId={courseId}
+              onTaskUpdated={onTaskUpdated}
             />
           ))}
         </div>
@@ -144,6 +147,7 @@ export const StoryRow = memo(function StoryRow({
               draggedTaskId={draggedTaskId}
               dragSource={dragSource}
               courseId={courseId}
+              onTaskUpdated={onTaskUpdated}
             />
           ))}
         </div>
