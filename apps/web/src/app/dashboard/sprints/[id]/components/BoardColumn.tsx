@@ -13,6 +13,7 @@ interface BoardColumnProps {
   draggedTaskId: number | null;
   dragSource: "sprint" | "backlog" | null;
   courseId?: number;
+  onTaskUpdated?: (task: Task) => void;
 }
 
 export const BoardColumn = memo(function BoardColumn({
@@ -23,6 +24,7 @@ export const BoardColumn = memo(function BoardColumn({
   draggedTaskId,
   dragSource,
   courseId,
+  onTaskUpdated,
 }: BoardColumnProps) {
   const colData: DropTargetColumnData = {
     type: "column",
@@ -65,6 +67,7 @@ export const BoardColumn = memo(function BoardColumn({
                   task={task}
                   isBeingDragged={isBeingDragged}
                   courseId={courseId}
+                  onTaskUpdated={onTaskUpdated}
                 />
               </div>
             </div>
