@@ -4,6 +4,10 @@ import { FilterableTaskList } from "@/components/tasks/FilterableTaskList";
 import type { TaskFilters } from "@/components/tasks/TaskFilterBar";
 import { Modal } from "@/components/ui/Modal";
 import {
+  parseTaskTypes,
+  UNASSIGNED_ASSIGNEE_VALUE,
+} from "@/components/tasks/TaskFilterBar";
+import {
   ApiClientError,
   projectsApi,
   tasksApi,
@@ -67,13 +71,16 @@ export function TaskLinkModal({
   const filteredTasks = useMemo(() => {
     let tasks = candidateTasks;
 
-    if (filters.type) {
-      tasks = tasks.filter((t) => t.type === filters.type);
+    const typeFilter = parseTaskTypes(filters.type);
+    if (typeFilter.length > 0) {
+      tasks = tasks.filter((t) => typeFilter.includes(t.type));
     }
     if (filters.status) {
       tasks = tasks.filter((t) => t.status === filters.status);
     }
-    if (filters.assigneeId) {
+    if (filters.assigneeId === UNASSIGNED_ASSIGNEE_VALUE) {
+      tasks = tasks.filter((t) => !t.assignee);
+    } else if (filters.assigneeId) {
       tasks = tasks.filter((t) => t.assignee?.id === filters.assigneeId);
     }
     if (filters.search) {
