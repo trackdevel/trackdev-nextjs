@@ -309,6 +309,14 @@ export default function SprintBoardPage() {
     refetchProjectTasks();
   }, [refetchBoard, refetchProjectTasks]);
 
+  const handleTaskUpdated = useCallback((updated: Task) => {
+    setTasks((prev) => {
+      const next = new Map(prev);
+      next.set(updated.id, updated);
+      return next;
+    });
+  }, []);
+
   const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
   const profileCourseId = isProfessor ? projectDetails?.course?.id : undefined;
 
@@ -439,6 +447,7 @@ export default function SprintBoardPage() {
                       draggedTaskId={draggedTaskId}
                       dragSource={dragSource}
                       courseId={profileCourseId}
+                      onTaskUpdated={handleTaskUpdated}
                     />
                   ))}
                 </div>
