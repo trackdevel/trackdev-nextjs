@@ -1,4 +1,5 @@
 import { TaskBadge } from "@/components/tasks/TaskBadge";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
@@ -6,7 +7,7 @@ import { userProfileHref } from "@/components/ui/UserLink";
 import { ApiClientError, tasksApi, useAuth } from "@trackdev/api-client";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
-import { Bug, Loader2, Settings2, Snowflake } from "lucide-react";
+import { Bug, Loader2, Settings2, Snowflake, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { memo, useState } from "react";
@@ -46,6 +47,8 @@ export const TaskCard = memo(function TaskCard({
   const [pointsInput, setPointsInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isAttributesOpen, setIsAttributesOpen] = useState(false);
+  const [isAssignConfirmOpen, setIsAssignConfirmOpen] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const currentPoints = task.estimationPoints ?? 0;
   const hasPrs = (task.pullRequests?.length ?? 0) > 0;
@@ -64,6 +67,24 @@ export const TaskCard = memo(function TaskCard({
   const closeEditor = () => {
     if (isSaving) return;
     setIsEditing(false);
+  };
+
+  const handleConfirmSelfAssign = async () => {
+    setIsAssigning(true);
+    try {
+      const updated = await tasksApi.selfAssign(task.id);
+      onTaskUpdated?.(updated);
+      toast.success(tTasks("selfAssignSuccess"));
+      setIsAssignConfirmOpen(false);
+    } catch (err) {
+      const errorMessage =
+        err instanceof ApiClientError && err.body?.message
+          ? err.body.message
+          : tTasks("failedToSelfAssign");
+      toast.error(errorMessage);
+    } finally {
+      setIsAssigning(false);
+    }
   };
 
   const handleSave = async () => {
@@ -166,8 +187,8 @@ export const TaskCard = memo(function TaskCard({
                   </button>
                 </div>
               </div>
-              {task.assignee &&
-                (courseId && task.assignee.id ? (
+              {task.assignee ? (
+                courseId && task.assignee.id ? (
                   <Link
                     href={userProfileHref(task.assignee.id, courseId)}
                     draggable={false}
@@ -189,7 +210,22 @@ export const TaskCard = memo(function TaskCard({
                     color={task.assignee.color}
                     title={task.assignee.fullName || task.assignee.username}
                   />
-                ))}
+                )
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsAssignConfirmOpen(true);
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  title={tTasks("assignToMe")}
+                  className="shrink-0 rounded-full p-1 text-gray-400 hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/30 dark:hover:text-primary-400"
+                >
+                  <UserPlus className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -258,6 +294,19 @@ export const TaskCard = memo(function TaskCard({
           />
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={isAssignConfirmOpen}
+        onClose={() => {
+          if (!isAssigning) setIsAssignConfirmOpen(false);
+        }}
+        onConfirm={handleConfirmSelfAssign}
+        title={tTasks("selfAssignConfirmTitle")}
+        message={tTasks("selfAssignConfirmMessage", { name: task.name })}
+        confirmLabel={tTasks("assignToMe")}
+        isLoading={isAssigning}
+        variant="warning"
+      />
     </>
   );
 });
