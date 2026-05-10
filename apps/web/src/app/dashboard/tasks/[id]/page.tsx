@@ -173,6 +173,7 @@ export default function TaskDetailPage() {
   // The frontend just uses them - no duplicate business logic needed.
 
   const canEdit = optimisticTask?.canEdit ?? false;
+  const canEditStatus = optimisticTask?.canEditStatus ?? false;
   const canEditSprint = optimisticTask?.canEditSprint ?? false;
   const canSelfAssign = optimisticTask?.canSelfAssign ?? false;
   const canUnassign = optimisticTask?.canUnassign ?? false;
@@ -183,12 +184,32 @@ export default function TaskDetailPage() {
   const canManageLinks = optimisticTask?.canManageLinks ?? false;
   // Additional permission flag available: canAddSubtask (in optimisticTask)
 
-  // USER_STORY status is derived from its children - no manual status change available
-  // Only TASK and BUG can have their status changed manually
-  const availableStatuses: TaskStatus[] =
-    optimisticTask?.type === "USER_STORY"
-      ? [] // USER_STORY status is computed, not manually changeable
-      : ["BACKLOG", "TODO", "INPROGRESS", "VERIFY", "DONE"];
+  // USER_STORY status is normally cascade-driven from subtasks. The backend
+  // permits two manual professor transitions to recover from a stale cascade:
+  //   TODO → DONE   (only when every subtask is already DONE)
+  //   DONE → TODO   (manual revert)
+  // We mirror the backend rule here so the dropdown only offers viable targets;
+  // canEditStatus from the backend is the authoritative gate on whether the
+  // edit affordance is shown at all.
+  const availableStatuses: TaskStatus[] = (() => {
+    if (optimisticTask?.type !== "USER_STORY") {
+      return ["BACKLOG", "TODO", "INPROGRESS", "VERIFY", "DONE"];
+    }
+    if (!canEditStatus) {
+      return [];
+    }
+    const status = optimisticTask.status;
+    const children = optimisticTask.childTasks ?? [];
+    const allChildrenDone =
+      children.length > 0 && children.every((c) => c.status === "DONE");
+    if (status === "TODO" && allChildrenDone) {
+      return ["TODO", "DONE"];
+    }
+    if (status === "DONE") {
+      return ["DONE", "TODO"];
+    }
+    return [];
+  })();
 
   // =============================================================================
   // EDIT HANDLERS
@@ -694,6 +715,7 @@ export default function TaskDetailPage() {
             task={optimisticTask as TaskWithProject}
             editState={editState}
             canEdit={canEdit}
+            canEditStatus={canEditStatus}
             canEditSprint={canEditSprint}
             availableStatuses={availableStatuses}
             availableSprints={availableSprints}
