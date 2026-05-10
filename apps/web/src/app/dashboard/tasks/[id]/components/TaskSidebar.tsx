@@ -15,6 +15,7 @@ interface TaskSidebarProps {
   task: TaskWithProject;
   editState: EditState;
   canEdit: boolean;
+  canEditStatus: boolean;
   canEditSprint: boolean;
   availableStatuses: TaskStatus[];
   availableSprints: SprintSummary[];
@@ -39,6 +40,7 @@ export const TaskSidebar = memo(function TaskSidebar({
   task,
   editState,
   canEdit,
+  canEditStatus,
   canEditSprint,
   availableStatuses,
   availableSprints,
@@ -381,7 +383,7 @@ export const TaskSidebar = memo(function TaskSidebar({
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                 {t("status")}
               </p>
-              {canEdit && editState.field !== "status" && (
+              {canEditStatus && editState.field !== "status" && (
                 <button
                   onClick={() => onStartEdit("status")}
                   className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
