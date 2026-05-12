@@ -22,7 +22,7 @@ import { TaskListItem } from "@/components/tasks/TaskListItem";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useMemo,
@@ -93,7 +93,14 @@ const initialEditState: EditState = {
 
 export default function TaskDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const taskId = Number(params.id);
+  const initialConversationId = (() => {
+    const raw = searchParams.get("conversationId");
+    if (!raw) return null;
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  })();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
@@ -730,6 +737,7 @@ export default function TaskDetailPage() {
             projectMembers={optimisticTask.project?.members}
             onConversationCreated={() => refetchTask()}
             courseId={profileCourseId}
+            initialConversationId={initialConversationId}
           />
 
           {/* Task History - Only visible to professors */}
