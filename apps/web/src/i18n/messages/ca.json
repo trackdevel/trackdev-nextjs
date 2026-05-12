@@ -1227,7 +1227,9 @@
     "description": "Descripció",
     "enterTextValue": "Introdueix contingut markdown...",
     "numericValue": "Valor numèric",
-    "markdownText": "Notes"
+    "markdownText": "Notes",
+    "professorOnlyAttributes": "Atributs només per a professors",
+    "hiddenFromStudents": "Ocult per als estudiants — fes clic per mostrar"
   },
   "pullRequestDetails": {
     "notFound": "Pull request no trobat",

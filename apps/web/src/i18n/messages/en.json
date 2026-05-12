@@ -1232,7 +1232,9 @@
     "description": "Description",
     "enterTextValue": "Enter markdown content...",
     "numericValue": "Numeric value",
-    "markdownText": "Notes"
+    "markdownText": "Notes",
+    "professorOnlyAttributes": "Professor-only attributes",
+    "hiddenFromStudents": "Hidden from students — click to reveal"
   },
   "pullRequestDetails": {
     "notFound": "Pull request not found",

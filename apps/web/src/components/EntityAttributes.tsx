@@ -10,7 +10,17 @@ import type {
   PullRequestAttributeListValue,
   StudentAttributeListValue,
 } from "@trackdev/types";
-import { Check, Eye, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useState } from "react";
 
@@ -257,6 +267,28 @@ export const EntityAttributes = memo(function EntityAttributes({
       attributeValues?.find((val) => val.attributeId === attr.id) || null;
     return { attribute: attr, currentValue };
   });
+  const regularRows = attributeRows.filter(
+    (r) => r.attribute.visibility !== "PROFESSOR_ONLY",
+  );
+  const professorOnlyRows = attributeRows.filter(
+    (r) => r.attribute.visibility === "PROFESSOR_ONLY",
+  );
+
+  // Collapsed-by-default state for professor-only sections. Reset on every mount
+  // so screen-sharing is safe: values never start visible.
+  const [scalarProfessorOnlyExpanded, setScalarProfessorOnlyExpanded] =
+    useState(false);
+  const [expandedListIds, setExpandedListIds] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const toggleListExpanded = (attrId: number) => {
+    setExpandedListIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(attrId)) next.delete(attrId);
+      else next.add(attrId);
+      return next;
+    });
+  };
 
   const handleOpenEdit = (row: AttributeRow) => {
     setEditingAttr(row);
@@ -588,10 +620,74 @@ export const EntityAttributes = memo(function EntityAttributes({
   const hasEnumRef = (attr: ProfileAttribute) =>
     attr.enumRefId != null || attr.enumRefName != null;
 
+  const renderScalarRow = (row: AttributeRow) => {
+    const editable = canEditScalar(row.attribute.appliedBy);
+    const hasValue = row.currentValue?.value != null;
+
+    return (
+      <div
+        key={row.attribute.id}
+        className="flex items-center justify-between px-6 py-3"
+      >
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {row.attribute.name}
+          </p>
+          {hasValue && row.attribute.type === "TEXT" ? (
+            <span className="text-sm text-gray-900 dark:text-white line-clamp-2">
+              {row.currentValue!.value!.substring(0, 100)}
+              {row.currentValue!.value!.length > 100 ? "..." : ""}
+            </span>
+          ) : hasValue && row.attribute.type === "NUMERIC_TEXT" ? (
+            <span className="text-sm text-gray-900 dark:text-white">
+              <span className="font-medium">{row.currentValue!.value}</span>
+              {row.currentValue!.textValue && (
+                <span className="ml-2 text-gray-500 dark:text-gray-400">
+                  — {row.currentValue!.textValue!.substring(0, 60)}
+                  {row.currentValue!.textValue!.length > 60 ? "..." : ""}
+                </span>
+              )}
+            </span>
+          ) : row.attribute.type === "ENUM_PAIR" ? (
+            row.currentValue?.value || row.currentValue?.valueB ? (
+              <span className="text-sm text-gray-900 dark:text-white">
+                {row.currentValue?.value || "—"} /{" "}
+                {row.currentValue?.valueB || "—"}
+              </span>
+            ) : (
+              <span className="text-sm italic text-gray-400 dark:text-gray-500">
+                {t("notSet")}
+              </span>
+            )
+          ) : (
+            <span
+              className={
+                hasValue
+                  ? "text-sm text-gray-900 dark:text-white"
+                  : "text-sm italic text-gray-400 dark:text-gray-500"
+              }
+            >
+              {hasValue ? row.currentValue!.value : t("notSet")}
+            </span>
+          )}
+        </div>
+        {editable && (
+          <button
+            onClick={() => handleOpenEdit(row)}
+            className="ml-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
+            title={tCommon("edit")}
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      {/* Scalar attributes card */}
-      {attributeRows.length > 0 && (
+      {/* Scalar attributes card — visible to all */}
+      {regularRows.length > 0 && (
         <div className="card">
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
             <h2 className="font-semibold text-gray-900 dark:text-white">
@@ -599,133 +695,118 @@ export const EntityAttributes = memo(function EntityAttributes({
             </h2>
           </div>
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {attributeRows.map((row) => {
-              const editable = canEditScalar(row.attribute.appliedBy);
-              const hasValue = row.currentValue?.value != null;
-
-              return (
-                <div
-                  key={row.attribute.id}
-                  className="flex items-center justify-between px-6 py-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      {row.attribute.name}
-                    </p>
-                    {hasValue && row.attribute.type === "TEXT" ? (
-                      <span className="text-sm text-gray-900 dark:text-white line-clamp-2">
-                        {row.currentValue!.value!.substring(0, 100)}
-                        {row.currentValue!.value!.length > 100 ? "..." : ""}
-                      </span>
-                    ) : hasValue && row.attribute.type === "NUMERIC_TEXT" ? (
-                      <span className="text-sm text-gray-900 dark:text-white">
-                        <span className="font-medium">{row.currentValue!.value}</span>
-                        {row.currentValue!.textValue && (
-                          <span className="ml-2 text-gray-500 dark:text-gray-400">
-                            — {row.currentValue!.textValue!.substring(0, 60)}
-                            {row.currentValue!.textValue!.length > 60 ? "..." : ""}
-                          </span>
-                        )}
-                      </span>
-                    ) : row.attribute.type === "ENUM_PAIR" ? (
-                      row.currentValue?.value || row.currentValue?.valueB ? (
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {row.currentValue?.value || "—"} / {row.currentValue?.valueB || "—"}
-                        </span>
-                      ) : (
-                        <span className="text-sm italic text-gray-400 dark:text-gray-500">
-                          {t("notSet")}
-                        </span>
-                      )
-                    ) : (
-                      <span
-                        className={
-                          hasValue
-                            ? "text-sm text-gray-900 dark:text-white"
-                            : "text-sm italic text-gray-400 dark:text-gray-500"
-                        }
-                      >
-                        {hasValue ? row.currentValue!.value : t("notSet")}
-                      </span>
-                    )}
-                  </div>
-                  {editable && (
-                    <button
-                      onClick={() => handleOpenEdit(row)}
-                      className="ml-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
-                      title={tCommon("edit")}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+            {regularRows.map(renderScalarRow)}
           </div>
         </div>
       )}
 
-      {/* LIST attributes cards */}
+      {/* Scalar attributes card — professor-only, collapsed by default */}
+      {professorOnlyRows.length > 0 && (
+        <div className={`card ${regularRows.length > 0 ? "mt-4" : ""}`}>
+          <button
+            type="button"
+            onClick={() => setScalarProfessorOnlyExpanded((v) => !v)}
+            className="w-full border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            aria-expanded={scalarProfessorOnlyExpanded}
+            title={t("hiddenFromStudents")}
+          >
+            <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <EyeOff className="h-4 w-4 text-gray-400" />
+              {t("professorOnlyAttributes")}
+            </h2>
+            {scalarProfessorOnlyExpanded ? (
+              <ChevronDown className="h-4 w-4 text-gray-400" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            )}
+          </button>
+          {scalarProfessorOnlyExpanded && (
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {professorOnlyRows.map(renderScalarRow)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* LIST attributes cards — always professor-only, collapsed by default */}
       {supportsLists &&
         isProfessor &&
         listAttributes.map((attr) => {
           const cached = listDataCache[attr.id];
           const items = cached?.items || [];
           const isEnumList = hasEnumRef(attr);
+          const expanded = expandedListIds.has(attr.id);
 
           return (
             <div key={attr.id} className="card mt-4">
-              <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-                <h2 className="font-semibold text-gray-900 dark:text-white">
-                  {attr.name}
-                </h2>
+              <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between gap-2">
                 <button
-                  onClick={() => handleAddItem(attr)}
-                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
-                  title={t("addListItem")}
+                  type="button"
+                  onClick={() => toggleListExpanded(attr.id)}
+                  className="flex items-center gap-2 flex-1 min-w-0 text-left hover:opacity-80"
+                  aria-expanded={expanded}
+                  title={t("hiddenFromStudents")}
                 >
-                  <Plus className="h-4 w-4" />
+                  {expanded ? (
+                    <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-gray-400 shrink-0" />
+                  )}
+                  <EyeOff className="h-4 w-4 text-gray-400 shrink-0" />
+                  <h2 className="font-semibold text-gray-900 dark:text-white truncate">
+                    {attr.name}
+                  </h2>
                 </button>
+                {expanded && (
+                  <button
+                    onClick={() => handleAddItem(attr)}
+                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
+                    title={t("addListItem")}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                )}
               </div>
-              {items.length === 0 ? (
-                <div className="px-6 py-4 text-center text-sm italic text-gray-400 dark:text-gray-500">
-                  {t("noListItems")}
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {items.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="px-6 py-2 flex items-center gap-3"
-                    >
-                      {isEnumList && item.enumValue && (
-                        <span className="inline-flex rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 shrink-0">
-                          {item.enumValue}
-                        </span>
-                      )}
-                      <span className="text-sm text-gray-900 dark:text-white flex-1">
-                        {item.title}
-                      </span>
-                      {item.description && (
-                        <button
-                          onClick={() => setPreviewingItem(item)}
-                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
-                          title={t("viewDescription")}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleOpenItemEdit(attr, item, idx)}
-                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
-                        title={tCommon("edit")}
+              {expanded &&
+                (items.length === 0 ? (
+                  <div className="px-6 py-4 text-center text-sm italic text-gray-400 dark:text-gray-500">
+                    {t("noListItems")}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="px-6 py-2 flex items-center gap-3"
                       >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        {isEnumList && item.enumValue && (
+                          <span className="inline-flex rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 shrink-0">
+                            {item.enumValue}
+                          </span>
+                        )}
+                        <span className="text-sm text-gray-900 dark:text-white flex-1">
+                          {item.title}
+                        </span>
+                        {item.description && (
+                          <button
+                            onClick={() => setPreviewingItem(item)}
+                            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
+                            title={t("viewDescription")}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleOpenItemEdit(attr, item, idx)}
+                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
+                          title={tCommon("edit")}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ))}
             </div>
           );
         })}
