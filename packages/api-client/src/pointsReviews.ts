@@ -5,6 +5,7 @@
 import type {
   CreatePointsReviewMessageRequest,
   CreatePointsReviewRequest,
+  PointsReviewActiveConversation,
   PointsReviewConversation,
   PointsReviewConversationSummary,
   PointsReviewMessage,
@@ -13,6 +14,14 @@ import type {
 import { api } from "./client";
 
 export const pointsReviewsApi = {
+  /**
+   * List every active points review conversation visible to the current user,
+   * across every project they have access to. Used to power the dashboard
+   * overview, where the client groups by project.
+   */
+  listActive: () =>
+    api.get<PointsReviewActiveConversation[]>("/points-reviews/active"),
+
   /**
    * List all points review conversations for a task (filtered by access)
    */
