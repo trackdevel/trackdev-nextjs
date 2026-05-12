@@ -24,17 +24,29 @@ interface TaskPullRequestsProps {
   pullRequests: PullRequest[];
   taskId: number;
   projectMembers?: UserPublic[];
+  /**
+   * When true the whole card starts collapsed behind a clickable header,
+   * the per-PR history timeline is disabled, and the "mention task key" hint
+   * is hidden. Used for the USER_STORY aggregated view, where PRs come from
+   * subtasks and history fetching by the user-story id would be irrelevant.
+   */
+  defaultCollapsed?: boolean;
+  /** Override section header label. Defaults to t("pullRequests"). */
+  titleOverride?: string;
 }
 
 export function TaskPullRequests({
   pullRequests,
   taskId,
   projectMembers,
+  defaultCollapsed = false,
+  titleOverride,
 }: TaskPullRequestsProps) {
   const t = useTranslations("tasks");
   const { formatDateTime } = useDateFormat();
   // Track which PRs have their activity timeline expanded
   const [expandedPRs, setExpandedPRs] = useState<Set<string>>(new Set());
+  const [sectionExpanded, setSectionExpanded] = useState(!defaultCollapsed);
 
   const togglePRExpanded = (prId: string) => {
     setExpandedPRs((prev) => {
@@ -72,11 +84,12 @@ export function TaskPullRequests({
     return member?.fullName || githubUsername;
   };
 
-  // Fetch PR history
+  // Fetch PR history (skipped in aggregated/collapsed mode — history would be
+  // for the user story id and never match the subtask PRs we render here).
   const { data: prHistoryData } = useQuery(
     () => tasksApi.getPrHistory(taskId),
     [taskId],
-    { enabled: pullRequests.length > 0 },
+    { enabled: pullRequests.length > 0 && !defaultCollapsed },
   );
 
   // Sort PR history by date ascending (oldest first for timeline)
@@ -99,43 +112,66 @@ export function TaskPullRequests({
     return map;
   }, [sortedHistory]);
 
-  if (!pullRequests || pullRequests.length === 0) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-          <GitPullRequest
-            size={20}
-            className="text-gray-500 dark:text-gray-400"
-          />
-          {t("pullRequests")}
-          <span className="ml-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-            (0)
-          </span>
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-3">
-          {t("noPullRequestsLinked")}
-        </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-          {t("mentionTaskKey", { taskKey: "task-key" })}
-        </p>
-      </div>
-    );
-  }
+  const isEmpty = !pullRequests || pullRequests.length === 0;
+  const count = pullRequests?.length ?? 0;
+  const titleLabel = titleOverride ?? t("pullRequests");
+
+  const headerInner = (
+    <>
+      {defaultCollapsed &&
+        (sectionExpanded ? (
+          <ChevronDown size={16} className="text-gray-400 shrink-0" />
+        ) : (
+          <ChevronRight size={16} className="text-gray-400 shrink-0" />
+        ))}
+      <GitPullRequest
+        size={20}
+        className="text-gray-500 dark:text-gray-400"
+      />
+      <span>{titleLabel}</span>
+      <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+        ({count})
+      </span>
+    </>
+  );
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
-        <GitPullRequest
-          size={20}
-          className="text-gray-500 dark:text-gray-400"
-        />
-        {t("pullRequests")}
-        <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-          ({pullRequests.length})
-        </span>
-      </h3>
+      {defaultCollapsed ? (
+        <button
+          type="button"
+          onClick={() => setSectionExpanded((v) => !v)}
+          aria-expanded={sectionExpanded}
+          className={`w-full text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2 text-left ${
+            sectionExpanded && !isEmpty ? "mb-4" : ""
+          }`}
+        >
+          {headerInner}
+        </button>
+      ) : (
+        <h3
+          className={`text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2 ${
+            !isEmpty ? "mb-4" : ""
+          }`}
+        >
+          {headerInner}
+        </h3>
+      )}
 
-      {/* PR Cards - Always visible */}
+      {(!defaultCollapsed || sectionExpanded) && isEmpty && (
+        <>
+          <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-3">
+            {t("noPullRequestsLinked")}
+          </p>
+          {!defaultCollapsed && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              {t("mentionTaskKey", { taskKey: "task-key" })}
+            </p>
+          )}
+        </>
+      )}
+
+      {(!defaultCollapsed || sectionExpanded) && !isEmpty && (
       <div className="space-y-4">
         {pullRequests.map((pr) => {
           const stateColor = getPRStateColor(pr.merged ? "merged" : pr.state);
@@ -246,6 +282,7 @@ export function TaskPullRequests({
           );
         })}
       </div>
+      )}
     </div>
   );
 }
