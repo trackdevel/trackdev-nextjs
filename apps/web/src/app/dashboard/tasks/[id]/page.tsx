@@ -11,7 +11,13 @@ import {
   useAuth,
   useQuery,
 } from "@trackdev/api-client";
-import type { Task, TaskDetail, TaskStatus, TaskType } from "@trackdev/types";
+import type {
+  PullRequest,
+  Task,
+  TaskDetail,
+  TaskStatus,
+  TaskType,
+} from "@trackdev/types";
 import { TaskListItem } from "@/components/tasks/TaskListItem";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -137,6 +143,25 @@ export default function TaskDetailPage() {
       enabled: isAuthenticated && !!optimisticTask?.project?.id,
     },
   );
+
+  // For USER_STORY: union of merged PRs across subtasks, deduped by id and
+  // sorted most-recent first. childTasks DTOs already carry their pullRequests.
+  const aggregatedSubtaskMergedPRs = useMemo<PullRequest[]>(() => {
+    if (optimisticTask?.type !== "USER_STORY") return [];
+    const seen = new Set<string>();
+    const merged: PullRequest[] = [];
+    for (const child of optimisticTask.childTasks ?? []) {
+      for (const pr of child.pullRequests ?? []) {
+        if (pr.merged && !seen.has(pr.id)) {
+          seen.add(pr.id);
+          merged.push(pr);
+        }
+      }
+    }
+    const ts = (s: string | undefined) => (s ? new Date(s).getTime() : 0);
+    merged.sort((a, b) => ts(b.createdAt) - ts(a.createdAt));
+    return merged;
+  }, [optimisticTask?.type, optimisticTask?.childTasks]);
 
   // Filter sprints to only show ACTIVE or DRAFT (future) sprints
   const availableSprints = useMemo(() => {
@@ -664,6 +689,16 @@ export default function TaskDetailPage() {
             onDescriptionChange={handleDescriptionChange}
           />
 
+          {/* Aggregated merged PRs from subtasks (USER_STORY only) */}
+          {optimisticTask.type === "USER_STORY" && (
+            <TaskPullRequests
+              pullRequests={aggregatedSubtaskMergedPRs}
+              taskId={taskId}
+              projectMembers={optimisticTask.project?.members}
+              defaultCollapsed
+            />
+          )}
+
           {/* Child Tasks (for User Stories) */}
           {optimisticTask.type === "USER_STORY" && (
             <TaskChildren
@@ -676,12 +711,15 @@ export default function TaskDetailPage() {
             />
           )}
 
-          {/* Pull Requests */}
-          <TaskPullRequests
-            pullRequests={optimisticTask.pullRequests || []}
-            taskId={taskId}
-            projectMembers={optimisticTask.project?.members}
-          />
+          {/* Pull Requests — this task's own (TASK/BUG). USER_STORY shows the
+              aggregated subtask section above instead. */}
+          {optimisticTask.type !== "USER_STORY" && (
+            <TaskPullRequests
+              pullRequests={optimisticTask.pullRequests || []}
+              taskId={taskId}
+              projectMembers={optimisticTask.project?.members}
+            />
+          )}
 
           {/* Points Review Conversations */}
           <TaskPointsReview
