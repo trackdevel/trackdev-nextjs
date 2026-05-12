@@ -12,6 +12,7 @@ import {
 } from "@/components/ui";
 import {
   coursesApi,
+  pointsReviewsApi,
   projectsApi,
   sprintsApi,
   tasksApi,
@@ -19,7 +20,7 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import type { Course, Project, Sprint, Task } from "@trackdev/types";
-import { BookOpen, Calendar, FolderKanban, Users } from "lucide-react";
+import { BookOpen, Calendar, FolderKanban, Star, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
@@ -70,6 +71,16 @@ export default function DashboardPage() {
     error: tasksErrorData,
     refetch: refetchTasks,
   } = useQuery(() => tasksApi.getRecent(), [], { enabled: isAuthenticated });
+
+  // Active points review conversations - professor/admin only
+  const {
+    data: activeReviews,
+    isLoading: activeReviewsLoading,
+    error: activeReviewsErrorData,
+    refetch: refetchActiveReviews,
+  } = useQuery(() => pointsReviewsApi.listActive(), [], {
+    enabled: isAuthenticated && (isAdmin || isProfessor),
+  });
 
   // Extract data from wrapped responses
   const courses = coursesResponse?.courses || [];
@@ -132,7 +143,11 @@ export default function DashboardPage() {
   }, [projects, sprints, isAdmin]);
 
   const isLoading =
-    coursesLoading || projectsLoading || sprintsLoading || tasksLoading;
+    coursesLoading ||
+    projectsLoading ||
+    sprintsLoading ||
+    tasksLoading ||
+    activeReviewsLoading;
 
   // Check if any request has a critical error (network, timeout, auth)
   const criticalError = [
@@ -140,12 +155,16 @@ export default function DashboardPage() {
     tasksErrorData,
     coursesErrorData,
     sprintsErrorData,
+    activeReviewsErrorData,
   ].find((e) => e && (e.isNetworkError || e.isTimeout || e.status === 401));
 
   const handleRetryAll = () => {
     refetchProjects();
     refetchTasks();
-    if (isAdmin || isProfessor) refetchCourses();
+    if (isAdmin || isProfessor) {
+      refetchCourses();
+      refetchActiveReviews();
+    }
     if (isAdmin) refetchSprints();
   };
 
@@ -213,14 +232,27 @@ export default function DashboardPage() {
           iconColor="text-purple-600 dark:text-purple-400"
           isLoading={isLoading}
         />
-        <StatCard
-          icon={Calendar}
-          label={t("activeSprints")}
-          value={activeSprintsCount}
-          iconBgColor="bg-orange-100 dark:bg-orange-900/30"
-          iconColor="text-orange-600 dark:text-orange-400"
-          isLoading={isLoading}
-        />
+        {isProfessor || isAdmin ? (
+          <StatCard
+            icon={Star}
+            label={t("activeReviews")}
+            value={activeReviews?.length ?? 0}
+            iconBgColor="bg-amber-100 dark:bg-amber-900/30"
+            iconColor="text-amber-600 dark:text-amber-400"
+            isLoading={isLoading}
+            viewAllHref="/dashboard/points-reviews"
+            viewAllLabel={t("viewActiveReviews")}
+          />
+        ) : (
+          <StatCard
+            icon={Calendar}
+            label={t("activeSprints")}
+            value={activeSprintsCount}
+            iconBgColor="bg-orange-100 dark:bg-orange-900/30"
+            iconColor="text-orange-600 dark:text-orange-400"
+            isLoading={isLoading}
+          />
+        )}
       </div>
 
       {/* Main Content Grid */}
