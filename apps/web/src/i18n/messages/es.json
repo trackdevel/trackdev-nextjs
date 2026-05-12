@@ -1227,7 +1227,9 @@
     "description": "Descripción",
     "enterTextValue": "Introduce contenido markdown...",
     "numericValue": "Valor numérico",
-    "markdownText": "Notas"
+    "markdownText": "Notas",
+    "professorOnlyAttributes": "Atributos solo para profesor",
+    "hiddenFromStudents": "Oculto para los estudiantes — haz clic para mostrar"
   },
   "pullRequestDetails": {
     "notFound": "Pull request no encontrado",
