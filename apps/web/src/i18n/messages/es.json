@@ -118,6 +118,8 @@
     "studentSubtitle": "Haz seguimiento de tus proyectos y tareas.",
     "activeSprints": "Sprints Activos",
     "noActiveSprints": "No hay sprints activos",
+    "activeReviews": "Revisiones Activas",
+    "viewActiveReviews": "Ver revisiones activas",
     "teamMembers": "Miembros del Equipo",
     "quickActions": "Acciones Rápidas",
     "viewProjects": "Ver Proyectos",
@@ -399,7 +401,16 @@
     "errorEditingMessage": "Error al editar el mensaje",
     "errorDeletingMessage": "Error al eliminar el mensaje",
     "errorAddingParticipant": "Error al añadir participante",
-    "errorRemovingParticipant": "Error al eliminar participante"
+    "errorRemovingParticipant": "Error al eliminar participante",
+    "activeReviewsTitle": "Revisiones de Puntos Activas",
+    "activeReviewsSubtitle": "Todas las conversaciones de revisión de puntos en curso, agrupadas por proyecto.",
+    "noActiveReviews": "No hay revisiones de puntos activas",
+    "noActiveReviewsDescription": "Cuando un estudiante abre una revisión de puntos sobre una tarea finalizada, aparecerá aquí.",
+    "openConversation": "Abrir conversación",
+    "messages": "mensajes",
+    "conversationsCount": "{count, plural, one {# conversación} other {# conversaciones}}",
+    "startedBy": "Iniciado por",
+    "lastActivity": "Última actividad"
   },
   "reports": {
     "title": "Informes",
