@@ -118,6 +118,8 @@
     "studentSubtitle": "Track your projects and tasks.",
     "activeSprints": "Active Sprints",
     "noActiveSprints": "No active sprints",
+    "activeReviews": "Active Reviews",
+    "viewActiveReviews": "View active reviews",
     "teamMembers": "Team Members",
     "quickActions": "Quick Actions",
     "viewProjects": "View Projects",
@@ -404,7 +406,16 @@
     "errorEditingMessage": "Failed to edit message",
     "errorDeletingMessage": "Failed to delete message",
     "errorAddingParticipant": "Failed to add participant",
-    "errorRemovingParticipant": "Failed to remove participant"
+    "errorRemovingParticipant": "Failed to remove participant",
+    "activeReviewsTitle": "Active Points Reviews",
+    "activeReviewsSubtitle": "All ongoing points review conversations, grouped by project.",
+    "noActiveReviews": "No active points reviews",
+    "noActiveReviewsDescription": "When a student opens a points review on a finished task, it will appear here.",
+    "openConversation": "Open conversation",
+    "messages": "messages",
+    "conversationsCount": "{count, plural, one {# conversation} other {# conversations}}",
+    "startedBy": "Started by",
+    "lastActivity": "Last activity"
   },
   "reports": {
     "title": "Reports",
