@@ -76,3 +76,30 @@ export interface CreatePointsReviewMessageRequest {
 export interface AddPointsReviewParticipantRequest {
   userId: string;
 }
+
+/**
+ * Cross-project list item used by the "active points reviews" dashboard view.
+ * Carries enough task/project/course context for the client to render and
+ * group conversations without further lookups.
+ */
+export interface PointsReviewActiveConversation {
+  id: number;
+  initiator: UserPublic;
+  proposedPoints: number;
+  messageCount: number;
+  createdAt: string;
+  lastMessageAt: string | null;
+
+  taskId: number;
+  taskKey: string;
+  taskName: string;
+
+  projectId: number;
+  projectSlug: string;
+  projectName: string;
+
+  courseId: number | null;
+  courseStartYear: number | null;
+  subjectName: string | null;
+  subjectAcronym: string | null;
+}

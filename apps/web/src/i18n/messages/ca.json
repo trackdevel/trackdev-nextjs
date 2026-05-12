@@ -118,6 +118,8 @@
     "studentSubtitle": "Fes seguiment dels teus projectes i tasques.",
     "activeSprints": "Sprints Actius",
     "noActiveSprints": "No hi ha sprints actius",
+    "activeReviews": "Revisions Actives",
+    "viewActiveReviews": "Veure revisions actives",
     "teamMembers": "Membres de l'Equip",
     "quickActions": "Accions Ràpides",
     "viewProjects": "Veure Projectes",
@@ -399,7 +401,16 @@
     "errorEditingMessage": "Error en editar el missatge",
     "errorDeletingMessage": "Error en eliminar el missatge",
     "errorAddingParticipant": "Error en afegir participant",
-    "errorRemovingParticipant": "Error en eliminar participant"
+    "errorRemovingParticipant": "Error en eliminar participant",
+    "activeReviewsTitle": "Revisions de Punts Actives",
+    "activeReviewsSubtitle": "Totes les converses de revisió de punts en curs, agrupades per projecte.",
+    "noActiveReviews": "No hi ha revisions de punts actives",
+    "noActiveReviewsDescription": "Quan un estudiant obre una revisió de punts sobre una tasca finalitzada, apareixerà aquí.",
+    "openConversation": "Obrir la conversa",
+    "messages": "missatges",
+    "conversationsCount": "{count, plural, one {# conversa} other {# converses}}",
+    "startedBy": "Iniciat per",
+    "lastActivity": "Última activitat"
   },
   "reports": {
     "title": "Informes",

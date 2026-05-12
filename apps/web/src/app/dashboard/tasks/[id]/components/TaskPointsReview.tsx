@@ -50,6 +50,8 @@ interface TaskPointsReviewProps {
   projectMembers?: UserPublic[];
   onConversationCreated?: () => void;
   courseId?: number;
+  /** When set, the conversation with this id is auto-expanded on first render. */
+  initialConversationId?: number | null;
 }
 
 // =============================================================================
@@ -64,6 +66,7 @@ export const TaskPointsReview = memo(function TaskPointsReview({
   projectMembers,
   onConversationCreated,
   courseId,
+  initialConversationId = null,
 }: TaskPointsReviewProps) {
   const t = useTranslations("pointsReview");
   const tCommon = useTranslations("common");
@@ -73,7 +76,7 @@ export const TaskPointsReview = memo(function TaskPointsReview({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [expandedConversationId, setExpandedConversationId] = useState<
     number | null
-  >(null);
+  >(initialConversationId);
 
   // ---- Create form state ----
   const [newMessage, setNewMessage] = useState("");
