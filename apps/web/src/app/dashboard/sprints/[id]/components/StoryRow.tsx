@@ -1,8 +1,10 @@
 import { TaskBadge } from "@/components/tasks/TaskBadge";
 import { MemberAvatar } from "@/components/ui/MemberAvatar";
+import { Modal } from "@/components/ui/Modal";
 import { StatusBadge, getTaskStatusVariant } from "@/components/ui/StatusBadge";
 import { userProfileHref } from "@/components/ui/UserLink";
 import type { TaskStatus } from "@/components/ui/StatusBadge";
+import { useAuth } from "@trackdev/api-client";
 import type { Task } from "@trackdev/types";
 import { useDraggable } from "@dnd-kit/react";
 import {
@@ -10,11 +12,13 @@ import {
   ChevronUp,
   GripVertical,
   Plus,
+  Settings2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 
+import { TaskAttributes } from "../../../tasks/[id]/components/TaskAttributes";
 import {
   BOARD_COLUMNS,
   type BoardColumnId,
@@ -179,6 +183,11 @@ const StoryHeader = memo(function StoryHeader({
   t: (key: string) => string;
 }) {
   const tTasks = useTranslations("tasks");
+  const { user } = useAuth();
+  const [isAttributesOpen, setIsAttributesOpen] = useState(false);
+
+  const isProfessor = user?.roles?.includes("PROFESSOR") ?? false;
+  const isAssignee = !!user?.id && story.assignee?.id === user.id;
 
   const syntheticTask = useMemo(
     () =>
@@ -198,6 +207,7 @@ const StoryHeader = memo(function StoryHeader({
   });
 
   return (
+    <>
     <div
       ref={elementRef}
       className={`flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 ${
@@ -285,6 +295,19 @@ const StoryHeader = memo(function StoryHeader({
           </span>
         )}
         <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsAttributesOpen(true);
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="rounded-sm p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
+          title={tTasks("profileAttributes")}
+        >
+          <Settings2 className="h-4 w-4" />
+        </button>
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onCreateSubtask(story.id);
@@ -296,5 +319,21 @@ const StoryHeader = memo(function StoryHeader({
         </button>
       </div>
     </div>
+    <Modal
+      isOpen={isAttributesOpen}
+      onClose={() => setIsAttributesOpen(false)}
+      title={tTasks("profileAttributes")}
+      maxWidth="2xl"
+    >
+      <div className="max-h-[70vh] overflow-y-auto -mx-2 px-2">
+        <TaskAttributes
+          taskId={story.id}
+          isProfessor={isProfessor}
+          isAssignee={isAssignee}
+          isFrozen={story.frozen ?? false}
+        />
+      </div>
+    </Modal>
+    </>
   );
 });
