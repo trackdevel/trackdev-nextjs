@@ -55,6 +55,7 @@ export interface Story {
   status: string;
   estimationPoints: number;
   assignee?: Task["assignee"];
+  frozen?: boolean;
   subtasks: Task[];
   // All sprints where this story has subtasks (for sprint badges)
   allSubtaskSprints: { id: number; name: string }[];
