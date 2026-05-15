@@ -62,6 +62,7 @@ export function selectStories(
         status: task.status,
         estimationPoints: task.estimationPoints || 0,
         assignee: task.assignee,
+        frozen: task.frozen ?? false,
         subtasks: [],
         allSubtaskSprints: [],
       });
