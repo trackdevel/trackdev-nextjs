@@ -18,6 +18,8 @@ export interface Project {
   sprints?: Sprint[];
   qualification?: number;
   sprintPatternId?: number;
+  frozen?: boolean;
+  canFreeze?: boolean;
 }
 
 export interface ProjectCreateRequest {
