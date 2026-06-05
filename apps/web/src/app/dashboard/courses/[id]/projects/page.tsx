@@ -1,11 +1,15 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { ProjectBulkActionToolbar } from "@/components/ProjectBulkActionToolbar";
+import type { ProjectBulkAction } from "@/components/ProjectBulkActionToolbar";
 import { ProjectList } from "@/components/ProjectList";
 import {
   FormField,
   Modal,
 } from "@/components/ui";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useProjectBulkFreeze } from "@/hooks/useProjectBulkFreeze";
 import { useToast } from "@/components/ui/Toast";
 import {
   ApiClientError,
@@ -22,8 +26,9 @@ import type {
   UserPublic,
 } from "@trackdev/types";
 import { FolderKanban, Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const PAGE_SIZE = 15;
 
@@ -32,10 +37,14 @@ export default function CourseProjectsPage() {
   const courseId = Number(params.id);
   const { user } = useAuth();
   const toast = useToast();
+  const t = useTranslations("projects");
   const [currentPage, setCurrentPage] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [projectToDelete, setProjectToDelete] =
     useState<ProjectWithMembers | null>(null);
+  const [pendingAction, setPendingAction] = useState<ProjectBulkAction | null>(
+    null,
+  );
 
   // Fetch course details for header and create modal (students list)
   const {
@@ -85,6 +94,23 @@ export default function CourseProjectsPage() {
   const isAdmin = userRoles.includes("ADMIN");
   const isProfessor = userRoles.includes("PROFESSOR");
   const canManage = isAdmin || (isProfessor && course?.ownerId === user?.id);
+  const projects = projectsResponse?.projects || [];
+
+  const bulk = useProjectBulkFreeze({
+    projects,
+    onSuccess: refetchProjects,
+    t,
+  });
+
+  const handleBulkAction = useCallback((action: ProjectBulkAction) => {
+    setPendingAction(action);
+  }, []);
+
+  const handleConfirmBulkAction = useCallback(() => {
+    if (!pendingAction) return;
+    bulk.executeBulkAction(pendingAction);
+    setPendingAction(null);
+  }, [bulk, pendingAction]);
 
   if (isCourseLoading) {
     return (
@@ -141,9 +167,21 @@ export default function CourseProjectsPage() {
         </div>
       </div>
 
+      {bulk.showBulkUi && (
+        <ProjectBulkActionToolbar
+          selectedCount={bulk.selectedCount}
+          totalSelectable={bulk.selectableProjects.length}
+          selectionState={bulk.selectionState}
+          onToggleSelectAll={bulk.toggleSelectAll}
+          onClearSelection={bulk.clearSelection}
+          onAction={handleBulkAction}
+          isExecuting={bulk.isExecuting}
+        />
+      )}
+
       {/* Projects List */}
       <ProjectList
-        projects={projectsResponse?.projects || []}
+        projects={projects}
         totalElements={projectsResponse?.totalElements ?? 0}
         totalPages={projectsResponse?.totalPages ?? 0}
         currentPage={currentPage}
@@ -154,6 +192,9 @@ export default function CourseProjectsPage() {
         emptyTitle="No projects yet"
         emptyDescription="Projects will appear here once students create them or you add them."
         showCourseInfo={false}
+        selectable={bulk.showBulkUi}
+        selectedIds={bulk.selectedIds}
+        onToggleProject={bulk.toggleProject}
         renderItemActions={
           canManage
             ? (project) => (
@@ -167,6 +208,27 @@ export default function CourseProjectsPage() {
               )
             : undefined
         }
+      />
+
+      <ConfirmDialog
+        isOpen={pendingAction !== null}
+        onClose={() => setPendingAction(null)}
+        onConfirm={handleConfirmBulkAction}
+        title={
+          pendingAction === "FREEZE"
+            ? t("confirmBulkFreezeTitle")
+            : t("confirmBulkUnfreezeTitle")
+        }
+        message={
+          pendingAction === "FREEZE"
+            ? t("confirmBulkFreezeMessage", { count: bulk.selectedCount })
+            : t("confirmBulkUnfreezeMessage", { count: bulk.selectedCount })
+        }
+        confirmLabel={
+          pendingAction === "FREEZE" ? t("bulkFreeze") : t("bulkUnfreeze")
+        }
+        isLoading={bulk.isExecuting}
+        variant="warning"
       />
 
       {/* Delete Project Confirmation Modal */}
