@@ -1,5 +1,6 @@
 "use client";
 
+import { ProjectFrozenBanner } from "@/components/ProjectFrozenBanner";
 import { CreateTaskModal } from "@/components/tasks";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -393,6 +394,10 @@ export default function SprintBoardPage() {
         isProfessor={isProfessor}
         onFreeze={handleFreeze}
       />
+
+      <div className="px-6 pt-4">
+        <ProjectFrozenBanner frozen={projectDetails?.frozen} />
+      </div>
 
       {/* Main content — wrapped in DragDropProvider */}
       <DragDropProvider {...providerProps}>
