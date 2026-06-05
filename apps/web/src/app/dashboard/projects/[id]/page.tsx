@@ -1,6 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { ProjectFrozenBanner } from "@/components/ProjectFrozenBanner";
 import {
   CardSection,
   DropdownMenu,
@@ -326,6 +327,8 @@ export default function ProjectDetailPage() {
         label={tCommon("back")}
         className="mb-6"
       />
+
+      <ProjectFrozenBanner frozen={project.frozen} />
 
       {/* Project Header */}
       <div className="mb-8 flex items-start justify-between">

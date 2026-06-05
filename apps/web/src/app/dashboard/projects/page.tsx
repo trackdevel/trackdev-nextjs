@@ -1,7 +1,11 @@
 "use client";
 
+import { ProjectBulkActionToolbar } from "@/components/ProjectBulkActionToolbar";
+import type { ProjectBulkAction } from "@/components/ProjectBulkActionToolbar";
 import { ProjectList } from "@/components/ProjectList";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PageContainer, PageHeader, Select } from "@/components/ui";
+import { useProjectBulkFreeze } from "@/hooks/useProjectBulkFreeze";
 import {
   coursesApi,
   projectsApi,
@@ -9,7 +13,7 @@ import {
   useQuery,
 } from "@trackdev/api-client";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const PAGE_SIZE = 15;
 
@@ -18,6 +22,9 @@ export default function ProjectsPage() {
   const t = useTranslations("projects");
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [pendingAction, setPendingAction] = useState<ProjectBulkAction | null>(
+    null,
+  );
 
   const userRoles = user?.roles || [];
   const isAdmin = userRoles.includes("ADMIN");
@@ -29,7 +36,6 @@ export default function ProjectsPage() {
     { enabled: isAuthenticated && isProfessor },
   );
 
-  // Reset pagination when filter changes
   useEffect(() => {
     setCurrentPage(0);
   }, [selectedCourseId]);
@@ -38,6 +44,7 @@ export default function ProjectsPage() {
     data: projectsResponse,
     isLoading,
     error,
+    refetch: refetchProjects,
   } = useQuery(
     () =>
       projectsApi.getPaginated({
@@ -51,6 +58,14 @@ export default function ProjectsPage() {
     { enabled: isAuthenticated },
   );
 
+  const projects = projectsResponse?.projects || [];
+
+  const bulk = useProjectBulkFreeze({
+    projects,
+    onSuccess: refetchProjects,
+    t,
+  });
+
   const courseOptions = [
     { value: "", label: t("allCourses") },
     ...(coursesResponse?.courses?.map((c) => ({
@@ -58,6 +73,16 @@ export default function ProjectsPage() {
       label: `${c.subject?.name || t("noCourse")} - ${c.startYear}`,
     })) || []),
   ];
+
+  const handleBulkAction = useCallback((action: ProjectBulkAction) => {
+    setPendingAction(action);
+  }, []);
+
+  const handleConfirmBulkAction = useCallback(() => {
+    if (!pendingAction) return;
+    bulk.executeBulkAction(pendingAction);
+    setPendingAction(null);
+  }, [bulk, pendingAction]);
 
   return (
     <PageContainer>
@@ -70,7 +95,6 @@ export default function ProjectsPage() {
         }
       />
 
-      {/* Course Filter - Professor only */}
       {isProfessor && (
         <div className="flex items-end gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
           <div className="flex flex-col gap-1">
@@ -88,8 +112,20 @@ export default function ProjectsPage() {
         </div>
       )}
 
+      {bulk.showBulkUi && (
+        <ProjectBulkActionToolbar
+          selectedCount={bulk.selectedCount}
+          totalSelectable={bulk.selectableProjects.length}
+          selectionState={bulk.selectionState}
+          onToggleSelectAll={bulk.toggleSelectAll}
+          onClearSelection={bulk.clearSelection}
+          onAction={handleBulkAction}
+          isExecuting={bulk.isExecuting}
+        />
+      )}
+
       <ProjectList
-        projects={projectsResponse?.projects || []}
+        projects={projects}
         totalElements={projectsResponse?.totalElements ?? 0}
         totalPages={projectsResponse?.totalPages ?? 0}
         currentPage={currentPage}
@@ -103,6 +139,30 @@ export default function ProjectsPage() {
             ? t("noProjectsAdminProfessor")
             : t("noProjectsStudent")
         }
+        selectable={bulk.showBulkUi}
+        selectedIds={bulk.selectedIds}
+        onToggleProject={bulk.toggleProject}
+      />
+
+      <ConfirmDialog
+        isOpen={pendingAction !== null}
+        onClose={() => setPendingAction(null)}
+        onConfirm={handleConfirmBulkAction}
+        title={
+          pendingAction === "FREEZE"
+            ? t("confirmBulkFreezeTitle")
+            : t("confirmBulkUnfreezeTitle")
+        }
+        message={
+          pendingAction === "FREEZE"
+            ? t("confirmBulkFreezeMessage", { count: bulk.selectedCount })
+            : t("confirmBulkUnfreezeMessage", { count: bulk.selectedCount })
+        }
+        confirmLabel={
+          pendingAction === "FREEZE" ? t("bulkFreeze") : t("bulkUnfreeze")
+        }
+        isLoading={bulk.isExecuting}
+        variant="warning"
       />
     </PageContainer>
   );

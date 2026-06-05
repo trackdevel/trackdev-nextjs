@@ -125,6 +125,25 @@ export const projectsApi = {
   delete: (id: number) => api.delete<void>(`/projects/${id}`),
 
   /**
+   * Freeze a project (course manager only)
+   */
+  freeze: (id: number) => api.post<Project>(`/projects/${id}/freeze`, {}),
+
+  /**
+   * Unfreeze a project (course manager only)
+   */
+  unfreeze: (id: number) => api.post<Project>(`/projects/${id}/unfreeze`, {}),
+
+  /**
+   * Bulk freeze or unfreeze projects (course manager only)
+   */
+  bulkSetFrozen: (projectIds: number[], frozen: boolean) =>
+    api.post<ProjectsResponse>("/projects/bulk-freeze", {
+      projectIds,
+      frozen,
+    }),
+
+  /**
    * Get all tasks in a project
    */
   getTasks: (projectId: number) =>
