@@ -330,7 +330,6 @@ const StoryHeader = memo(function StoryHeader({
           taskId={story.id}
           isProfessor={isProfessor}
           isAssignee={isAssignee}
-          isFrozen={story.frozen ?? false}
         />
       </div>
     </Modal>

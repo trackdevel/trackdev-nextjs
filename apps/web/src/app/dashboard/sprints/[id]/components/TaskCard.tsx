@@ -290,7 +290,6 @@ export const TaskCard = memo(function TaskCard({
             taskId={task.id}
             isProfessor={isProfessor}
             isAssignee={isAssignee}
-            isFrozen={task.frozen ?? false}
           />
         </div>
       </Modal>
