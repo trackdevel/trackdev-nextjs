@@ -658,7 +658,7 @@
     "filterCourse": "Course",
     "allCourses": "All Courses",
     "frozenBadge": "Frozen",
-    "projectFrozenBanner": "This project is frozen. Students cannot edit tasks, but can still participate in points reviews.",
+    "projectFrozenBanner": "This project is frozen. Students cannot edit tasks, but can still edit task attributes and participate in points reviews.",
     "bulkActions": "Actions",
     "bulkFreeze": "Freeze",
     "bulkUnfreeze": "Unfreeze",

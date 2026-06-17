@@ -260,6 +260,7 @@ export interface TaskDetail extends Task {
   project?: {
     id: number;
     name: string;
+    frozen?: boolean;
     members?: UserPublic[];
     course?: {
       id: number;
