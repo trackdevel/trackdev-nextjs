@@ -8,20 +8,20 @@ interface TaskAttributesProps {
   taskId: number;
   isProfessor: boolean;
   isAssignee: boolean;
-  isFrozen: boolean;
 }
 
 export const TaskAttributes = memo(function TaskAttributes({
   taskId,
   isProfessor,
   isAssignee,
-  isFrozen,
 }: TaskAttributesProps) {
+  // Attribute editing is intentionally allowed even when the task/project is
+  // frozen — freezing blocks task changes but not student-applied attributes.
   const canEditScalar = (
     appliedBy: "STUDENT" | "PROFESSOR" | undefined,
   ): boolean => {
     if (isProfessor) return true;
-    if (appliedBy === "STUDENT" && isAssignee && !isFrozen) return true;
+    if (appliedBy === "STUDENT" && isAssignee) return true;
     return false;
   };
 
