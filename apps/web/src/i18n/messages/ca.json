@@ -653,7 +653,7 @@
     "filterCourse": "Curs",
     "allCourses": "Tots els cursos",
     "frozenBadge": "Congelat",
-    "projectFrozenBanner": "Aquest projecte està congelat. Els estudiants no poden editar tasques, però poden participar en revisions de punts.",
+    "projectFrozenBanner": "Aquest projecte està congelat. Els estudiants no poden editar tasques, però poden editar els atributs de les tasques i participar en revisions de punts.",
     "bulkActions": "Accions",
     "bulkFreeze": "Congelar",
     "bulkUnfreeze": "Descongelar",

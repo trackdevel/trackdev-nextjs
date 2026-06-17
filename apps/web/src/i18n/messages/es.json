@@ -653,7 +653,7 @@
     "filterCourse": "Curso",
     "allCourses": "Todos los cursos",
     "frozenBadge": "Congelado",
-    "projectFrozenBanner": "Este proyecto está congelado. Los estudiantes no pueden editar tareas, pero pueden participar en revisiones de puntos.",
+    "projectFrozenBanner": "Este proyecto está congelado. Los estudiantes no pueden editar tareas, pero pueden editar los atributos de las tareas y participar en revisiones de puntos.",
     "bulkActions": "Acciones",
     "bulkFreeze": "Congelar",
     "bulkUnfreeze": "Descongelar",
