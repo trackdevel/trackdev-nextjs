@@ -1,6 +1,7 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
+import { ProjectFrozenBanner } from "@/components/ProjectFrozenBanner";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import { UserLink } from "@/components/ui/UserLink";
@@ -664,6 +665,9 @@ export default function TaskDetailPage() {
         label={tCommon("back")}
         className="mb-6"
       />
+
+      {/* Frozen project warning */}
+      <ProjectFrozenBanner frozen={optimisticTask.project?.frozen} />
 
       {/* Task Header */}
       <TaskHeader
